@@ -6,8 +6,6 @@ export default class AccountsAPI {
             const response = await axios.post('http://localhost:5000/api/user/login/', {
                 username: username,
                 password: password
-            }, {
-                withCredentials: true,
             });
             return { status: response.status, statusText: response.statusText }
         } catch (error) {

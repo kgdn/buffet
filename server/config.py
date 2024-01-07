@@ -17,3 +17,4 @@ class ApplicationConfig:
     JWT_ACCESS_LIFESPAN = {'hours': 24}
     JWT_REFRESH_LIFESPAN = {'days': 30}
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+    CORS_HEADERS = 'Content-Type'

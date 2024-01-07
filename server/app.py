@@ -1,9 +1,7 @@
-import socket
 import subprocess
 import json
 from datetime import datetime, timezone, timedelta
 from flask import Flask, request, jsonify
-from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
@@ -18,7 +16,7 @@ from models import db, VirtualMachine, User
 
 app = Flask(__name__)
 app.config.from_object(ApplicationConfig)
-CORS(app)
+CORS(app, supports_credentials=True)
 jwt = JWTManager(app)
 Bcrypt = Bcrypt(app)
 db.init_app(app)
@@ -62,6 +60,7 @@ def register():
 
     username = data['username']
     password = data['password']
+    
     if User.query.filter_by(username=username).first():
         return jsonify({'message': 'Username already taken'}), 409
 
@@ -183,7 +182,7 @@ def index_vm():
         return jsonify({'message': 'Invalid user'}), 401
 
     # Index the iso/index.json file
-    with open('iso/index.json') as json_file:
+    with open('iso/index.json', 'r', encoding='utf-8') as json_file:
         data = json.load(json_file)
         return jsonify(data), 200
 
@@ -210,7 +209,7 @@ def create_vm():
 
     iso = data['iso']
 
-    # Get the next available port
+    # Get the next available port, choose a random port between 5900 and 6000
     port = 5900
     while port <= 5905:
         if not VirtualMachine.query.filter_by(port=port).first():
@@ -229,7 +228,7 @@ def create_vm():
     # Create the virtual machine
     try:
         process = subprocess.Popen([
-            'qemu-system-x86_64', '-m', '4G', '-cpu', 'max', '-smp', '4', '-cdrom', 'iso/' + iso, '-enable-kvm', '-monitor', 'stdio', '-vga', 'virtio', '-vnc', ':0,websocket=' + str(wsport) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            'qemu-system-x86_64', '-m', '2G', '-smp', '4', '-cdrom', 'iso/' + iso, '-enable-kvm', '-vga', 'virtio', '-vnc', ':0,websocket=' + str(wsport) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process_id = process.pid
     except:
         return jsonify({'message': 'Error creating virtual machine'}), 500
@@ -278,8 +277,7 @@ def delete_vm():
 
     # Delete the virtual machine
     try:
-        process = subprocess.Popen(['kill', str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        process_id = process.pid
+        subprocess.Popen(['kill', str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except:
         return jsonify({'message': 'Error deleting virtual machine'}), 500
 

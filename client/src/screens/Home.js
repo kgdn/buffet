@@ -10,6 +10,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Home() {
     const [loggedIn, setLoggedIn] = React.useState(false);
+    const [hasVM, setHasVM] = React.useState(false);
+    const [userVm, setUserVm] = React.useState([]);
     const [images, setImages] = React.useState([]);
     const [searchQuery, setSearchQuery] = React.useState('');
 
@@ -25,6 +27,14 @@ function Home() {
                     }
                 }
                 );
+                VirtualMachineAPI.getVirtualMachineByUser(response.data.id).then((response) => {
+                    // Get the link to the VM if it exists
+                    if (response.status === 200) {
+                        setHasVM(true);
+                        setUserVm(response.data);
+                    }
+                }
+                );
             }
         });
     }, []);
@@ -36,10 +46,20 @@ function Home() {
         const createVM = async () => {
             const response = await VirtualMachineAPI.createVirtualMachine(iso);
             if (response.status === 201) {
-                window.location.href = '/vm/' + response.data.user_id;
+                window.location.href = '/vm/'
             }
         }
         createVM();
+    }
+
+    const DeleteVMButton = () => {
+        const deleteVM = async () => {
+            const response = await VirtualMachineAPI.deleteVirtualMachine(userVm.id);
+            if (response.status === 200) {
+                window.location.href = '/';
+            }
+        }
+        deleteVM();
     }
 
     const filteredImages = images.filter((image) =>
@@ -66,7 +86,7 @@ function Home() {
             {/* Hide the rest of the page if the user is not logged in */}
             {loggedIn ?
                 <div>
-                    {/* If the user already has a VM, display a message and a button to redirect to the Virtual Machine screen */}
+                    {/* Display the list of operating systems */}
                     <div className="container">
                         <div className="row">
                             <div className="col" id="about">
@@ -76,6 +96,32 @@ function Home() {
                         </div>
                     </div>
                     {/* Search bar form, add padding to bottom to prevent overlap with cards */}
+                    {hasVM ?
+                        <div className="container">
+                            <div className="row">
+                                <div className="col">
+                                    <div className='card mb-3'>
+                                        <div className='card-header bg-info text-white'>
+                                            <h4 className='card-title'>Virtual Machine Management</h4>
+                                        </div>
+                                        <div className='card-body'>
+                                            {/* Display name of the VM and a description */}
+                                            <h5 className='card-title'>Your Virtual Machine</h5>
+                                            <p className='card-text'>You already have a virtual machine of type '{userVm.iso}'. You can view it or delete it below.</p>
+                                            {/* Create two buttons side by side, one to view the VM and one to delete the VM */}
+                                            <div className="btn-group" role="group">
+                                                <button className="btn btn-primary" onClick={() => window.location.href = '/vm/'}>View VM</button>
+                                                <button className="btn btn-danger" onClick={DeleteVMButton}>Delete VM</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        :
+                        // Display nothing if the user does not have a VM
+                        <div></div>
+                    }
                     <div className="container">
                         <div className="row">
                             <div className="col">
@@ -88,18 +134,23 @@ function Home() {
                     <div className="container">
                         <div className="row">
                             {filteredImages.map((image) => (
-                                <div className="col-sm-4" style={{ paddingBottom: 20 }}>
+                                <div key={image.name} className="col-12 col-md-6 col-lg-4" style={{ paddingBottom: '1rem' }}>
                                     <div className="card">
-                                        <div className="card-body" key={image.id}>
+                                        <div className="card-body">
                                             <h5 className="card-title">{image.name} {image.version}</h5>
-                                            <p className="card-text">{image.iso}</p>
+                                            <p className="card-text">{image.desktop}</p>
                                             <p className="card-text">{image.description}</p>
-                                            {/* Use CreateVMButton component to create a new VM, use the image id as the iso */}
-                                            <button className="btn btn-primary" onClick={() => CreateVMButton(image.iso)}>Create VM</button>
+                                            {/* If the user already has a VM, grey out the button and display a message */}
+                                            {hasVM ?
+                                                <button className="btn btn-secondary" disabled>VM already exists</button>
+                                                :
+                                                <button className="btn btn-primary" onClick={() => CreateVMButton(image.iso)}>Create VM</button>
+                                            }
                                         </div>
                                     </div>
                                 </div>
-                            ))}
+                                // sort alphabetically
+                            )).sort((a, b) => a.key.localeCompare(b.key))}
                         </div>
                     </div>
                 </div>
