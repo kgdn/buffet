@@ -13,18 +13,17 @@ function Home() {
     const [images, setImages] = React.useState([]);
     const [searchQuery, setSearchQuery] = React.useState('');
 
-    // Check if the user is logged in on page load, only run once
+    // Check if the user is logged in on page load, only run once, do not use async/await
     // If the user is logged in, get the list of images from the API
     React.useEffect(() => {
-        const checkLogin = async () => {
-            const response = await AccountsAPI.checkLogin();
+        AccountsAPI.checkLogin().then((response) => {
             if (response.status === 200) {
                 setLoggedIn(true);
-                const response = await VirtualMachineAPI.getAllImages();
-                setImages(response.data);
+                VirtualMachineAPI.getAllImages().then((response) => {
+                    setImages(response.data);
+                });
             }
-        }
-        checkLogin();
+        });
     }, []);
 
     const CreateVMButton = (iso) => {
@@ -34,12 +33,11 @@ function Home() {
         const createVM = async () => {
             const response = await VirtualMachineAPI.createVirtualMachine(iso);
             if (response.status === 201) {
-                window.location.href = `/vm/${response.data.user_id}/${response.data.vm_id}`;
+                window.location.href = '/vm/' + response.data.user_id;
             }
         }
         createVM();
     }
-
 
     const filteredImages = images.filter((image) =>
         image.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

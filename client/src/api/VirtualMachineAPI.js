@@ -27,7 +27,7 @@ export default class VirtualMachineAPI {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            return { status: response.status, statusText: response.statusText };
+            return response;
         }
         catch (error) {
             console.error(error);
@@ -36,14 +36,12 @@ export default class VirtualMachineAPI {
     }
 
     // Use id as a parameter to delete a specific virtual machine
+    // Scheme: http://127.0.0.1:5000/api/vm/delete/<vm_id>/
     static async deleteVirtualMachine(vm_id) {
         try {
-            const response = await axios.delete('http://127.0.0.1:5000/api/vm/delete/', {
+            const response = await axios.delete('http://127.0.0.1:5000/api/vm/delete/' + vm_id + '/', {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
-                },
-                data: {
-                    vm_id: vm_id
                 }
             });
             return { status: response.status, statusText: response.statusText };
@@ -51,6 +49,24 @@ export default class VirtualMachineAPI {
         catch (error) {
             console.error(error);
             return { statusText: 'Error deleting virtual machine' };
+        }
+    }
+
+    static async getVirtualMachineByUser(user_id) {
+        try {
+            const response = await axios.get('http://127.0.0.1:5000/api/vm/user/', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                },
+                params: {
+                    user_id: user_id
+                }
+            });
+            return response;
+        }
+        catch (error) {
+            console.error(error);
+            return { statusText: 'Error getting virtual machine' };
         }
     }
 }

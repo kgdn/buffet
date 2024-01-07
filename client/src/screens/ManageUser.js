@@ -52,12 +52,14 @@ function ManageUser() {
     }
 
     useEffect(() => {
-        AccountsAPI.getUserName().then((response) => {
-            if (response) {
-                setGetUserName(response);
-            }
-        });
-    }, []);
+        // if a name already exists, don't run this
+        if (!getUserName)
+            AccountsAPI.getUserName().then((response) => {
+                if (response) {
+                    setGetUserName(response);
+                }
+            });
+    }, [getUserName]);
 
     // Display as follows
     // [Username] [Input field]

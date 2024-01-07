@@ -199,7 +199,8 @@ def create_vm():
 
     # Create the virtual machine
     try:
-        process = subprocess.Popen(['qemu-system-x86_64', '-m', '4G', '-cpu', 'max', '-smp', '4', '-cdrom', 'iso/' + iso, '-enable-kvm', '-monitor', 'stdio', '-vga', 'virtio', '-vnc', ':0,websocket=on,to=5'])
+        process = subprocess.Popen([
+            'qemu-system-x86_64', '-m', '4G', '-cpu', 'max', '-smp', '4', '-cdrom', 'iso/' + iso, '-enable-kvm', '-monitor', 'stdio', '-vga', 'virtio', '-vnc', ':0,websocket=' + str(wsport) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process_id = process.pid
     except:
         return jsonify({'message': 'Error creating virtual machine'}), 500
@@ -221,9 +222,9 @@ def create_vm():
 # DELETE /api/vm/delete/
 # params: vm_id
 # Delete a virtual machine
-@app.route('/api/vm/delete/', methods=['DELETE'])
+@app.route('/api/vm/delete/<int:vm_id>/', methods=['DELETE'])
 @jwt_required()
-def delete_vm_by_id():
+def delete_vm_by_id(vm_id):
     # Get the user from the authorization token, and ensure the user has a session
     # Get the virtual machine from the database
     # Kill the virtual machine process
@@ -233,22 +234,20 @@ def delete_vm_by_id():
     if not user:
         return jsonify({'message': 'Invalid user'}), 401
 
-    data = request.get_json()
-    if not data or 'vm_id' not in data:
-        return jsonify({'message': 'Invalid data format'}), 400
-
-    vm = VirtualMachine.query.filter_by(id=data['vm_id']).first()
+    vm = VirtualMachine.query.filter_by(id=vm_id).first()
     if not vm:
         return jsonify({'message': 'Invalid virtual machine'}), 404
 
+    # Kill the virtual machine process
     try:
         process = subprocess.Popen(['kill', str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        # Delete the virtual machine from the database
-        db.session.delete(vm)
-        db.session.commit()
+        process_id = process.pid
     except:
-        return jsonify({'message': 'Error deleting virtual machine'}), 500
+        return jsonify({'message': 'Error killing virtual machine'}), 500
+
+    # Delete the virtual machine from the database
+    db.session.delete(vm)
+    db.session.commit()
 
     return jsonify({'message': 'Virtual machine deleted'}), 200
 

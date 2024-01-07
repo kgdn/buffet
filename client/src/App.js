@@ -21,16 +21,10 @@ function App() {
         <Route path="/login" element={<LoginRegis />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/manageuser" element={<ManageUser />} />
-        <Route path="/vm/:user_id/:vm_id" element={<VirtualMachineView />} />
+        <Route path="/vm/:user_id" element={<VirtualMachineView />} />
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
