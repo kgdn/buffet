@@ -5,7 +5,7 @@ import VirtualMachineAPI from '../api/VirtualMachineAPI';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Render a list of VMs from the database (test with vms.json)
-// Each VM should have a button that redirects to the VMView screen
+// Each VM should have a button that redirects to the VirtualMachineView screen
 // Add a boostrap Card component to display each operating system
 
 function Home() {
@@ -16,20 +16,23 @@ function Home() {
     // Check if the user is logged in on page load, only run once, do not use async/await
     // If the user is logged in, get the list of images from the API
     React.useEffect(() => {
-        AccountsAPI.checkLogin().then((response) => {
+        AccountsAPI.getUserDetails().then((response) => {
             if (response.status === 200) {
                 setLoggedIn(true);
                 VirtualMachineAPI.getAllImages().then((response) => {
-                    setImages(response.data);
-                });
+                    if (response.status === 200) {
+                        setImages(response.data);
+                    }
+                }
+                );
             }
         });
     }, []);
 
+
+    // Create a new VM using the VirtualMachineAPI
+    // If the response is successful, redirect to the VirtualMachineView screen
     const CreateVMButton = (iso) => {
-        // Create a new virtual machine
-        // If the response is successful, redirect to the VMView screen
-        // If the response is unsuccessful, display the error message
         const createVM = async () => {
             const response = await VirtualMachineAPI.createVirtualMachine(iso);
             if (response.status === 201) {
@@ -63,6 +66,7 @@ function Home() {
             {/* Hide the rest of the page if the user is not logged in */}
             {loggedIn ?
                 <div>
+                    {/* If the user already has a VM, display a message and a button to redirect to the Virtual Machine screen */}
                     <div className="container">
                         <div className="row">
                             <div className="col" id="about">

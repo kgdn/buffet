@@ -1,17 +1,16 @@
 import axios from 'axios';
 
+axios.defaults.withCredentials = true;
+
 export default class VirtualMachineAPI {
     // Get all virtual machines from the database
     static async getAllImages() {
         try {
-            const response = await axios.get('http://127.0.0.1:5000/api/vm/iso/', {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
+            const response = await axios.get('http://localhost:5000/api/vm/iso/', {
+                withCredentials: true,
             });
-            return { status: response.status, statusText: response.statusText, data: response.data };
-        }
-        catch (error) {
+            return response;
+        } catch (error) {
             console.error(error);
             return { statusText: 'Error getting virtual machines' };
         }
@@ -20,12 +19,8 @@ export default class VirtualMachineAPI {
     // Use iso as a parameter to get a specific virtual machine
     static async createVirtualMachine(iso) {
         try {
-            const response = await axios.post('http://127.0.0.1:5000/api/vm/create/', {
+            const response = await axios.post('http://localhost:5000/api/vm/create/', {
                 iso: iso
-            }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
             });
             return response;
         }
@@ -35,21 +30,10 @@ export default class VirtualMachineAPI {
         }
     }
 
-    // Use id as a parameter to delete a specific virtual machine
-    // Scheme: http://127.0.0.1:5000/api/vm/delete/
-    // Example curl request
-    // curl -X DELETE \                                                                                                              13:53:37
-    // -H "Authorization: Bearer $token" \
-    // -H "Content-Type: application/json" \
-    // -d '{"vm_id": "2"}' \
-    // http://127.0.0.1:5000/api/vm/delete/
-
+    // Use vm_id as a parameter to delete a specific virtual machine
     static async deleteVirtualMachine(vm_id) {
         try {
-            const response = await axios.delete('http://127.0.0.1:5000/api/vm/delete/', {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                },
+            const response = await axios.delete('http://localhost:5000/api/vm/delete/', {
                 data: {
                     vm_id: vm_id
                 }
@@ -62,12 +46,10 @@ export default class VirtualMachineAPI {
         }
     }
 
+    // Use user_id as a parameter to get a specific virtual machine
     static async getVirtualMachineByUser(user_id) {
         try {
-            const response = await axios.get('http://127.0.0.1:5000/api/vm/user/', {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                },
+            const response = await axios.get('http://localhost:5000/api/vm/user/', {
                 params: {
                     user_id: user_id
                 }

@@ -1,11 +1,15 @@
 import socket
 import subprocess
 import json
+from datetime import datetime, timezone, timedelta
 from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, send, emit
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
+from flask_jwt_extended import set_access_cookies
+from flask_jwt_extended import unset_jwt_cookies
+from flask_jwt_extended import get_jwt
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
@@ -21,6 +25,19 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+
+@app.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            set_access_cookies(response, access_token)
+        return response
+    except (RuntimeError, KeyError):
+        return response
 
 @app.route('/api/user/', methods=['GET'])
 @jwt_required()
@@ -75,11 +92,19 @@ def login():
     if not user or not Bcrypt.check_password_hash(user.password, password):
         return jsonify({'message': 'Invalid username or password'}), 401
 
-    # Send the authorization token
-    return jsonify({
-        'token': create_access_token(identity=user.id),
-    }), 200
+    # Set access and refresh JWT cookies
+    access_token = create_access_token(identity=user.id)
+    resp = jsonify({'login': True})
+    set_access_cookies(resp, access_token)
+    return resp, 200
 
+@app.route('/api/user/logout/', methods=['POST'])
+def logout():
+    # Unset JWT cookies
+    resp = jsonify({'message': 'Logout successful'})
+    unset_jwt_cookies(resp)
+    return resp, 200
+    
 @app.route('/api/user/delete/', methods=['DELETE'])
 @jwt_required()
 def delete_user():
@@ -153,9 +178,13 @@ def change_username():
 @app.route('/api/vm/iso/', methods=['GET'])
 @jwt_required()
 def index_vm():
-    # Index the available ISOs using the iso/index.json file
-    with open('iso/index.json') as f:
-        data = json.load(f)
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+
+    # Index the iso/index.json file
+    with open('iso/index.json') as json_file:
+        data = json.load(json_file)
         return jsonify(data), 200
 
 # POST /api/vm/create/

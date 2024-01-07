@@ -5,25 +5,17 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container } from 'react-bootstrap';
 import AccountsAPI from '../api/AccountsAPI';
 
-function checkLogin() {
-    // If token exists, return true
-    if (localStorage.getItem('token')) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 function NavbarComponent() {
 
     const [username, setUsername] = React.useState('');
 
     useEffect(() => {
-        AccountsAPI.getUserName().then((response) => {
-            if (response) {
-                setUsername(response);
+        AccountsAPI.getUserDetails().then((response) => {
+            if (response.status === 200) {
+                setUsername(response.data.username);
             }
-        });
+        }
+        );
     }, []);
 
     return (
@@ -35,8 +27,7 @@ function NavbarComponent() {
                 </Nav>
                 <Navbar.Collapse className="justify-content-end">
                     <Navbar.Text>
-                        {/* If logged in, display manage user button and logout button */}
-                        {checkLogin() ?
+                        {username ?
                             <>
                                 <Navbar.Text>Welcome, <a href="/manageuser">{username}</a></Navbar.Text>
                             </>

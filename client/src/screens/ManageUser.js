@@ -54,9 +54,9 @@ function ManageUser() {
     useEffect(() => {
         // if a name already exists, don't run this
         if (!getUserName)
-            AccountsAPI.getUserName().then((response) => {
-                if (response) {
-                    setGetUserName(response);
+            AccountsAPI.getUserDetails().then((response) => {
+                if (response.status === 200) {
+                    setGetUserName(response.data.username);
                 }
             });
     }, [getUserName]);
@@ -103,9 +103,15 @@ function ManageUser() {
                         </Form>
                         <br />
                         <Button variant="primary" onClick={() => {
-                            AccountsAPI.logout();
-                            // go to /logout
-                            window.location.href = '/';
+                            AccountsAPI.logout().then((response) => {
+                                if (response.status === 200) {
+                                    setStatusText(response.statusText);
+                                    // Redirect to the home page
+                                    window.location.href = '/';
+                                } else {
+                                    setStatusText(response.statusText);
+                                }
+                            });
                         }}>Log Out</Button>
                         <br />
                         <p>{statusText}</p>

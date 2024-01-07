@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from datetime import timedelta
 import os 
 
 load_dotenv()
@@ -10,7 +11,9 @@ class ApplicationConfig:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///db.sqlite3'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = True
+    JWT_COOKIE_CSRF_PROTECT = False
     JWT_COOKIE_SECURE = False # Set to True in production
-    JWT_TOKEN_LOCATION = 'headers'
+    JWT_TOKEN_LOCATION = 'cookies'
     JWT_ACCESS_LIFESPAN = {'hours': 24}
     JWT_REFRESH_LIFESPAN = {'days': 30}
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
