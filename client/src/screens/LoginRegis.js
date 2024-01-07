@@ -134,11 +134,11 @@ function LoginRegis() {
                                 </Col>
                             </Form.Group>
                         </Form>
+                        <br />
+                        <p>{statusText}</p>
                     </div>
                 </div>
             </div>
-            <br />
-            <p>{statusText}</p>
         </div >
     );
 }

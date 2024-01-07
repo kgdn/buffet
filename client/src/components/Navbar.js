@@ -38,7 +38,7 @@ function NavbarComponent() {
                         {/* If logged in, display manage user button and logout button */}
                         {checkLogin() ?
                             <>
-                                <Navbar.Text>Signed in as: <a href="/manageuser">{username}</a></Navbar.Text>
+                                <Navbar.Text>Welcome, <a href="/manageuser">{username}</a></Navbar.Text>
                             </>
                             :
                             <Nav.Link href="/login">Log in</Nav.Link>

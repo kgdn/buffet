@@ -1,3 +1,5 @@
+.vscode/
+
 server/iso/
 server/venv/
 server/__pycache__/

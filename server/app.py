@@ -222,28 +222,37 @@ def create_vm():
 # DELETE /api/vm/delete/
 # params: vm_id
 # Delete a virtual machine
-@app.route('/api/vm/delete/<int:vm_id>/', methods=['DELETE'])
+# The user should only be able to delete their own virtual machine, not someone else's
+@app.route('/api/vm/delete/', methods=['DELETE'])
 @jwt_required()
-def delete_vm_by_id(vm_id):
+def delete_vm():
     # Get the user from the authorization token, and ensure the user has a session
     # Get the virtual machine from the database
-    # Kill the virtual machine process
+    # Delete the virtual machine
     # Delete the virtual machine from the database
 
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({'message': 'Invalid user'}), 401
 
-    vm = VirtualMachine.query.filter_by(id=vm_id).first()
+    data = request.get_json()
+    if not data or 'vm_id' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    vm = VirtualMachine.query.filter_by(id=data['vm_id']).first()
     if not vm:
         return jsonify({'message': 'Invalid virtual machine'}), 404
 
-    # Kill the virtual machine process
+    # Ensure the user is deleting their own virtual machine
+    if vm.user_id != user.id:
+        return jsonify({'message': 'You can only delete your own virtual machine'}), 403
+
+    # Delete the virtual machine
     try:
         process = subprocess.Popen(['kill', str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process_id = process.pid
     except:
-        return jsonify({'message': 'Error killing virtual machine'}), 500
+        return jsonify({'message': 'Error deleting virtual machine'}), 500
 
     # Delete the virtual machine from the database
     db.session.delete(vm)
