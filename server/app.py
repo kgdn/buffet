@@ -11,6 +11,7 @@ from flask_jwt_extended import get_jwt
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 from config import ApplicationConfig
 from models import db, VirtualMachine, User
 
@@ -20,6 +21,7 @@ CORS(app, supports_credentials=True)
 jwt = JWTManager(app)
 Bcrypt = Bcrypt(app)
 db.init_app(app)
+migrate = Migrate(app, db)
 
 with app.app_context():
     db.create_all()
@@ -129,6 +131,17 @@ def login():
     if not user or not Bcrypt.check_password_hash(user.password, password):
         return jsonify({'message': 'Invalid username or password'}), 401
 
+    # Get user's login time and set in DateTime format for database
+    login_time = datetime.now(timezone.utc)
+    user.login_time = login_time
+
+    # Get the user's IP address
+    ip_address = request.remote_addr
+    user.ip = ip_address
+
+    # Save the user to the database
+    db.session.commit()
+
     # Set access and refresh JWT cookies
     access_token = create_access_token(identity=user.id)
     resp = jsonify({'login': True})
@@ -136,6 +149,7 @@ def login():
     return resp, 200
 
 @app.route('/api/user/logout/', methods=['POST'])
+@jwt_required()
 def logout():
     """Logout a user
 
@@ -143,8 +157,19 @@ def logout():
         json: Message
     """
 
-    # Set JWT cookies to expire
-    resp = jsonify({'message': 'Logout successful'})
+    # Delete VM if the user has one, if not just logout
+    vm = VirtualMachine.query.filter_by(user_id=get_jwt_identity()).first()
+    if vm:
+        try:
+            subprocess.Popen(['kill', str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except:
+            return jsonify({'message': 'Error deleting virtual machine'}), 500
+
+        db.session.delete(vm)
+        db.session.commit()
+
+    # Unset the JWT cookies
+    resp = jsonify({'logout': True})
     unset_jwt_cookies(resp)
     return resp, 200
     
@@ -354,7 +379,8 @@ def create_vm():
     # Create the virtual machine
     try:
         process = subprocess.Popen([
-            'qemu-system-x86_64', '-m', '2G', '-smp', '4', '-cdrom', 'iso/' + iso, '-enable-kvm', '-vga', 'virtio', '-vnc', ':0,websocket=' + str(wsport) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # qemu-system-x86_64 -m 2G -smp 8,sockets=2,cores=2,threads=2,maxcpus=8 -cdrom iso/archlinux.iso accel=kvm -enable-kvm -vga virtio -vnc :0,websocket=5900,to=5
+            'qemu-system-x86_64', '-m', '2048M', '-smp', '2', '-enable-kvm', '-device', 'virtio-balloon', '-cdrom', 'iso/' + iso, '-vga', 'virtio', '-net', 'nic', '-net', 'user', '-vnc', ':0,websocket=' + str(wsport) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process_id = process.pid
     except:
         return jsonify({'message': 'Error creating virtual machine'}), 500
@@ -473,6 +499,20 @@ def get_vm_by_id():
         'user_id': vm.user_id
     }), 200
 
+@app.route('/api/vm/count/', methods=['GET'])
+@jwt_required()
+def get_vm_count():
+    """Get the number of virtual machines
+
+    Returns:
+        json: Number of virtual machines
+    """
+
+    # Get the number of virtual machines
+    vm_count = VirtualMachine.query.count()
+
+    return jsonify({'vm_count': vm_count}), 200
+
 ################################## ADMIN ENDPOINTS ##################################
 
 @app.route('/api/admin/vm/all/', methods=['GET'])
@@ -581,7 +621,9 @@ def get_all_users():
             'id': user.id,
             'username': user.username,
             'email': user.email,
-            'role': user.role
+            'role': user.role,
+            'login_time': user.login_time,
+            'ip': user.ip
         })
 
     return jsonify(users_list), 200
@@ -696,10 +738,6 @@ def change_user_password():
     if not user_to_change:
         return jsonify({'message': 'Invalid user'}), 404
 
-    # If the user is an admin, they cannot change their password
-    if user_to_change.role == 'admin':
-        return jsonify({'message': 'Admins cannot change their password, please contact the head admin'}), 403
-
     user_to_change.password = Bcrypt.generate_password_hash(data['new_password']).decode('utf-8')
 
     db.session.commit()
@@ -733,10 +771,6 @@ def change_user_username():
     user_to_change = User.query.filter_by(id=data['user_id']).first()
     if not user_to_change:
         return jsonify({'message': 'Invalid user'}), 404
-
-    # If the user is an admin, they cannot change their username
-    if user_to_change.role == 'admin':
-        return jsonify({'message': 'Admins cannot change their username, please contact the head admin'}), 403
 
     # Check if the username is already taken
     user_to_change.username = data['username']
@@ -773,15 +807,58 @@ def change_user_email():
     if not user_to_change:
         return jsonify({'message': 'Invalid user'}), 404
 
-    # If the user is an admin, they cannot change their email
-    if user_to_change.role == 'admin':
-        return jsonify({'message': 'Admins cannot change their email, please contact the head admin'}), 403
-
     user_to_change.email = data['email']
 
     db.session.commit()
 
     return jsonify({'message': 'User email changed'}), 200
+
+# Get all virtual machines for a user
+@app.route('/api/admin/user/vm/', methods=['GET'])
+@jwt_required()
+def get_user_vms():
+    """Get all virtual machines for a user
+
+    Returns:
+        json: List of virtual machines
+    """
+    
+    # Get the user from the authorization token
+    admin = User.query.filter_by(id=get_jwt_identity()).first()
+    if not admin:
+        return jsonify({'message': 'Invalid user'}), 401
+    
+    # Ensure the user is an admin
+    if admin.role != 'admin':
+        return jsonify({'message': 'Insufficient permissions'}), 403
+
+    # Get the user id from the request
+    data = request.get_json()
+    if not data or 'user_id' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    # Get the user, if it exists
+    user = User.query.filter_by(id=data['user_id']).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 404
+
+    # Get all virtual machines for the user
+    vms = VirtualMachine.query.filter_by(user_id=user.id).all()
+    if not vms:
+        return jsonify({'message': 'No virtual machines'}), 404
+
+    vms_list = []
+    for vm in vms:
+        vms_list.append({
+            'id': vm.id,
+            'port': vm.port,
+            'wsport': vm.wsport,
+            'iso': vm.iso,
+            'process_id': vm.process_id,
+            'user_id': vm.user_id
+        })
+
+    return jsonify(vms_list), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
