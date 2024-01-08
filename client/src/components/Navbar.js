@@ -8,11 +8,13 @@ import AccountsAPI from '../api/AccountsAPI';
 function NavbarComponent() {
 
     const [username, setUsername] = React.useState('');
+    const [role, setRole] = React.useState('');
 
     useEffect(() => {
         AccountsAPI.getUserDetails().then((response) => {
             if (response.status === 200) {
                 setUsername(response.data.username);
+                setRole(response.data.role);
             }
         }
         );
@@ -25,17 +27,21 @@ function NavbarComponent() {
                 <Nav className="me-auto">
                     <Nav.Link href="https://github.com/kgdn/buffet">GitHub</Nav.Link>
                 </Nav>
-                <Navbar.Collapse className="justify-content-end">
-                    <Navbar.Text>
-                        {username ?
-                            <>
-                                <Navbar.Text>Welcome, <a href="/manageuser">{username}</a></Navbar.Text>
-                            </>
+                {/* Display two links in the navbar if the user is logged in, otherwise display a link to the login page */}
+                {username ?
+                    <Nav>
+                        <Nav.Link href="/account">Signed in as {username}</Nav.Link>
+                        {role === 'admin' ?
+                            <Nav.Link href="/admin">Admin Panel</Nav.Link>
                             :
-                            <Nav.Link href="/login">Log in</Nav.Link>
+                            <></>
                         }
-                    </Navbar.Text>
-                </Navbar.Collapse>
+                    </Nav>
+                    :
+                    <Nav>
+                        <Nav.Link href="/login">Login</Nav.Link>
+                    </Nav>
+                }
             </Container>
         </Navbar >
     );

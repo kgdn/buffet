@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Buffet",
+  "name": "Buffet - Web-based Virtual Machine Manager",
   "icons": [
     {
       "src": "favicon.ico",

@@ -1,28 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useNavigate } from 'react-router-dom';
 import AccountsAPI from '../api/AccountsAPI';
+import validator from 'validator';
+import passwordValidator from 'password-validator';
 
 function LoginRegis() {
-    // Login data should include username and password
     const [loginUsername, setLoginUsername] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
-    // Register data should include username, password
     const [registerUsername, setRegisterUsername] = useState('');
+    const [registerEmail, setRegisterEmail] = useState('');
     const [registerPassword, setRegisterPassword] = useState('');
     const [statusText, setStatusText] = useState('');
 
-    const navigate = useNavigate();
+    useEffect(() => {
+        document.title = 'Buffet - Login/Register';
+    }, []);
 
     const LoginButton = () => {
-        // Use the AccountsAPI to login
-        // If the response is successful, dispatch the login action and redirect to the home page
-        // If the response is unsuccessful, display the error message
+        if (loginUsername.trim() === '' || loginPassword.trim() === '') {
+            setStatusText('Username and password cannot be empty.');
+            return;
+        }
         AccountsAPI.login(loginUsername, loginPassword).then((response) => {
             if (response.status === 200) {
-                navigate('/');
+                // navigate to home page
+                window.location.href = '/';
             } else {
                 setStatusText(response.statusText);
             }
@@ -30,16 +34,29 @@ function LoginRegis() {
     }
 
     const RegisterButton = () => {
-        // Use the AccountsAPI to register
-        // If the response is successful, dispatch the login action and redirect to the home page
-        // If the response is unsuccessful, display the error message
-        AccountsAPI.register(registerUsername, registerPassword).then((response) => {
-            if (response.status === 200) {
+        if (registerUsername.trim() === '' || registerEmail.trim() === '' || registerPassword.trim() === '') {
+            setStatusText('Username, email, and password cannot be empty.');
+            return;
+        }
+        if (!validator.isEmail(registerEmail)) {
+            setStatusText('Invalid email.');
+            return;
+        }
+
+        const schema = new passwordValidator();
+
+        // Minimum length 8, maximum length 100, must have uppercase, must have lowercase, must have 2 digits, must not have spaces
+        schema.is().min(8).is().max(100).has().uppercase().has().lowercase().has().digits(2).has().not().spaces().has().symbols()
+
+        if (!schema.validate(registerPassword)) {
+            setStatusText('Invalid password. Your password must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces.');
+            return;
+        }
+
+        AccountsAPI.register(registerUsername, registerEmail, registerPassword).then((response) => {
+            if (response.status === 201) {
+                // set status text to success
                 setStatusText(response.statusText);
-                // wait for 1 second then redirect to login page
-                setTimeout(() => {
-                    navigate('/login');
-                }, 1000);
             } else {
                 setStatusText(response.statusText);
             }
@@ -47,27 +64,6 @@ function LoginRegis() {
     }
 
     return (
-        // Return a login form and a register form as follows
-        // Login form should include a username field, a password field, and a login button
-        // Register form should include a username field, a password field, and a register button
-
-        // Login
-        // [Username] [Input field]
-        // [Password] [Input field]
-        // [Login] [Button]
-
-        // New to the site? Register here!
-        // [Username] [Input field]
-        // [Password] [Input field]
-        // [Register] [Button]
-
-        // On register, send a POST request to the server to create a new user
-        // If the response is successful, dispatch the login action and redirect to the home page
-        // On login, send a POST request to the server to login
-        // If the response is successful, dispatch the login action and redirect to the home page
-
-        // Display login above register
-
         <div>
             <Navbar />
             <div className="container">
@@ -112,6 +108,16 @@ function LoginRegis() {
                                 <Col>
                                     <Form.Control type="text" placeholder="Username" onChange={(e) => {
                                         setRegisterUsername(
+                                            e.target.value
+                                        );
+                                    }
+                                    } />
+                                </Col>
+                            </Form.Group>
+                            <Form.Group as={Row} controlId="formHorizontalEmail" className="mb-2">
+                                <Col>
+                                    <Form.Control type="email" placeholder="Email" onChange={(e) => {
+                                        setRegisterEmail(
                                             e.target.value
                                         );
                                     }

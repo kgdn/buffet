@@ -1,13 +1,13 @@
 {
-    "version": "0.2.0",
+    "version": "0.1.0",
     "configurations": [
         {
-            "name": "Launch index.html",
-            "type": "firefox",
+            "name": "Launch Chrome against localhost",
+            "type": "chrome",
             "request": "launch",
-            "reAttach": true,
-            "file": "${workspaceFolder}/index.html",
-            "firefoxExecutable": "flatpak run org.mozilla.firefox"
-        }
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/wwwroot",
+            "runtimeExecutable": "/var/lib/flatpak/app/com.google.Chrome/current/active/export/bin/com.google.Chrome",
+        },
     ]
 }

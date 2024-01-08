@@ -1,12 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import NavbarComponent from '../components/Navbar'
 import AccountsAPI from '../api/AccountsAPI';
 import VirtualMachineAPI from '../api/VirtualMachineAPI';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
-// Render a list of VMs from the database (test with vms.json)
-// Each VM should have a button that redirects to the VirtualMachineView screen
-// Add a boostrap Card component to display each operating system
 
 function Home() {
     const [loggedIn, setLoggedIn] = React.useState(false);
@@ -15,9 +11,13 @@ function Home() {
     const [images, setImages] = React.useState([]);
     const [searchQuery, setSearchQuery] = React.useState('');
 
+    useEffect(() => {
+        document.title = 'Buffet - Home';
+    }, []);
+
     // Check if the user is logged in on page load, only run once, do not use async/await
     // If the user is logged in, get the list of images from the API
-    React.useEffect(() => {
+    useEffect(() => {
         AccountsAPI.getUserDetails().then((response) => {
             if (response.status === 200) {
                 setLoggedIn(true);
@@ -107,11 +107,11 @@ function Home() {
                                         <div className='card-body'>
                                             {/* Display name of the VM and a description */}
                                             <h5 className='card-title'>Your Virtual Machine</h5>
-                                            <p className='card-text'>You already have a virtual machine of type '{userVm.iso}'. You can view it or delete it below.</p>
+                                            <p className='card-text'>You already have a virtual machine of type {userVm.iso}. You can view it or power it off below.</p>
                                             {/* Create two buttons side by side, one to view the VM and one to delete the VM */}
                                             <div className="btn-group" role="group">
-                                                <button className="btn btn-primary" onClick={() => window.location.href = '/vm/'}>View VM</button>
-                                                <button className="btn btn-danger" onClick={DeleteVMButton}>Delete VM</button>
+                                                <button className="btn btn-primary" onClick={() => window.location.href = '/vm/'}>View</button>
+                                                <button className="btn btn-danger" onClick={DeleteVMButton}>Power Off</button>
                                             </div>
                                         </div>
                                     </div>

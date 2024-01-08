@@ -10,7 +10,9 @@ class User(db.Model):
     # id is uuid, username is unique, password is hashed
     id = db.Column(db.String(32), primary_key=True, default=generate_uuid)
     username = db.Column(db.String(80), nullable=False, unique=True)
+    email = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(80), nullable=False)
+    role = db.Column(db.String(80), nullable=False) # admin or user
 
 class VirtualMachine(db.Model):
     id = db.Column(db.Integer, primary_key=True)

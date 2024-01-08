@@ -37,9 +37,17 @@ def refresh_expiring_jwts(response):
     except (RuntimeError, KeyError):
         return response
 
+############################# USER ENDPOINTS #############################
+
 @app.route('/api/user/', methods=['GET'])
 @jwt_required()
-def get_username():
+def get_user_info():
+    """Get the user's information
+
+    Returns:
+        json: User's information
+    """
+
     # Get the user from the authorization token
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
@@ -48,41 +56,71 @@ def get_username():
     # Send the user's username
     return jsonify({
         'id': user.id,
-        'username': user.username
+        'username': user.username,
+        'email': user.email,
+        'role': user.role
     }), 200
+
+@app.route('/api/user/verify/', methods=['GET'])
+@jwt_required()
+def verify():
+    """Verify the user's token
+
+    Returns:
+        json: Message
+    """
+
+    return jsonify({'message': 'Token verified'}), 200
 
 @app.route('/api/user/register/', methods=['POST'])
 def register():
-    # Get the username and password from the request, check if the username is already taken
+    """Register a new user
+
+    Returns:
+        json: Message
+    """
+
+    # Get the data from the request
     data = request.get_json()
-    if not data or 'username' not in data or 'password' not in data:
+    if not data or 'username' not in data or 'email' not in data or 'password' not in data:
         return jsonify({'message': 'Invalid data format'}), 400
 
+    # Get the data from the request
     username = data['username']
+    email = data['email']
     password = data['password']
-    
+     
+    # Check if the username is already taken
     if User.query.filter_by(username=username).first():
         return jsonify({'message': 'Username already taken'}), 409
 
+    # Check if the email is already taken
+    if User.query.filter_by(email=email).first():
+        return jsonify({'message': 'Email already taken'}), 409
+
     # Create the user
-    new_user = User(username=username, password=Bcrypt.generate_password_hash(password).decode('utf-8'))
+    new_user = User(username=username, email=email, password=Bcrypt.generate_password_hash(password).decode('utf-8'), role='user')
     db.session.add(new_user)
 
     # Save the user
     db.session.commit()
 
-    return jsonify({
-        'id': new_user.id,
-        'username': new_user.username
-    }), 201
+    return jsonify({'message': 'User created'}), 201
 
 @app.route('/api/user/login/', methods=['POST'])
 def login():
-    # Get the username and password from the request, and send an authorization token if the credentials are correct
+    """Login a user
+
+    Returns:
+        json: Message
+    """
+
+    # Get the data from the request
     data = request.get_json()
     if not data or 'username' not in data or 'password' not in data:
         return jsonify({'message': 'Invalid data format'}), 400
-
+    
+    # Check if the username and password are in the request
     username = data['username']
     password = data['password']
 
@@ -99,7 +137,13 @@ def login():
 
 @app.route('/api/user/logout/', methods=['POST'])
 def logout():
-    # Unset JWT cookies
+    """Logout a user
+
+    Returns:
+        json: Message
+    """
+
+    # Set JWT cookies to expire
     resp = jsonify({'message': 'Logout successful'})
     unset_jwt_cookies(resp)
     return resp, 200
@@ -107,24 +151,54 @@ def logout():
 @app.route('/api/user/delete/', methods=['DELETE'])
 @jwt_required()
 def delete_user():
+    """Delete the user account and their virtual machine if they have one
+
+    Returns:
+        json: Message
+    """
+
     # Get the user from the authorization token
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({'message': 'Invalid user'}), 401
 
-    # Delete the user
-    db.session.delete(user)
+    # Get the password from the request
+    data = request.get_json()
+    if not data or 'password' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
 
-    # Save the user
+    # If the user is an admin, they cannot delete their account
+    if user.role == 'admin':
+        return jsonify({'message': 'Admins cannot delete their account, please contact the head admin'}), 403
+
+    password = data['password']
+
+    # Check if the password is correct
+    if not Bcrypt.check_password_hash(user.password, password):
+        return jsonify({'message': 'Invalid password'}), 401
+
+    # Delete the user's virtual machine
+    vm = VirtualMachine.query.filter_by(user_id=user.id).first()
+    if vm:
+        try:
+            subprocess.Popen(['kill', str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except:
+            return jsonify({'message': 'Error deleting virtual machine'}), 500
+
+    db.session.delete(user)
     db.session.commit()
 
     return jsonify({'message': 'User deleted'}), 200
 
-# Change the password of the user
-# The user must send their current password and the new password, as well as the authorization token
 @app.route('/api/user/password/', methods=['PUT'])
 @jwt_required()
 def change_password():
+    """Change the password of the user
+
+    Returns:
+        json: Message
+    """
+
     # Get the user from the authorization token
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
@@ -135,6 +209,7 @@ def change_password():
     if not data or 'current_password' not in data or 'new_password' not in data:
         return jsonify({'message': 'Invalid data format'}), 400
 
+    # Check if the current password is correct
     current_password = data['current_password']
     new_password = data['new_password']
 
@@ -150,33 +225,86 @@ def change_password():
 
     return jsonify({'message': 'Password changed'}), 200
 
-# Change the username of the user
 @app.route('/api/user/username/', methods=['PUT'])
 @jwt_required()
 def change_username():
+    """Change the username of the user
+
+    Returns:
+        json: Message
+    """
+
     # Get the user from the authorization token
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({'message': 'Invalid user'}), 401
 
-    # Get the new username from the request
+    # Get the new username from the request, and the current password
     data = request.get_json()
-    if not data or 'username' not in data:
+    if not data or 'username' not in data or 'password' not in data:
         return jsonify({'message': 'Invalid data format'}), 400
 
+    username = data['username']
+    password = data['password']
+
+    # Check if the current password is correct
+    if not Bcrypt.check_password_hash(user.password, password):
+        return jsonify({'message': 'Invalid password'}), 401
+
     # Change the username
-    user.username = data['username']
+    user.username = username
 
     # Save the user
     db.session.commit()
 
     return jsonify({'message': 'Username changed'}), 200
 
-####################################################################################################################################
+@app.route('/api/user/email/', methods=['PUT'])
+@jwt_required()
+def change_email():
+    """Change the email of the user
+
+    Returns:
+        json: Message
+    """
+
+    # Get the user from the authorization token
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+
+    # Get the new email from the request, and the current password
+    data = request.get_json()
+    if not data or 'email' not in data or 'password' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    email = data['email']
+    password = data['password']
+
+    # Check if the current password is correct
+    if not Bcrypt.check_password_hash(user.password, password):
+        return jsonify({'message': 'Invalid password'}), 401
+
+    # Change the email
+    user.email = email
+
+    # Save the user
+    db.session.commit()
+
+    return jsonify({'message': 'Email changed'}), 200
+
+################################## VIRTUAL MACHINE ENDPOINTS ##################################
 
 @app.route('/api/vm/iso/', methods=['GET'])
 @jwt_required()
 def index_vm():
+    """Index the iso/index.json file
+
+    Returns:
+        json: Index of the iso/index.json file
+    """
+
+    # Get the user from the authorization token
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({'message': 'Invalid user'}), 401
@@ -186,19 +314,17 @@ def index_vm():
         data = json.load(json_file)
         return jsonify(data), 200
 
-# POST /api/vm/create/
-# params: iso
-# Create a virtual machine
+
 @app.route('/api/vm/create/', methods=['POST'])
 @jwt_required()
 def create_vm():
-    # Get the user from the authorization token, and ensure the user has a session
-    # Get the next available port, the VNC client is connecting on port 5700 + display number
-    # Highest port is 5705
-    # Create the virtual machine
-    # qemu-system-x86_64 -m 4G -cpu max -smp 4 -cdrom ubuntu.iso -enable-kvm -monitor stdio -vga virtio -vnc :0,websocket=on,to=5
-    # Create the virtual machine in the database
+    """Create a virtual machine
 
+    Returns:
+        json: Virtual machine
+    """
+
+    # Get the user from the authorization token
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({'message': 'Invalid user'}), 401
@@ -247,18 +373,16 @@ def create_vm():
         'user_id': new_vm.user_id
     }), 201
 
-# DELETE /api/vm/delete/
-# params: vm_id
-# Delete a virtual machine
-# The user should only be able to delete their own virtual machine, not someone else's
 @app.route('/api/vm/delete/', methods=['DELETE'])
 @jwt_required()
 def delete_vm():
-    # Get the user from the authorization token, and ensure the user has a session
-    # Get the virtual machine from the database
-    # Delete the virtual machine
-    # Delete the virtual machine from the database
+    """Delete a virtual machine
 
+    Returns:
+        json: Message
+    """
+
+    # Get the user from the authorization token
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({'message': 'Invalid user'}), 401
@@ -287,20 +411,21 @@ def delete_vm():
 
     return jsonify({'message': 'Virtual machine deleted'}), 200
 
-# GET /api/vm/user/
-# params: user_id
-# Get the virtual machine of the user
 @app.route('/api/vm/user/', methods=['GET'])
 @jwt_required()
 def get_user_vm():
-    # Get the user from the authorization token, and ensure the user has a session
-    # Get the virtual machine from the database
-    # Send the virtual machine
+    """Get the virtual machine of the user
 
+    Returns:
+        json: Virtual machine
+    """
+
+    # Get the user from the authorization token
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({'message': 'Invalid user'}), 401
 
+    # Get the user's virtual machine
     vm = VirtualMachine.query.filter_by(user_id=user.id).first()
     if not vm:
         return jsonify({'message': 'Invalid virtual machine'}), 404
@@ -314,24 +439,27 @@ def get_user_vm():
         'user_id': vm.user_id
     }), 200
 
-# GET /api/vm/
-# params: vm_id
-# Get the virtual machine
 @app.route('/api/vm/', methods=['GET'])
 @jwt_required()
 def get_vm_by_id():
-    # Get the user from the authorization token, and ensure the user has a session
-    # Get the virtual machine from the database
-    # Send the virtual machine
+    """Get the virtual machine by id
 
+    Returns:
+        json: Virtual machine
+    """
+
+    # Get the user from the authorization token
     user = User.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({'message': 'Invalid user'}), 401
 
+
+    # Get the virtual machine id from the request
     data = request.get_json()
     if not data or 'vm_id' not in data:
         return jsonify({'message': 'Invalid data format'}), 400
 
+    # Get the virtual machine, if it exists
     vm = VirtualMachine.query.filter_by(id=data['vm_id']).first()
     if not vm:
         return jsonify({'message': 'Invalid virtual machine'}), 404
@@ -344,6 +472,316 @@ def get_vm_by_id():
         'process_id': vm.process_id,
         'user_id': vm.user_id
     }), 200
+
+################################## ADMIN ENDPOINTS ##################################
+
+@app.route('/api/admin/vm/all/', methods=['GET'])
+@jwt_required()
+def get_all_vm():
+    """Get all virtual machines
+
+    Returns:
+        json: List of virtual machines
+    """
+
+    # Get the user from the authorization token
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+    
+    # Ensure the user is an admin
+    if user.role != 'admin':
+        return jsonify({'message': 'Insufficient permissions'}), 403
+
+    # Get all virtual machines
+    vms = VirtualMachine.query.all()
+    if not vms:
+        return jsonify({'message': 'No virtual machines'}), 404
+
+    vms_list = []
+    for vm in vms:
+        vms_list.append({
+            'id': vm.id,
+            'port': vm.port,
+            'wsport': vm.wsport,
+            'iso': vm.iso,
+            'process_id': vm.process_id,
+            'user_id': vm.user_id
+        })
+
+    return jsonify(vms_list), 200
+
+@app.route('/api/admin/vm/delete/', methods=['DELETE'])
+@jwt_required()
+def delete_vm_by_id():
+    """Delete virtual machine by id
+
+    Returns:
+        json: Message
+    """
+
+    # Get the user from the authorization token
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+    
+    # Ensure the user is an admin
+    if user.role != 'admin':
+        return jsonify({'message': 'Insufficient permissions'}), 403
+
+    # Get the virtual machine id from the request
+    data = request.get_json()
+    if not data or 'vm_id' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    # Get the virtual machine, if it exists
+    vm = VirtualMachine.query.filter_by(id=data['vm_id']).first()
+    if not vm:
+        return jsonify({'message': 'Invalid virtual machine'}), 404
+
+    # Delete the virtual machine
+    try:
+        subprocess.Popen(['kill', str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except:
+        return jsonify({'message': 'Error deleting virtual machine'}), 500
+
+    # Delete the virtual machine from the database
+    db.session.delete(vm)
+    db.session.commit()
+
+    return jsonify({'message': 'Virtual machine deleted'}), 200
+
+# Get all users
+@app.route('/api/admin/user/all/', methods=['GET'])
+@jwt_required()
+def get_all_users():
+    """Get all users
+
+    Returns:
+        json: List of users
+    """
+    
+    # Get the user from the authorization token
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+    
+    # Ensure the user is an admin
+    if user.role != 'admin':
+        return jsonify({'message': 'Insufficient permissions'}), 403
+
+    # Get all users
+    users = User.query.all()
+    if not users:
+        return jsonify({'message': 'No users'}), 404
+
+    users_list = []
+    for user in users:
+        users_list.append({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'role': user.role
+        })
+
+    return jsonify(users_list), 200
+
+@app.route('/api/admin/user/delete/', methods=['DELETE'])
+@jwt_required()
+def delete_user_by_id():
+    """Delete user by id
+
+    Returns:
+        json: Message
+    """
+    
+    # Get the user from the authorization token
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+    
+    # Ensure the user is an admin
+    if user.role != 'admin':
+        return jsonify({'message': 'Insufficient permissions'}), 403
+
+    # Get the user id from the request
+    data = request.get_json()
+    if not data or 'user_id' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    # Get the user, if it exists
+    user_to_delete = User.query.filter_by(id=data['user_id']).first()
+    if not user_to_delete:
+        return jsonify({'message': 'Invalid user'}), 404
+
+    # If the user is an admin, they cannot delete their account
+    if user_to_delete.role == 'admin':
+        return jsonify({'message': 'Admins cannot delete their account, please contact the head admin'}), 403
+
+    # Delete the user's virtual machine
+    vm = VirtualMachine.query.filter_by(user_id=user_to_delete.id).first()
+    if vm:
+        try:
+            subprocess.Popen(['kill', str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except:
+            return jsonify({'message': 'Error deleting virtual machine'}), 500
+
+    db.session.delete(user_to_delete)
+    db.session.commit()
+
+    return jsonify({'message': 'User deleted'}), 200
+
+@app.route('/api/admin/user/role/', methods=['PUT'])
+@jwt_required()
+def change_user_role():
+    """Change the role of the user
+
+    Returns:
+        json: Message
+    """
+
+    # Get the user from the authorization token
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+
+    # Ensure the user is an admin
+    if user.role != 'admin':
+        return jsonify({'message': 'Insufficient permissions'}), 403
+
+    # Get the user id from the request
+    data = request.get_json()
+    if not data or 'user_id' not in data or 'role' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    user_to_change = User.query.filter_by(id=data['user_id']).first()
+    if not user_to_change:
+        return jsonify({'message': 'Invalid user'}), 404
+
+    # If the user is an admin, they cannot change their role
+    if user_to_change.role == 'admin':
+        return jsonify({'message': 'Admins cannot change their role, please contact the head admin'}), 403
+
+    user_to_change.role = data['role']
+
+    db.session.commit()
+
+    return jsonify({'message': 'User role changed'}), 200
+
+@app.route('/api/admin/user/password/', methods=['PUT'])
+@jwt_required()
+def change_user_password():
+    """Change the password of the user
+
+    Returns:
+        json: Message
+    """
+    
+    # Get the user from the authorization token
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+    
+    # Ensure the user is an admin
+    if user.role != 'admin':
+        return jsonify({'message': 'Insufficient permissions'}), 403
+
+    # Get the user id from the request
+    data = request.get_json()
+    if not data or 'user_id' not in data or 'new_password' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    # Get the user, if it exists
+    user_to_change = User.query.filter_by(id=data['user_id']).first()
+    if not user_to_change:
+        return jsonify({'message': 'Invalid user'}), 404
+
+    # If the user is an admin, they cannot change their password
+    if user_to_change.role == 'admin':
+        return jsonify({'message': 'Admins cannot change their password, please contact the head admin'}), 403
+
+    user_to_change.password = Bcrypt.generate_password_hash(data['new_password']).decode('utf-8')
+
+    db.session.commit()
+
+    return jsonify({'message': 'User password changed'}), 200
+
+@app.route('/api/admin/user/username/', methods=['PUT'])
+@jwt_required()
+def change_user_username():
+    """Change the username of the user
+
+    Returns:
+        json: Message
+    """
+    
+    # Get the user from the authorization token
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+    
+    # Ensure the user is an admin
+    if user.role != 'admin':
+        return jsonify({'message': 'Insufficient permissions'}), 403
+
+    # Get the user id from the request
+    data = request.get_json()
+    if not data or 'user_id' not in data or 'username' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    # Get the user, if it exists
+    user_to_change = User.query.filter_by(id=data['user_id']).first()
+    if not user_to_change:
+        return jsonify({'message': 'Invalid user'}), 404
+
+    # If the user is an admin, they cannot change their username
+    if user_to_change.role == 'admin':
+        return jsonify({'message': 'Admins cannot change their username, please contact the head admin'}), 403
+
+    # Check if the username is already taken
+    user_to_change.username = data['username']
+
+    db.session.commit()
+
+    return jsonify({'message': 'User username changed'}), 200
+
+@app.route('/api/admin/user/email/', methods=['PUT'])
+@jwt_required()
+def change_user_email():
+    """Change the email of the user
+
+    Returns:
+        json: Message
+    """
+    
+    # Get the user from the authorization token
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+    
+    # Ensure the user is an admin
+    if user.role != 'admin':
+        return jsonify({'message': 'Insufficient permissions'}), 403
+
+    # Get the user id from the request
+    data = request.get_json()
+    if not data or 'user_id' not in data or 'email' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    # Get the user, if it exists
+    user_to_change = User.query.filter_by(id=data['user_id']).first()
+    if not user_to_change:
+        return jsonify({'message': 'Invalid user'}), 404
+
+    # If the user is an admin, they cannot change their email
+    if user_to_change.role == 'admin':
+        return jsonify({'message': 'Admins cannot change their email, please contact the head admin'}), 403
+
+    user_to_change.email = data['email']
+
+    db.session.commit()
+
+    return jsonify({'message': 'User email changed'}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
