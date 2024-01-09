@@ -10,7 +10,7 @@ class ApplicationConfig:
 
     SQLALCHEMY_DATABASE_URI = 'sqlite:///db.sqlite3'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = False
     JWT_COOKIE_CSRF_PROTECT = False # Set to True in production
     JWT_COOKIE_SECURE = False # Set to True in production
     JWT_TOKEN_LOCATION = 'cookies'
