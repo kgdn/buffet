@@ -6,22 +6,20 @@ export default class AdminAPI {
     static async getAllVMs() {
         try {
             const response = await axios.get('http://localhost:5000/api/admin/vm/all/');
-            return { status: response.status, statusText: response.statusText, data: response.data };
+            return { status: response.status, message: response.message, data: response.data };
         }
         catch (error) {
-            console.error(error);
-            return { statusText: 'Error getting virtual machines' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
     static async getAllUsers() {
         try {
             const response = await axios.get('http://localhost:5000/api/admin/user/all/');
-            return { status: response.status, statusText: response.statusText, data: response.data };
+            return { status: response.status, message: response.message, data: response.data };
         }
         catch (error) {
-            console.error(error);
-            return { statusText: 'Error getting users' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -32,11 +30,10 @@ export default class AdminAPI {
                     user_id: id
                 }
             });
-            return { status: response.status, statusText: response.statusText, data: response.data };
+            return { status: response.status, message: response.message, data: response.data };
         }
         catch (error) {
-            console.error(error);
-            return { statusText: 'Error getting virtual machines' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -47,11 +44,10 @@ export default class AdminAPI {
                     user_id: id
                 }
             });
-            return { status: response.status, statusText: response.statusText }
+            return { status: response.status, message: response.message }
         }
         catch (error) {
-            console.error(error);
-            return { statusText: 'Error deleting user' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -62,11 +58,10 @@ export default class AdminAPI {
                     vm_id: id
                 }
             });
-            return { status: response.status, statusText: response.statusText }
+            return { status: response.status, message: response.message }
         }
         catch (error) {
-            console.error(error);
-            return { statusText: 'Error deleting virtual machine' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -79,8 +74,7 @@ export default class AdminAPI {
             return response;
         }
         catch (error) {
-            console.error(error);
-            return { statusText: 'Error changing username' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -93,8 +87,7 @@ export default class AdminAPI {
             return response;
         }
         catch (error) {
-            console.error(error);
-            return { statusText: 'Error changing email' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -107,8 +100,42 @@ export default class AdminAPI {
             return response;
         }
         catch (error) {
-            console.error(error);
-            return { statusText: 'Error changing password' };
+            return { status: error.response.status, message: error.response.data.message };
+        }
+    }
+
+    static async banUser(user_id, reason) {
+        try {
+            const response = await axios.put('http://localhost:5000/api/admin/user/ban/', {
+                user_id: user_id,
+                ban_reason: reason
+            });
+            return response;
+        }
+        catch (error) {
+            return { status: error.response.status, message: error.response.data.message };
+        }
+    }
+
+    static async unbanUser(user_id) {
+        try {
+            const response = await axios.put('http://localhost:5000/api/admin/user/unban/', {
+                user_id: user_id
+            });
+            return response;
+        }
+        catch (error) {
+            return { status: error.response.status, message: error.response.data.message };
+        }
+    }
+
+    static async getBannedUsers() {
+        try {
+            const response = await axios.get('http://localhost:5000/api/admin/user/banned/');
+            return response;
+        }
+        catch (error) {
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 }
