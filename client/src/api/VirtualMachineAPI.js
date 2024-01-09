@@ -12,7 +12,7 @@ export default class VirtualMachineAPI {
             return response;
         } catch (error) {
             console.error(error);
-            return { statusText: 'Error getting virtual machines' };
+            return { message: 'Error getting virtual machines' };
         }
     }
 
@@ -26,7 +26,7 @@ export default class VirtualMachineAPI {
         }
         catch (error) {
             console.error(error);
-            return { statusText: 'Error creating virtual machine' };
+            return { message: 'Error creating virtual machine' };
         }
     }
 
@@ -42,7 +42,7 @@ export default class VirtualMachineAPI {
         }
         catch (error) {
             console.error(error);
-            return { statusText: 'Error deleting virtual machine' };
+            return { message: 'Error deleting virtual machine' };
         }
     }
 
@@ -58,7 +58,7 @@ export default class VirtualMachineAPI {
         }
         catch (error) {
             console.error(error);
-            return { statusText: 'Error getting virtual machine' };
+            return { message: 'Error getting virtual machine' };
         }
     }
 }

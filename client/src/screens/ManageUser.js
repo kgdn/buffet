@@ -15,35 +15,36 @@ function ManageUser() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
-    const [pageStatusText, setStatusText] = useState('');
-    const [deleteStatusText, setStopStatusText] = useState('');
+    const [pageMessage, setMessage] = useState('');
+    const [deleteMessage, setStopMessage] = useState('');
     const [showStopModal, setShowStopModal] = useState(false)
 
     useEffect(() => {
         document.title = 'Buffet - Manage User';
     }, []);
 
+    // Get the user's username and email from local storage
     const ChangeUsernameButton = () => {
         if (username.trim() === '' || currentPassword.trim() === '') {
-            setStatusText('Username and password cannot be empty.');
+            setMessage('Username and password cannot be empty.');
             return;
         }
 
         AccountsAPI.changeUsername(username, currentPassword).then((response) => {
             if (response.status === 200) {
-                setStatusText(response.pageStatusText);
-                // Refresh the page to display the new username
+                setMessage(response.message);
                 window.location.reload();
             } else {
-                setStatusText(response.pageStatusText);
+                setMessage(response.message);
             }
         });
     }
 
+    // Change the user's password according to the password policy
     const ChangePasswordButton = () => {
 
         if (oldPassword.trim() === '' || newPassword.trim() === '') {
-            setStatusText('Old password and new password cannot be empty.');
+            setMessage('Old password and new password cannot be empty.');
             return;
         }
 
@@ -53,46 +54,48 @@ function ManageUser() {
         schema.is().min(8).is().max(100).has().uppercase().has().lowercase().has().digits(2).has().not().spaces().has().symbols()
 
         if (!schema.validate(newPassword)) {
-            setStatusText('Invalid password. Your password must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces.');
+            setMessage('Invalid password. Your password must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces.');
             return;
         }
 
         AccountsAPI.changePassword(oldPassword, newPassword).then((response) => {
             if (response.status === 200) {
-                setStatusText(response.pageStatusText);
+                setMessage(response.message);
                 // Refresh the page to display the new username
                 window.location.reload();
             } else {
-                setStatusText(response.pageStatusText);
+                setMessage(response.message);
             }
         });
     }
 
+    // Change the user's email
     const ChangeEmailButton = () => {
         if (email.trim() === '' || currentPassword.trim() === '') {
-            setStatusText('Email and password cannot be empty.');
+            setMessage('Email and password cannot be empty.');
             return;
         }
 
         // Ensure email is in a valid format
         if (!validator.isEmail(email)) {
-            setStatusText('Email is not in a valid format.');
+            setMessage('Email is not in a valid format.');
             return;
         }
 
         AccountsAPI.changeEmail(email, currentPassword).then((response) => {
             if (response.status === 200) {
-                setStatusText(response.pageStatusText);
+                setMessage(response.message);
                 window.location.reload();
             } else {
-                setStatusText(response.pageStatusText);
+                setMessage(response.message);
             }
         });
     }
 
-    const StopAccountButton = () => {
+    // Delete the user's account
+    const DeleteAccountButton = () => {
         if (currentPassword.trim() === '') {
-            setStatusText('Password cannot be empty.');
+            setMessage('Password cannot be empty.');
             return;
         }
 
@@ -100,25 +103,30 @@ function ManageUser() {
             if (response.status === 200) {
                 window.location.href = '/';
             } else {
-                setStopStatusText(response.statusText);
+                setStopMessage(response.message);
             }
         });
     }
 
+    // Log the user out
+    const LogoutButton = () => {
+        AccountsAPI.logout().then((response) => {
+            if (response.status === 200) {
+                window.location.href = '/';
+            }
+        });
+    }
+
+    // Get the user's details on page load
     useEffect(() => {
-        if (!getUserName || !getEmail || !role)
-            AccountsAPI.getUserDetails().then((response) => {
-                if (response.status === 200) {
-                    setCurrentUserName(response.data.username);
-                    setCurrentEmail(response.data.email);
-                    setRole(response.data.role);
-                } else {
-                    setCurrentUserName('No username found');
-                    setCurrentEmail('No email found');
-                    setRole('No role found');
-                }
-            });
-    }, [getUserName, email, role]);
+        AccountsAPI.getUserDetails().then((response) => {
+            if (response.status === 200) {
+                setCurrentEmail(response.data.email);
+                setCurrentUserName(response.data.username);
+                setRole(response.data.role);
+            }
+        });
+    }, []);
 
     return (
         <div>
@@ -163,13 +171,7 @@ function ManageUser() {
                         </div>
                         {/* Display log out button and delete account button side by side */}
                         <div className="btn-group mb-3 float-end" role="group">
-                            <button className="btn btn-warning" onClick={() => {
-                                AccountsAPI.logout().then((response) => {
-                                    if (response.status === 200) {
-                                        window.location.href = '/';
-                                    }
-                                });
-                            }}>Log Out</button>
+                            <button className="btn btn-warning" onClick={LogoutButton}>Log Out</button>
                             {/* Delete account, call the delete account API */}
                             {/* If the user is an admin, do not display the delete account button */}
                             {role === 'admin' ?
@@ -183,11 +185,11 @@ function ManageUser() {
                 <div className="row">
                     <div className="col">
                         {/* Display the status text */}
-                        {pageStatusText === '' ?
+                        {pageMessage === '' ?
                             <></>
                             :
-                            <div className='alert alert-danger' role='alert'>
-                                <p>{pageStatusText}</p>
+                            <div className='alert alert-primary' role='alert'>
+                                {pageMessage}
                             </div>
                         }
                     </div>
@@ -199,12 +201,12 @@ function ManageUser() {
                     </Modal.Header>
                     <Modal.Body>
                         <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-                        {/* If statusText is not empty, display it in a red paragraph */}
-                        {deleteStatusText === '' ?
+                        {/* If message is not empty, display it in a red paragraph */}
+                        {deleteMessage === '' ?
                             <></>
                             :
-                            <div className='alert alert-danger' role='alert'>
-                                <p>{deleteStatusText}</p>
+                            <div className='alert alert-primary' role='alert'>
+                                <p>{deleteMessage}</p>
                             </div>
                         }
                     </Modal.Body>
@@ -212,7 +214,7 @@ function ManageUser() {
                     {/* Add confirm and cancel buttons */}
                     <Modal.Footer>
                         <input type="password" className="form-control" placeholder="Password" aria-label="Password" aria-describedby="basic-addon1" onChange={(event) => setCurrentPassword(event.target.value)} />
-                        <button className="btn btn-danger" onClick={() => { StopAccountButton() }}>Confirm</button>
+                        <button className="btn btn-danger" onClick={() => { DeleteAccountButton() }}>Confirm</button>
                         <button className="btn btn-secondary" onClick={() => setShowStopModal(false)}>Cancel</button>
                     </Modal.Footer>
                 </Modal>

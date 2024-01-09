@@ -12,7 +12,7 @@ function LoginRegis() {
     const [registerUsername, setRegisterUsername] = useState('');
     const [registerEmail, setRegisterEmail] = useState('');
     const [registerPassword, setRegisterPassword] = useState('');
-    const [statusText, setStatusText] = useState('');
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
         document.title = 'Buffet - Login/Register';
@@ -20,7 +20,7 @@ function LoginRegis() {
 
     const LoginButton = () => {
         if (loginUsername.trim() === '' || loginPassword.trim() === '') {
-            setStatusText('Username and password cannot be empty.');
+            setMessage('Username and password cannot be empty.');
             return;
         }
         AccountsAPI.login(loginUsername, loginPassword).then((response) => {
@@ -28,18 +28,19 @@ function LoginRegis() {
                 // navigate to home page
                 window.location.href = '/';
             } else {
-                setStatusText(response.statusText);
+                alert(JSON.stringify(response));
+                setMessage(response.message);
             }
         });
     }
 
     const RegisterButton = () => {
         if (registerUsername.trim() === '' || registerEmail.trim() === '' || registerPassword.trim() === '') {
-            setStatusText('Username, email, and password cannot be empty.');
+            setMessage('Username, email, and password cannot be empty.');
             return;
         }
         if (!validator.isEmail(registerEmail)) {
-            setStatusText('Invalid email.');
+            setMessage('Invalid email.');
             return;
         }
 
@@ -49,16 +50,17 @@ function LoginRegis() {
         schema.is().min(8).is().max(100).has().uppercase().has().lowercase().has().digits(2).has().not().spaces().has().symbols()
 
         if (!schema.validate(registerPassword)) {
-            setStatusText('Invalid password. Your password must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces.');
+            setMessage('Invalid password. Your password must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces.');
             return;
         }
 
         AccountsAPI.register(registerUsername, registerEmail, registerPassword).then((response) => {
             if (response.status === 201) {
-                // set status text to success
-                setStatusText(response.statusText);
+                alert(JSON.stringify(response));
+                setMessage(response.message);
             } else {
-                setStatusText(response.statusText);
+                alert(JSON.stringify(response));
+                setMessage(response.message);
             }
         });
     }
@@ -140,8 +142,9 @@ function LoginRegis() {
                                 </Col>
                             </Form.Group>
                         </Form>
-                        <br />
-                        <p>{statusText}</p>
+                        <div className="alert alert-primary" role="alert" style={{ display: message === '' ? 'none' : 'block', marginTop: '1rem' }}>
+                            {message}
+                        </div>
                     </div>
                 </div>
             </div>

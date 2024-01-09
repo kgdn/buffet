@@ -32,15 +32,19 @@ function VirtualMachineView() {
         getPort();
     }, []);
 
+    const deleteVM = useCallback(() => {
+        VirtualMachineAPI.deleteVirtualMachine(vm_id).then((response) => {
+            if (response.status === 200) {
+                window.location.href = '/';
+            }
+        });
+    }, [vm_id]); // Include 'vm_id' in the dependency array
+
     // Handle reloading and leaving the page
     // Honestly I have no idea how this shit code works, but it does?
     useEffect(() => {
         const handleUnload = () => {
-            VirtualMachineAPI.deleteVirtualMachine(vm_id).then((response) => {
-                if (response.status === 200) {
-                    window.location.href = '/';
-                }
-            });
+            deleteVM();
         };
         window.addEventListener('unload', handleUnload);
         return () => {
@@ -133,14 +137,8 @@ function VirtualMachineView() {
             <div className="card" style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'transparent', border: 'none' }}>
                 <div className="card-body">
                     <div className="btn-group" role="group">
-                        <button className="btn btn-primary" onClick={() => fullscreen()}>Fullscreen</button>
-                        <button className="btn btn-danger" onClick={() => {
-                            VirtualMachineAPI.deleteVirtualMachine(vm_id).then((response) => {
-                                if (response.status === 200) {
-                                    window.location.href = '/';
-                                }
-                            });
-                        }}>Stop VM</button>
+                        <button className="btn btn-primary" onClick={() => fullscreen()}>Full Screen</button>
+                        <button className="btn btn-danger" onClick={() => deleteVM()}>Shutdown</button>
                     </div>
                 </div>
             </div>

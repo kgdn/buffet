@@ -7,10 +7,9 @@ export default class AccountsAPI {
                 username: username,
                 password: password
             });
-            return { status: response.status, statusText: response.statusText }
+            return { status: response.status, message: response.message }
         } catch (error) {
-            console.error(error);
-            return { statusText: 'Error logging in' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -21,10 +20,9 @@ export default class AccountsAPI {
                 email: email,
                 password: password
             });
-            return { status: response.status, statusText: response.statusText }
+            return { status: response.status, message: response.data.message }
         } catch (error) {
-            console.error(error);
-            return { statusText: 'Error registering' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -33,10 +31,9 @@ export default class AccountsAPI {
             const response = await axios.post('http://localhost:5000/api/user/logout/', {
                 withCredentials: true,
             });
-            return { status: response.status, statusText: response.statusText }
+            return { status: response.status, message: response.message }
         } catch (error) {
-            console.error(error);
-            return { statusText: 'Error logging out' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -48,10 +45,9 @@ export default class AccountsAPI {
                 },
                 withCredentials: true,
             });
-            return { status: response.status, statusText: response.statusText }
+            return { status: response.status, message: response.message }
         } catch (error) {
-            console.error(error);
-            return { statusText: 'Error deleting account' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -60,10 +56,9 @@ export default class AccountsAPI {
             const response = await axios.get('http://localhost:5000/api/user/verify/', {
                 withCredentials: true,
             });
-            return { status: response.status, statusText: response.statusText }
+            return { status: response.status, message: response.message }
         } catch (error) {
-            console.error(error);
-            return { statusText: 'Error checking login' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -74,11 +69,10 @@ export default class AccountsAPI {
             const response = await axios.get('http://localhost:5000/api/user/', {
                 withCredentials: true,
             });
-            return { status: response.status, statusText: response.statusText, data: response.data }
+            return { status: response.status, message: response.message, data: response.data }
         }
         catch (error) {
-            console.error(error);
-            return { statusText: 'Error checking login' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -91,10 +85,9 @@ export default class AccountsAPI {
             }, {
                 withCredentials: true,
             });
-            return { status: response.status, statusText: response.statusText }
+            return { status: response.status, message: response.message }
         } catch (error) {
-            console.error(error);
-            return { statusText: 'Error changing username' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -107,10 +100,9 @@ export default class AccountsAPI {
             }, {
                 withCredentials: true,
             });
-            return { status: response.status, statusText: response.statusText }
+            return { status: response.status, message: response.message }
         } catch (error) {
-            console.error(error);
-            return { statusText: 'Error changing password' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -123,10 +115,9 @@ export default class AccountsAPI {
             }, {
                 withCredentials: true,
             });
-            return { status: response.status, statusText: response.statusText }
+            return { status: response.status, message: response.message }
         } catch (error) {
-            console.error(error);
-            return { statusText: 'Error changing email' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 }
