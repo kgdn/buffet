@@ -3,6 +3,15 @@ import PropTypes from 'prop-types';
 import { Navigate } from 'react-router-dom';
 import AccountsAPI from '../api/AccountsAPI';
 
+/**
+ * Admittedly, this is a bit of a hacky solution to the problem of protecting
+ * routes from unauthenticated users. This component will check if the user is
+ * logged in and redirect them to the login page if they are not. It will also
+ * check if the user is an admin and redirect them to the home page if they are
+ * trying to access the admin panel. This component is used in App.js. 
+ * 
+ * If it works, don't fix it.
+ */
 function ProtectedRoute({ element }) {
     const [loading, setLoading] = useState(true);
     const [loggedIn, setLoggedIn] = useState(false);

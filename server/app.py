@@ -176,7 +176,7 @@ def logout():
 @app.route('/api/user/delete/', methods=['DELETE'])
 @jwt_required()
 def delete_user():
-    """Stop the user account and their virtual machine if they have one
+    """Delete the user account and their virtual machine if they have one
 
     Returns:
         json: Message
