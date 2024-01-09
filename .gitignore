@@ -5,6 +5,9 @@ server/venv/
 server/__pycache__/
 server/instance/
 server/.env
+server/routes/__pycache__/
+server/test_workflow.sh
+server/app-backup.py
 
 client/node_modules/
 client/.pnp
