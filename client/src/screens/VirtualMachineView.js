@@ -2,11 +2,10 @@ import React, { useCallback, useEffect } from "react";
 import RFB from "@novnc/novnc/core/rfb";
 import { Modal } from "react-bootstrap";
 import VirtualMachineAPI from "../api/VirtualMachineAPI";
-import { useParams } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 // The user should be able to navigate to this page by clicking on a VM on the home page
-// The url schema should be /vm/:user_id/:vm_id
+// The url schema should be /vm/
 
 function VirtualMachineView() {
     const [port, setPort] = React.useState(0);
@@ -15,9 +14,7 @@ function VirtualMachineView() {
     const [showModal, setShowModal] = React.useState(true);
     const inactivityTimeout = 500000;
 
-    // Get user id and vm id from the url
-    const { user_id } = useParams();
-
+    // If no user id can be found, redirect to the home page
     useEffect(() => {
         // Set the title of the page to 'Buffet' + the iso running on the VM
         document.title = 'Buffet - ' + iso;
@@ -27,13 +24,29 @@ function VirtualMachineView() {
     // If no port can be found, redirect to the home page
     useEffect(() => {
         const getPort = async () => {
-            const response = await VirtualMachineAPI.getVirtualMachineByUser(user_id);
+            const response = await VirtualMachineAPI.getVirtualMachineByUser();
             setPort(response.data.wsport);
             setVm_id(response.data.id);
             setIso(response.data.iso);
         };
         getPort();
-    }, [user_id, port]); // Include 'user_id' and 'port' in the dependency array
+    }, []);
+
+    // Handle reloading and leaving the page
+    // Honestly I have no idea how this shit code works, but it does?
+    useEffect(() => {
+        const handleUnload = () => {
+            VirtualMachineAPI.deleteVirtualMachine(vm_id).then((response) => {
+                if (response.status === 200) {
+                    window.location.href = '/';
+                }
+            });
+        };
+        window.addEventListener('unload', handleUnload);
+        return () => {
+            window.removeEventListener('unload', handleUnload);
+        };
+    }, [vm_id]); // Include 'vm_id' in the dependency array
 
     const fullscreen = () => {
         const elem = document.getElementById('app');
@@ -51,7 +64,7 @@ function VirtualMachineView() {
     // If the user is inactive for 5 minutes, redirect to the home page and shut down the VM
     useEffect(() => {
         let timeout = setTimeout(() => {
-            VirtualMachineAPI.deleteVirtualMachine(vm_id).then((response) => {
+            VirtualMachineAPI.deleteVirtualMachine().then((response) => {
                 if (response.status === 200) {
                     window.location.href = '/';
                 }
@@ -79,32 +92,19 @@ function VirtualMachineView() {
         });
     }, [vm_id, inactivityTimeout]); // Include 'vm_id' and 'inactivityTimeout' in the dependency array
 
-    // If the user closes the tab, shut down the VM
-    // If the user refreshes the page, shut down the VM
-    useEffect(() => {
-        window.addEventListener('beforeunload', () => {
-            VirtualMachineAPI.deleteVirtualMachine(vm_id).then((response) => {
-                if (response.status === 200) {
-                    window.location.href = '/';
-                }
-            });
-        }
-        );
-    }, [vm_id]); // Include 'vm_id' in the dependency array
-
     const connect = useCallback(() => {
         // Create RFB connection object
         const rfb = new RFB(document.getElementById('app'), 'ws://localhost:' + port, {});
         rfb.scaleViewport = true;
         rfb.resizeSession = true;
 
-        rfb.addEventListener("connect", function (e) {
-            console.log("connected" + e);
+        rfb.addEventListener("connect", function () {
+            console.log("Connected on port " + port);
         }, false);
 
-        rfb.addEventListener("disconnect", function (e) {
+        rfb.addEventListener("disconnect", function () {
             // On disconnect, redirect to the home page and shut down the VM
-            console.log("disconnected" + e);
+            console.log("disconnected on port " + port);
             window.location.href = '/';
         }, false);
     }, [port, vm_id]); // Include 'port' and 'vm_id' in the dependency array
@@ -119,6 +119,8 @@ function VirtualMachineView() {
     return (
         // Take up full screen
         <div>
+            {/* If user is logged in, display the page, otherwise redirect to the login page */}
+            {/* Display the VM */}
             <div id="app" style={{ height: '100vh', width: '100vw', overflow: 'hidden', position: 'absolute', top: 0, left: 0 }}></div>
             {/* Display three buttons: on the left hand side of the screen vertically, display the home button and the shutdown button, on the right hand side of the screen vertically, display the fullscreen button */}
             <div className="card" style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'transparent', border: 'none' }}>
@@ -131,7 +133,7 @@ function VirtualMachineView() {
                                     window.location.href = '/';
                                 }
                             });
-                        }}>Power Off</button>
+                        }}>Stop VM</button>
                     </div>
                 </div>
             </div>

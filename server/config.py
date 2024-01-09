@@ -16,5 +16,5 @@ class ApplicationConfig:
     JWT_TOKEN_LOCATION = 'cookies'
     JWT_ACCESS_LIFESPAN = {'hours': 24}
     JWT_REFRESH_LIFESPAN = {'days': 30}
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)
     CORS_HEADERS = 'Content-Type'

@@ -21,7 +21,7 @@ function NavbarComponent() {
     }, []);
 
     return (
-        <Navbar bg="light" data-bs-theme="light" className='bg-body-tertiary'>
+        <Navbar bg="primary" data-bs-theme="dark" style={{ marginBottom: '20px' }}>
             <Container>
                 <Navbar.Brand href="/">Buffet</Navbar.Brand>
                 <Nav className="me-auto">

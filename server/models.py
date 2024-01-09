@@ -12,7 +12,9 @@ class User(db.Model):
     username = db.Column(db.String(80), nullable=False, unique=True)
     email = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(80), nullable=False)
-    role = db.Column(db.String(80), nullable=False) # admin or user
+    login_time = db.Column(db.DateTime, nullable=True)
+    ip = db.Column(db.String(80), nullable=True)
+    role = db.Column(db.String(80), nullable=False)
 
 class VirtualMachine(db.Model):
     id = db.Column(db.Integer, primary_key=True)

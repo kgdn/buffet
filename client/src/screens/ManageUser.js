@@ -15,8 +15,9 @@ function ManageUser() {
     const [currentPassword, setCurrentPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
-    const [statusText, setStatusText] = useState('');
-    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [pageStatusText, setStatusText] = useState('');
+    const [deleteStatusText, setStopStatusText] = useState('');
+    const [showStopModal, setShowStopModal] = useState(false)
 
     useEffect(() => {
         document.title = 'Buffet - Manage User';
@@ -30,11 +31,11 @@ function ManageUser() {
 
         AccountsAPI.changeUsername(username, currentPassword).then((response) => {
             if (response.status === 200) {
-                setStatusText(response.statusText);
+                setStatusText(response.pageStatusText);
                 // Refresh the page to display the new username
                 window.location.reload();
             } else {
-                setStatusText(response.statusText);
+                setStatusText(response.pageStatusText);
             }
         });
     }
@@ -58,11 +59,11 @@ function ManageUser() {
 
         AccountsAPI.changePassword(oldPassword, newPassword).then((response) => {
             if (response.status === 200) {
-                setStatusText(response.statusText);
+                setStatusText(response.pageStatusText);
                 // Refresh the page to display the new username
                 window.location.reload();
             } else {
-                setStatusText(response.statusText);
+                setStatusText(response.pageStatusText);
             }
         });
     }
@@ -81,15 +82,15 @@ function ManageUser() {
 
         AccountsAPI.changeEmail(email, currentPassword).then((response) => {
             if (response.status === 200) {
-                setStatusText(response.statusText);
+                setStatusText(response.pageStatusText);
                 window.location.reload();
             } else {
-                setStatusText(response.statusText);
+                setStatusText(response.pageStatusText);
             }
         });
     }
 
-    const DeleteAccountButton = () => {
+    const StopAccountButton = () => {
         if (currentPassword.trim() === '') {
             setStatusText('Password cannot be empty.');
             return;
@@ -99,39 +100,29 @@ function ManageUser() {
             if (response.status === 200) {
                 window.location.href = '/';
             } else {
-                setStatusText(response.statusText);
+                setStopStatusText(response.statusText);
             }
         });
     }
 
     useEffect(() => {
-        if (!getUserName)
+        if (!getUserName || !getEmail || !role)
             AccountsAPI.getUserDetails().then((response) => {
                 if (response.status === 200) {
                     setCurrentUserName(response.data.username);
+                    setCurrentEmail(response.data.email);
+                    setRole(response.data.role);
                 } else {
                     setCurrentUserName('No username found');
-                }
-            });
-        if (!email)
-            AccountsAPI.getUserDetails().then((response) => {
-                if (response.status === 200) {
-                    setCurrentEmail(response.data.email);
-                } else {
                     setCurrentEmail('No email found');
-                }
-            });
-        // Get role from the API
-        if (!role)
-            AccountsAPI.getUserDetails().then((response) => {
-                if (response.status === 200) {
-                    setRole(response.data.role);
+                    setRole('No role found');
                 }
             });
     }, [getUserName, email, role]);
 
     return (
         <div>
+            {/* If the user is logged in, display the page */}
             <Navbar />
             <div className="container">
                 <div className="row">
@@ -184,33 +175,45 @@ function ManageUser() {
                             {role === 'admin' ?
                                 <></>
                                 :
-                                <button className="btn btn-danger" onClick={() => { setShowDeleteModal(true) }}>Delete Account</button>
+                                <button className="btn btn-danger" onClick={() => { setShowStopModal(true) }}>Delete Account</button>
                             }
                         </div>
                     </div>
                 </div>
                 <div className="row">
                     <div className="col">
-                        {/* Display status text */}
-                        <p style={{ color: 'red' }}>{statusText}</p>
+                        {/* Display the status text */}
+                        {pageStatusText === '' ?
+                            <></>
+                            :
+                            <div className='alert alert-danger' role='alert'>
+                                <p>{pageStatusText}</p>
+                            </div>
+                        }
                     </div>
                 </div>
 
-                <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} >
+                <Modal show={showStopModal} onHide={() => setShowStopModal(false)} >
                     <Modal.Header closeButton>
                         <Modal.Title>Confirm Account Deletion</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-                        {/* display status text */}
-                        <p style={{ color: 'red' }}>{statusText}</p>
+                        {/* If statusText is not empty, display it in a red paragraph */}
+                        {deleteStatusText === '' ?
+                            <></>
+                            :
+                            <div className='alert alert-danger' role='alert'>
+                                <p>{deleteStatusText}</p>
+                            </div>
+                        }
                     </Modal.Body>
                     {/* Enter the password to confirm account deletion in a field */}
                     {/* Add confirm and cancel buttons */}
                     <Modal.Footer>
                         <input type="password" className="form-control" placeholder="Password" aria-label="Password" aria-describedby="basic-addon1" onChange={(event) => setCurrentPassword(event.target.value)} />
-                        <button className="btn btn-danger" onClick={() => { DeleteAccountButton() }}>Confirm</button>
-                        <button className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+                        <button className="btn btn-danger" onClick={() => { StopAccountButton() }}>Confirm</button>
+                        <button className="btn btn-secondary" onClick={() => setShowStopModal(false)}>Cancel</button>
                     </Modal.Footer>
                 </Modal>
             </div>

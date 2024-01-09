@@ -6,6 +6,7 @@ import ManageUser from './screens/ManageUser';
 import Home from './screens/Home';
 import Admin from './screens/Admin';
 import VirtualMachineView from './screens/VirtualMachineView';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -13,9 +14,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginRegis />} />
-        <Route path="/account" element={<ManageUser />} />
-        <Route path="/vm" element={<VirtualMachineView />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/register" element={<LoginRegis />} />
+        <Route path="/admin" element={<ProtectedRoute element={<Admin />} />} />
+        <Route path="/account" element={<ProtectedRoute element={<ManageUser />} />} />
+        <Route path="/vm" element={<ProtectedRoute element={<VirtualMachineView />} />} />
       </Routes>
     </BrowserRouter>
   );

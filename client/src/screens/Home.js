@@ -52,7 +52,7 @@ function Home() {
         createVM();
     }
 
-    const DeleteVMButton = () => {
+    const StopVMButton = () => {
         const deleteVM = async () => {
             const response = await VirtualMachineAPI.deleteVirtualMachine(userVm.id);
             if (response.status === 200) {
@@ -66,7 +66,8 @@ function Home() {
         image.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         image.version.toLowerCase().includes(searchQuery.toLowerCase()) ||
         image.iso.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        image.description.toLowerCase().includes(searchQuery.toLowerCase())
+        image.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(searchQuery.toLowerCase())
     );
 
     return (
@@ -111,7 +112,7 @@ function Home() {
                                             {/* Create two buttons side by side, one to view the VM and one to delete the VM */}
                                             <div className="btn-group" role="group">
                                                 <button className="btn btn-primary" onClick={() => window.location.href = '/vm/'}>View</button>
-                                                <button className="btn btn-danger" onClick={DeleteVMButton}>Power Off</button>
+                                                <button className="btn btn-danger" onClick={StopVMButton}>Stop VM</button>
                                             </div>
                                         </div>
                                     </div>

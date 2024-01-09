@@ -157,7 +157,7 @@ def logout():
         json: Message
     """
 
-    # Delete VM if the user has one, if not just logout
+    # Stop VM if the user has one, if not just logout
     vm = VirtualMachine.query.filter_by(user_id=get_jwt_identity()).first()
     if vm:
         try:
@@ -176,7 +176,7 @@ def logout():
 @app.route('/api/user/delete/', methods=['DELETE'])
 @jwt_required()
 def delete_user():
-    """Delete the user account and their virtual machine if they have one
+    """Stop the user account and their virtual machine if they have one
 
     Returns:
         json: Message
@@ -202,7 +202,7 @@ def delete_user():
     if not Bcrypt.check_password_hash(user.password, password):
         return jsonify({'message': 'Invalid password'}), 401
 
-    # Delete the user's virtual machine
+    # Stop the user's virtual machine
     vm = VirtualMachine.query.filter_by(user_id=user.id).first()
     if vm:
         try:
@@ -402,7 +402,7 @@ def create_vm():
 @app.route('/api/vm/delete/', methods=['DELETE'])
 @jwt_required()
 def delete_vm():
-    """Delete a virtual machine
+    """Stop a virtual machine
 
     Returns:
         json: Message
@@ -425,13 +425,13 @@ def delete_vm():
     if vm.user_id != user.id:
         return jsonify({'message': 'You can only delete your own virtual machine'}), 403
 
-    # Delete the virtual machine
+    # Stop the virtual machine
     try:
         subprocess.Popen(['kill', str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except:
         return jsonify({'message': 'Error deleting virtual machine'}), 500
 
-    # Delete the virtual machine from the database
+    # Stop the virtual machine from the database
     db.session.delete(vm)
     db.session.commit()
 
@@ -554,7 +554,7 @@ def get_all_vm():
 @app.route('/api/admin/vm/delete/', methods=['DELETE'])
 @jwt_required()
 def delete_vm_by_id():
-    """Delete virtual machine by id
+    """Stop virtual machine by id
 
     Returns:
         json: Message
@@ -579,13 +579,13 @@ def delete_vm_by_id():
     if not vm:
         return jsonify({'message': 'Invalid virtual machine'}), 404
 
-    # Delete the virtual machine
+    # Stop the virtual machine
     try:
         subprocess.Popen(['kill', str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except:
         return jsonify({'message': 'Error deleting virtual machine'}), 500
 
-    # Delete the virtual machine from the database
+    # Stop the virtual machine from the database
     db.session.delete(vm)
     db.session.commit()
 
@@ -660,7 +660,7 @@ def delete_user_by_id():
     if user_to_delete.role == 'admin':
         return jsonify({'message': 'Admins cannot delete their account, please contact the head admin'}), 403
 
-    # Delete the user's virtual machine
+    # Stop the user's virtual machine
     vm = VirtualMachine.query.filter_by(user_id=user_to_delete.id).first()
     if vm:
         try:

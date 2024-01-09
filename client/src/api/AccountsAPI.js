@@ -30,7 +30,9 @@ export default class AccountsAPI {
 
     static async logout() {
         try {
-            const response = await axios.post('http://localhost:5000/api/user/logout/');
+            const response = await axios.post('http://localhost:5000/api/user/logout/', {
+                withCredentials: true,
+            });
             return { status: response.status, statusText: response.statusText }
         } catch (error) {
             console.error(error);
