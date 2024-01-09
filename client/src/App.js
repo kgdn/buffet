@@ -13,8 +13,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/login" element={<LoginRegis />} />
-        <Route path="/register" element={<LoginRegis />} />
+        <Route path="/login" element={<ProtectedRoute element={<LoginRegis />} />} />
         <Route path="/admin" element={<ProtectedRoute element={<Admin />} />} />
         <Route path="/account" element={<ProtectedRoute element={<ManageUser />} />} />
         <Route path="/vm" element={<ProtectedRoute element={<VirtualMachineView />} />} />

@@ -38,17 +38,25 @@ function ProtectedRoute({ element }) {
     }, []);
 
     if (loading) {
-        return null;
+        return <></>;
     }
 
-    if (!loggedIn) {
-        return <Navigate to="/login" />;
+    // If the user is not logged in, allow them to see the login page
+    if (!loggedIn && window.location.pathname === '/login') {
+        return element;
     }
 
-    if (element.props.path === '/admin' && role !== 'admin') {
+    // If the user is not an admin and tries to access the admin panel, redirect them to the home page
+    if (role !== 'admin' && window.location.pathname === '/admin') {
         return <Navigate to="/" />;
     }
 
+    // If the user is logged in and tries to access the login page, redirect them to the home page
+    if (loggedIn && window.location.pathname === '/login') {
+        return <Navigate to="/" />;
+    }
+
+    // If all else fails, redirect to the home page
     return element;
 }
 
