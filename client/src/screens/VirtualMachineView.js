@@ -105,6 +105,13 @@ function VirtualMachineView() {
         rfb.addEventListener("disconnect", function () {
             // On disconnect, redirect to the home page and shut down the VM
             console.log("disconnected on port " + port);
+            // Shut down the VM if the user disconnects naturally or closes the tab
+            VirtualMachineAPI.deleteVirtualMachine(vm_id).then((response) => {
+                if (response.status === 200) {
+                    window.location.href = '/';
+                }
+            });
+            // If the virtual machine is remotely shut down by an admin, redirect to the home page
             window.location.href = '/';
         }, false);
     }, [port, vm_id]); // Include 'port' and 'vm_id' in the dependency array
