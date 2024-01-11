@@ -1,4 +1,5 @@
 import json
+import base64
 import subprocess
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -23,7 +24,8 @@ def index_vm():
     # Index the ../iso/index.json file (iso is in the parent directory)
     with open('iso/index.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
-        return jsonify(data), 200
+
+    return jsonify(data), 200
 
 @vm_endpoints.route('/api/vm/create/', methods=['POST'])
 @jwt_required()
@@ -53,13 +55,13 @@ def create_vm():
         port += 1
 
     if port > 5905:
-        return jsonify({'message': 'No available ports'}), 503
+        return jsonify({'message': 'Service is at capacity. Please try again later.'}), 503
 
     wsport = port - 200
 
     # If the user has more than one virtual machine at a time, throw an error
     if VirtualMachine.query.filter_by(user_id=user.id).count() > 0:
-        return jsonify({'message': 'Only one virtual machine at a time'}), 503
+        return jsonify({'message': 'Users may only have one virtual machine at a time. Please shut down your current virtual machine before creating a new one.'}), 403
 
     # Create the virtual machine
     try:
@@ -67,7 +69,7 @@ def create_vm():
             'qemu-system-x86_64', '-m', '2048M', '-smp', '2', '-enable-kvm', '-device', 'virtio-balloon', '-cdrom', 'iso/' + iso, '-vga', 'virtio', '-net', 'nic', '-net', 'user', '-vnc', ':0,websocket=' + str(wsport) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process_id = process.pid
     except:
-        return jsonify({'message': 'Error creating virtual machine'}), 500
+        return jsonify({'message': 'QEMU failed to create virtual machine. This is likely due to a lack of resources on the server.'}), 500
 
     # Create the virtual machine in the database
     new_vm = VirtualMachine(port=port, wsport=wsport, iso=iso, process_id=process_id, user_id=user.id)
@@ -142,9 +144,8 @@ def get_user_vm():
 
     return jsonify({
         'id': vm.id,
-        'port': vm.port,
-        'wsport': vm.wsport,
         'iso': vm.iso,
+        'wsport': vm.wsport,
         'process_id': vm.process_id,
         'user_id': vm.user_id
     }), 200

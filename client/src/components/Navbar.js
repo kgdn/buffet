@@ -1,8 +1,5 @@
 import React, { useEffect } from 'react';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Container } from 'react-bootstrap';
+import { Container, Navbar, Nav } from 'react-bootstrap';
 import AccountsAPI from '../api/AccountsAPI';
 
 function NavbarComponent() {

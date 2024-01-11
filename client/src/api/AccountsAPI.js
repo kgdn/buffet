@@ -26,6 +26,16 @@ export default class AccountsAPI {
         }
     }
 
+
+    static async verifyRegistration(id) {
+        try {
+            const response = await axios.get('http://localhost:5000/api/user/verify/' + id);
+            return { status: response.status, message: response.data.message }
+        } catch (error) {
+            return { status: error.response.status, message: error.response.data.message };
+        }
+    }
+
     static async logout() {
         try {
             const response = await axios.post('http://localhost:5000/api/user/logout/', {

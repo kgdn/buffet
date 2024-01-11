@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
+from flask_mail import Mail
 from config import ApplicationConfig
 from models import db
 from routes.user_endpoints import user_endpoints
@@ -15,6 +16,7 @@ CORS(app, supports_credentials=True)
 Bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 db.init_app(app)
+mail = Mail(app)
 migrate = Migrate(app, db)
 
 with app.app_context():

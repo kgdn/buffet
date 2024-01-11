@@ -71,7 +71,7 @@ export default class AdminAPI {
                 user_id: user_id,
                 username: username
             });
-            return response;
+            return { status: response.status, message: response.message }
         }
         catch (error) {
             return { status: error.response.status, message: error.response.data.message };
@@ -84,7 +84,7 @@ export default class AdminAPI {
                 user_id: user_id,
                 email: email
             });
-            return response;
+            return { status: response.status, message: response.message }
         }
         catch (error) {
             return { status: error.response.status, message: error.response.data.message };
@@ -97,7 +97,7 @@ export default class AdminAPI {
                 user_id: user_id,
                 password: password
             });
-            return response;
+            return { status: response.status, message: response.message }
         }
         catch (error) {
             return { status: error.response.status, message: error.response.data.message };
@@ -110,7 +110,7 @@ export default class AdminAPI {
                 user_id: user_id,
                 ban_reason: reason
             });
-            return response;
+            return { status: response.status, message: response.message }
         }
         catch (error) {
             return { status: error.response.status, message: error.response.data.message };
@@ -122,7 +122,7 @@ export default class AdminAPI {
             const response = await axios.put('http://localhost:5000/api/admin/user/unban/', {
                 user_id: user_id
             });
-            return response;
+            return { status: response.status, message: response.message }
         }
         catch (error) {
             return { status: error.response.status, message: error.response.data.message };
@@ -132,7 +132,20 @@ export default class AdminAPI {
     static async getBannedUsers() {
         try {
             const response = await axios.get('http://localhost:5000/api/admin/user/banned/');
-            return response;
+            return { status: response.status, message: response.message, data: response.data }
+        }
+        catch (error) {
+            return { status: error.response.status, message: error.response.data.message };
+        }
+    }
+
+    static async changeBanReason(user_id, reason) {
+        try {
+            const response = await axios.put('http://localhost:5000/api/admin/user/ban/reason/', {
+                user_id: user_id,
+                ban_reason: reason
+            });
+            return { status: response.status, message: response.message }
         }
         catch (error) {
             return { status: error.response.status, message: error.response.data.message };

@@ -355,7 +355,7 @@ def get_user_vms():
 @admin_endpoints.route('/api/admin/user/ban/', methods=['PUT'])
 @jwt_required()
 def ban_user():
-    """Ban a user with an optional reason and duration
+    """Ban a user with an optional reason
 
     Returns:
         json: Message
@@ -383,6 +383,16 @@ def ban_user():
     # Get the ban reason from the request
     if 'ban_reason' not in data:
         data['ban_reason'] = None
+
+    # Kill their virtual machine
+    vm = VirtualMachine.query.filter_by(user_id=user.id).first()
+    if vm:
+        try:
+            subprocess.Popen(['kill', str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except:
+            return jsonify({'message': 'Error deleting virtual machine'}), 500
+
+        db.session.delete(vm)
 
     # Ban the user by moving them to the banned users table
     banned_user = BannedUser(

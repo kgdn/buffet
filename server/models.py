@@ -6,6 +6,15 @@ db = SQLAlchemy()
 def generate_uuid():
     return uuid4().hex
 
+class UnverifiedUser(db.Model):
+    id = db.Column(db.String(32), primary_key=True, default=generate_uuid)
+    username = db.Column(db.String(80), nullable=False, unique=True)
+    email = db.Column(db.String(80), nullable=False)
+    password = db.Column(db.String(80), nullable=False)
+    login_time = db.Column(db.DateTime, nullable=True)
+    ip = db.Column(db.String(80), nullable=True)
+    role = db.Column(db.String(80), nullable=False)
+
 class User(db.Model):
     id = db.Column(db.String(32), primary_key=True, default=generate_uuid)
     username = db.Column(db.String(80), nullable=False, unique=True)

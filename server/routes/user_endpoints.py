@@ -1,12 +1,15 @@
 import subprocess
+import os
 from datetime import datetime, timezone, timedelta
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, create_access_token, set_access_cookies, unset_jwt_cookies, get_jwt_identity, get_jwt
+from flask_mail import Message, Mail
 from flask_bcrypt import Bcrypt
-from models import db, User, VirtualMachine, BannedUser
+from models import db, User, UnverifiedUser, BannedUser, VirtualMachine
 
 user_endpoints = Blueprint('user_endpoints', __name__)
 Bcrypt = Bcrypt()
+mail = Mail()
 
 @user_endpoints.after_request
 def refresh_expiring_jwts(response):
@@ -56,7 +59,7 @@ def verify():
 
 @user_endpoints.route('/api/user/register/', methods=['POST'])
 def register():
-    """Register a new user
+    """Register a new user, and send a verification email. 
 
     Returns:
         json: Message
@@ -80,14 +83,91 @@ def register():
     if User.query.filter_by(email=email).first():
         return jsonify({'message': 'Email already taken'}), 409
 
-    # Create the user
-    new_user = User(username=username, email=email, password=Bcrypt.generate_password_hash(password).decode('utf-8'), role='user')
-    db.session.add(new_user)
+    # Check if the username is already taken in the unverified users table
+    if UnverifiedUser.query.filter_by(username=username).first():
+        return jsonify({'message': 'Username already taken'}), 409
 
-    # Save the user
+    # Check if the email is already taken in the unverified users table
+    if UnverifiedUser.query.filter_by(email=email).first():
+        return jsonify({'message': 'Email already taken'}), 409
+
+    # If everything is valid, create a new user
+    new_user = UnverifiedUser(username=username, email=email, password=Bcrypt.generate_password_hash(password).decode('utf-8'), role='user')
+
+    # Add the new user to the database
+    db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({'message': 'User created'}), 201
+    # Get the user's id
+    new_user_id = new_user.id
+
+    # Send the verification email
+    # Format:
+    # Hello! You're recieving this email because you created an account on Buffet.
+    # Please click <a href="<SERVER_URL>/verify/<USER_ID>/">here</a> to verify your account. (<SERVER_URL> is the URL of the server that should be set in the .env file)
+    # 
+    # Signature:
+    # Buffet is a free and open source student project by <a href="https://kgdn.xyz/">Kieran Gordon</a> at <a href="https://www.hw.ac.uk/">Heriot-Watt University</a>.
+    # If you have any questions, please contact me at <a href="mailto:kjg2000@hw.ac.uk">kjg2000@hw</a>.
+    msg = Message('Verify your account', sender=(os.environ.get('MAIL_USERNAME')), recipients=[email])
+    msg.html = f"""\
+    <html>
+        <head>
+            <style>
+                body {{
+                    font-family: sans-serif;
+                }}
+            </style>
+        </head>
+        <body>
+            <p>Hello! You're recieving this email because you created an account on Buffet.</p>
+            <p>Please click <a href="{os.environ.get('SERVER_URL')}/verify/{new_user_id}/">here</a> to verify your account.</p>
+            <br>
+            <p>Buffet is a free and open source student project by <a href="https://kgdn.xyz/">Kieran Gordon</a> at <a href="https://www.hw.ac.uk/">Heriot-Watt University</a>.</p>
+            <p>If you have any questions, please contact me at <a href="mailto:kjg2000@hw.ac.uk">kjg2000@hw.ac.uk</a>.</p>
+            <br>
+            <p>Thank you!</p>
+        </body>
+    </html>
+    """
+    mail.send(msg)
+
+    return jsonify({'message': 'User created. Check your email to verify your account. Please check your spam folder if you do not see the email.'}), 201
+
+
+@user_endpoints.route('/api/user/verify/<string:id>/', methods=['GET'])
+def verify_user(id):
+    """Verify the user's account
+
+    Args:
+        id (string): The user's id
+
+    Returns:
+        json: Message
+    """
+
+    # Get the user from the unverified users table
+    user = UnverifiedUser.query.filter_by(id=id).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+
+    # If the user is already verified, return an error
+    if User.query.filter_by(username=user.username).first():
+        return jsonify({'message': 'User already verified'}), 409
+
+    # Create a new user with the same information as the unverified user
+    new_user = User(username=user.username, email=user.email, password=user.password, role=user.role)
+
+    # Save the user to the database
+    db.session.add(new_user)
+
+    # Delete the unverified user
+    db.session.delete(user)
+
+    # Save the changes
+    db.session.commit()
+
+    return jsonify({'message': 'Your account has been verified. You can now access the site.'}), 200
 
 @user_endpoints.route('/api/user/login/', methods=['POST'])
 def login():
@@ -106,14 +186,15 @@ def login():
     username = data['username']
     password = data['password']
 
-    # Check if the user exists and if the password is correct, and isn't in the banned users table
+    # Check if the user exists and if the password is correct
+    # If the user is found in the banned users table, return an error
     user = User.query.filter_by(username=username).first()
-    if not user or not Bcrypt.check_password_hash(user.password, password) or BannedUser.query.filter_by(user_id=user.id).first():
-        return jsonify({'message': 'Invalid username or password'}), 401
-
-    # Check if the user is banned
-    if BannedUser.query.filter_by(user_id=user.id).first():
-        return jsonify({'message': 'You were banned for violating the terms of service. Reason: ' + BannedUser.query.filter_by(user_id=user.id).first().ban_reason}), 403
+    if not user:
+        if BannedUser.query.filter_by(username=username).first():
+            return jsonify({'message': 'You were banned for: ' + BannedUser.query.filter_by(username=username).first().ban_reason + '. Please contact the head admin to appeal.'}), 403
+        return jsonify({'message': 'Invalid username'}), 401
+    if not Bcrypt.check_password_hash(user.password, password):
+        return jsonify({'message': 'Invalid password'}), 401
 
     # Get user's login time and set in DateTime format for database
     login_time = datetime.now(timezone.utc)

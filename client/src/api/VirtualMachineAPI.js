@@ -9,10 +9,9 @@ export default class VirtualMachineAPI {
             const response = await axios.get('http://localhost:5000/api/vm/iso/', {
                 withCredentials: true,
             });
-            return response;
+            return { status: response.status, message: response.message, data: response.data };
         } catch (error) {
-            console.error(error);
-            return { message: 'Error getting virtual machines' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -22,11 +21,10 @@ export default class VirtualMachineAPI {
             const response = await axios.post('http://localhost:5000/api/vm/create/', {
                 iso: iso
             });
-            return response;
+            return { status: response.status, message: response.message, data: response.data };
         }
         catch (error) {
-            console.error(error);
-            return { message: 'Error creating virtual machine' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -38,11 +36,10 @@ export default class VirtualMachineAPI {
                     vm_id: vm_id
                 }
             });
-            return response;
+            return { status: response.status, message: response.message, data: response.data };
         }
         catch (error) {
-            console.error(error);
-            return { message: 'Error deleting virtual machine' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 
@@ -54,11 +51,10 @@ export default class VirtualMachineAPI {
                     user_id: user_id
                 }
             });
-            return response;
+            return { status: response.status, message: response.message, data: response.data };
         }
         catch (error) {
-            console.error(error);
-            return { message: 'Error getting virtual machine' };
+            return { status: error.response.status, message: error.response.data.message };
         }
     }
 }
