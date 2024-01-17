@@ -6,6 +6,7 @@ from flask_bcrypt import Bcrypt
 from flask_mail import Mail
 from config import ApplicationConfig
 from models import db
+from werkzeug.middleware.proxy_fix import ProxyFix
 from routes.user_endpoints import user_endpoints
 from routes.vm_endpoints import vm_endpoints
 from routes.admin_endpoints import admin_endpoints
@@ -25,6 +26,8 @@ with app.app_context():
 app.register_blueprint(user_endpoints)
 app.register_blueprint(vm_endpoints)
 app.register_blueprint(admin_endpoints)
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 if __name__ == '__main__':
     app.run(debug=True)

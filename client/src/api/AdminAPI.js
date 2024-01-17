@@ -1,6 +1,8 @@
 import axios from 'axios';
+import Cookie from 'js-cookie';
 
 axios.defaults.withCredentials = true;
+axios.defaults.headers.common['X-CSRF-TOKEN'] = Cookie.get('csrf_access_token');
 
 const API_BASE_URL = 'http://localhost:5000';
 

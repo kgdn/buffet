@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookie from 'js-cookie';
 
 const API_BASE_URL = 'http://localhost:5000';
 
@@ -56,6 +57,9 @@ export default class AccountsAPI {
                     password: password
                 },
                 withCredentials: true,
+                headers: {
+                    'X-CSRF-TOKEN': Cookie.get('csrf_access_token')
+                }
             });
             return { status: response.status, message: response.message }
         } catch (error) {
@@ -67,6 +71,9 @@ export default class AccountsAPI {
         try {
             const response = await axios.get(`${API_BASE_URL}/api/user/verify/`, {
                 withCredentials: true,
+                headers: {
+                    'X-CSRF-TOKEN': Cookie.get('csrf_access_token')
+                }
             });
             return { status: response.status, message: response.message }
         } catch (error) {
@@ -80,6 +87,9 @@ export default class AccountsAPI {
         try {
             const response = await axios.get(`${API_BASE_URL}/api/user/`, {
                 withCredentials: true,
+                headers: {
+                    'X-CSRF-TOKEN': Cookie.get('csrf_access_token')
+                }
             });
             return { status: response.status, message: response.message, data: response.data }
         }
@@ -96,6 +106,9 @@ export default class AccountsAPI {
                 password: password
             }, {
                 withCredentials: true,
+                headers: {
+                    'X-CSRF-TOKEN': Cookie.get('csrf_access_token')
+                }
             });
             return { status: response.status, message: response.message }
         } catch (error) {
@@ -111,6 +124,9 @@ export default class AccountsAPI {
                 new_password: new_password
             }, {
                 withCredentials: true,
+                headers: {
+                    'X-CSRF-TOKEN': Cookie.get('csrf_access_token')
+                }
             });
             return { status: response.status, message: response.message }
         } catch (error) {
@@ -126,6 +142,9 @@ export default class AccountsAPI {
                 password: password
             }, {
                 withCredentials: true,
+                headers: {
+                    'X-CSRF-TOKEN': Cookie.get('csrf_access_token')
+                }
             });
             return { status: response.status, message: response.message }
         } catch (error) {
