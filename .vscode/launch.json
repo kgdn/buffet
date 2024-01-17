@@ -1,13 +1,16 @@
 {
-    "version": "0.1.0",
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Chrome against localhost",
             "type": "chrome",
             "request": "launch",
+            "name": "Launch Chrome against localhost",
             "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}/wwwroot",
+            "webRoot": "${workspaceFolder}",
             "runtimeExecutable": "/var/lib/flatpak/app/com.google.Chrome/current/active/export/bin/com.google.Chrome",
-        },
+        }
     ]
 }

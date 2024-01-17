@@ -1,4 +1,5 @@
 .vscode/
+.vscode/launch.json
 
 server/iso/
 server/venv/
@@ -23,3 +24,4 @@ client/.env.production.local
 client/npm-debug.log*
 client/yarn-debug.log*
 client/yarn-error.log*
+client/.env

@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav } from 'react-bootstrap';
 import AccountsAPI from '../api/AccountsAPI';
 
 function NavbarComponent() {
 
-    const [username, setUsername] = React.useState('');
-    const [role, setRole] = React.useState('');
+    const [username, setUsername] = useState('');
+    const [role, setRole] = useState('');
 
     useEffect(() => {
         AccountsAPI.getUserDetails().then((response) => {

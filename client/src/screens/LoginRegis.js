@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
+import NavbarComponent from '../components/Navbar';
 import { Form, Button, Row, Col, Container, Alert } from 'react-bootstrap';
 import AccountsAPI from '../api/AccountsAPI';
 import validator from 'validator';
@@ -66,7 +66,7 @@ function LoginRegis() {
 
     return (
         <div>
-            <Navbar />
+            <NavbarComponent />
             <Container>
                 <Row>
                     <Col>

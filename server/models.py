@@ -11,9 +11,6 @@ class UnverifiedUser(db.Model):
     username = db.Column(db.String(80), nullable=False, unique=True)
     email = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(80), nullable=False)
-    login_time = db.Column(db.DateTime, nullable=True)
-    ip = db.Column(db.String(80), nullable=True)
-    role = db.Column(db.String(80), nullable=False)
 
 class User(db.Model):
     id = db.Column(db.String(32), primary_key=True, default=generate_uuid)

@@ -49,13 +49,14 @@ def create_vm():
 
     # Get the next available port, choose a random port between 5900 and 6000
     port = 5900
-    while port <= 5905:
+    while port <= 5904:
         if not VirtualMachine.query.filter_by(port=port).first():
             break
         port += 1
 
-    if port > 5905:
-        return jsonify({'message': 'Service is at capacity. Please try again later.'}), 503
+    # If there are no available ports, throw an error
+    if port > 5904:
+        return jsonify({'message': 'Due to the limited resources on the server, there are no machines available. Please try again later.'}), 500
 
     wsport = port - 200
 
@@ -68,7 +69,7 @@ def create_vm():
         process = subprocess.Popen([
             'qemu-system-x86_64', '-m', '2048M', '-smp', '2', '-enable-kvm', '-device', 'virtio-balloon', '-cdrom', 'iso/' + iso, '-vga', 'virtio', '-net', 'nic', '-net', 'user', '-vnc', ':0,websocket=' + str(wsport) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process_id = process.pid
-    except:
+    except Exception as e:
         return jsonify({'message': 'QEMU failed to create virtual machine. This is likely due to a lack of resources on the server.'}), 500
 
     # Create the virtual machine in the database

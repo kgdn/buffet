@@ -2,11 +2,13 @@ import axios from 'axios';
 
 axios.defaults.withCredentials = true;
 
+const API_BASE_URL = 'http://localhost:5000';
+
 export default class VirtualMachineAPI {
     // Get all virtual machines from the database
     static async getAllImages() {
         try {
-            const response = await axios.get('http://localhost:5000/api/vm/iso/', {
+            const response = await axios.get(`${API_BASE_URL}/api/vm/iso/`, {
                 withCredentials: true,
             });
             return { status: response.status, message: response.message, data: response.data };
@@ -18,7 +20,7 @@ export default class VirtualMachineAPI {
     // Use iso as a parameter to get a specific virtual machine
     static async createVirtualMachine(iso) {
         try {
-            const response = await axios.post('http://localhost:5000/api/vm/create/', {
+            const response = await axios.post(`${API_BASE_URL}/api/vm/create/`, {
                 iso: iso
             });
             return { status: response.status, message: response.message, data: response.data };
@@ -31,7 +33,7 @@ export default class VirtualMachineAPI {
     // Use vm_id as a parameter to delete a specific virtual machine
     static async deleteVirtualMachine(vm_id) {
         try {
-            const response = await axios.delete('http://localhost:5000/api/vm/delete/', {
+            const response = await axios.delete(`${API_BASE_URL}/api/vm/delete/`, {
                 data: {
                     vm_id: vm_id
                 }
@@ -46,7 +48,7 @@ export default class VirtualMachineAPI {
     // Use user_id as a parameter to get a specific virtual machine
     static async getVirtualMachineByUser(user_id) {
         try {
-            const response = await axios.get('http://localhost:5000/api/vm/user/', {
+            const response = await axios.get(`${API_BASE_URL}/api/vm/user/`, {
                 params: {
                     user_id: user_id
                 }

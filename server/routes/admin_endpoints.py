@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, unset_jwt_cookies
 from flask_bcrypt import Bcrypt
-from models import db, User, VirtualMachine, BannedUser
+from models import db, User, VirtualMachine, BannedUser, UnverifiedUser
 import subprocess
 
 admin_endpoints = Blueprint('admin', __name__)
@@ -526,3 +526,114 @@ def delete_banned_user():
     db.session.commit()
 
     return jsonify({'message': 'Banned user deleted'}), 200
+
+# Get all unverified users
+@admin_endpoints.route('/api/admin/user/unverified/', methods=['GET'])
+@jwt_required()
+def get_unverified_users():
+    """Get all unverified users
+
+    Returns:
+        json: List of unverified users
+    """
+    
+    # Get the user from the authorization token
+    admin = User.query.filter_by(id=get_jwt_identity()).first()
+    if not admin:
+        return jsonify({'message': 'Invalid user'}), 401
+    
+    # Ensure the user is an admin
+    if admin.role != 'admin':
+        return jsonify({'message': 'Insufficient permissions'}), 403
+
+    # Get all unverified users from the UnverifiedUser table
+    unverified_users = UnverifiedUser.query.all()
+    if not unverified_users:
+        return jsonify({'message': 'No unverified users'}), 404
+
+    unverified_users_list = []
+    for unverified_user in unverified_users:
+        unverified_users_list.append({
+            'id': unverified_user.id,
+            'username': unverified_user.username,
+            'email': unverified_user.email,
+        })
+    
+    return jsonify(unverified_users_list), 200
+
+@admin_endpoints.route('/api/admin/user/unverified/delete/', methods=['DELETE'])
+@jwt_required()
+def delete_unverified_user():
+    """Delete an unverified user
+
+    Returns:
+        json: Message
+    """
+    
+    # Get the user from the authorization token
+    admin = User.query.filter_by(id=get_jwt_identity()).first()
+    if not admin:
+        return jsonify({'message': 'Invalid user'}), 401
+    
+    # Ensure the user is an admin
+    if admin.role != 'admin':
+        return jsonify({'message': 'Insufficient permissions'}), 403
+
+    # Get the user id from the request
+    data = request.get_json()
+    if not data or 'user_id' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    # Get the user, if it exists
+    unverified_user = UnverifiedUser.query.filter_by(id=data['user_id']).first()
+    if not unverified_user:
+        return jsonify({'message': 'Invalid user'}), 404
+
+    db.session.delete(unverified_user)
+    db.session.commit()
+
+    return jsonify({'message': 'Unverified user deleted'}), 200
+
+@admin_endpoints.route('/api/admin/user/unverified/verify/', methods=['PUT'])
+@jwt_required()
+def verify_unverified_user():
+    """Verify an unverified user
+
+    Returns:
+        json: Message
+    """
+    
+    # Get the user from the authorization token
+    admin = User.query.filter_by(id=get_jwt_identity()).first()
+    if not admin:
+        return jsonify({'message': 'Invalid user'}), 401
+    
+    # Ensure the user is an admin
+    if admin.role != 'admin':
+        return jsonify({'message': 'Insufficient permissions'}), 403
+
+    # Get the user id from the request
+    data = request.get_json()
+    if not data or 'user_id' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    # Get the user, if it exists
+    unverified_user = UnverifiedUser.query.filter_by(id=data['user_id']).first()
+    if not unverified_user:
+        return jsonify({'message': 'Invalid user'}), 404
+
+    # Create the user in the users table
+    user = User(
+        username=unverified_user.username,
+        email=unverified_user.email,
+        password=unverified_user.password,
+        login_time=None,
+        ip=None,
+        role='user'
+    )
+
+    db.session.add(user)
+    db.session.delete(unverified_user)
+    db.session.commit()
+
+    return jsonify({'message': 'Unverified user verified'}), 200

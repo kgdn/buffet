@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
+import NavbarComponent from '../components/Navbar';
 import { Modal, Form, Button, ButtonGroup, Container, Row, Col, Alert } from 'react-bootstrap';
 import AccountsAPI from '../api/AccountsAPI';
 import validator from 'validator';
@@ -127,7 +127,7 @@ function ManageUser() {
 
     return (
         <div>
-            <Navbar />
+            <NavbarComponent />
             <Container>
                 <Row>
                     <Col>

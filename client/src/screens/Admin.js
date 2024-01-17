@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
+import NavbarComponent from '../components/Navbar';
 import AdminAPI from '../api/AdminAPI';
 import validator from 'validator';
 import { Alert, Container, Col, Row, Button, Form, ButtonGroup, Modal, Tab, Tabs, Card } from 'react-bootstrap';
@@ -31,6 +31,12 @@ function Admin() {
     const [unbanMessage, setUnbanMessage] = useState('');
     const [showUnbanModal, setShowUnbanModal] = useState(false);
     const [bannedMessage, setBannedMessage] = useState('');
+    const [unverifiedUsers, setUnverifiedUsers] = useState([]);
+    const [unverifiedMessage, setUnverifiedMessage] = useState('');
+    const [showVerifyModal, setShowVerifyModal] = useState(false);
+    const [verifyMessage, setVerifyMessage] = useState('');
+    const [showDeleteUnverifiedModal, setShowDeleteUnverifiedModal] = useState(false);
+    const [deleteUnverifiedMessage, setDeleteUnverifiedMessage] = useState('');
 
     useEffect(() => {
         document.title = 'Buffet - Admin';
@@ -66,6 +72,15 @@ function Admin() {
                     setBannedMessage(response.message);
                 }
             })
+        AdminAPI.getUnverifiedUsers()
+            .then(response => {
+                if (response.status === 200) {
+                    setUnverifiedUsers(response.data);
+                }
+                else {
+                    setUnverifiedMessage(response.message);
+                }
+            })
     }, []);
 
     const isUserBanned = (userId) => {
@@ -81,6 +96,10 @@ function Admin() {
     });
 
     const filteredBannedUsers = bannedUsers.filter(user => {
+        return user.username.toLowerCase().includes(userSearchQuery.toLowerCase());
+    });
+
+    const filteredUnverifiedUsers = unverifiedUsers.filter(user => {
         return user.username.toLowerCase().includes(userSearchQuery.toLowerCase());
     });
 
@@ -184,10 +203,37 @@ function Admin() {
             .catch(error => console.error(error));
     }
 
+    const verifyUser = (id) => {
+        AdminAPI.verifyUser(id)
+            .then(response => {
+                if (response.status === 200) {
+                    setUnverifiedUsers(prevUnverifiedUsers => prevUnverifiedUsers.filter(user => user.id !== id));
+                    setUsers(prevUsers => [...prevUsers, unverifiedUsers.find(user => user.id === id)]);
+                } else {
+                    setVerifyMessage(response.message);
+                }
+                setVerifyMessage('');
+            })
+            .catch(error => console.error(error));
+    }
+
+    const deleteUnverifiedUser = (id) => {
+        AdminAPI.deleteUser(id)
+            .then(response => {
+                if (response.status === 200) {
+                    setUnverifiedUsers(prevUnverifiedUsers => prevUnverifiedUsers.filter(user => user.id !== id));
+                } else {
+                    setDeleteUnverifiedMessage(response.message);
+                }
+                setDeleteUnverifiedMessage('');
+            })
+            .catch(error => console.error(error));
+    }
+
     return (
         // Map through all users and display their information in a Card
         <div>
-            <Navbar />
+            <NavbarComponent />
             <Container>
                 <h1>Admin</h1>
                 <Tabs
@@ -351,6 +397,42 @@ function Admin() {
                             </Row>
                         </Container>
                     </Tab>
+                    <Tab eventKey="unverified" title="Unverified Users">
+                        <Container>
+                            <h2>Unverified Users</h2>
+                            <Row>
+                                <Col>
+                                    <Form>
+                                        <Form.Group className="mb-3">
+                                            <Form.Control type="text" placeholder="Search" value={userSearchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                                        </Form.Group>
+                                        <Alert variant="primary" role="alert" style={{ display: unverifiedUsers.length === 0 ? 'block' : 'none' }}>
+                                            {unverifiedMessage}
+                                        </Alert>
+                                    </Form>
+                                </Col>
+                            </Row>
+                            <Row>
+                                {filteredUnverifiedUsers.map((user) => (
+                                    <Col key={user.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
+                                        <Card>
+                                            <Card.Body>
+                                                <Card.Title>{user.username}</Card.Title>
+                                                <Card.Text>Email: {user.email}</Card.Text>
+                                                <Card.Text>User ID: {user.id}</Card.Text>
+                                            </Card.Body>
+                                            <Card.Footer>
+                                                <ButtonGroup>
+                                                    <Button variant="primary" onClick={() => { setSelectedUser(user.id); setShowVerifyModal(true); }}>Verify user</Button>
+                                                    <Button variant="danger" onClick={() => { setSelectedUser(user.id); setShowDeleteUnverifiedModal(true); }}>Delete user</Button>
+                                                </ButtonGroup>
+                                            </Card.Footer>
+                                        </Card>
+                                    </Col>
+                                ))}
+                            </Row>
+                        </Container>
+                    </Tab>
                 </Tabs>
                 <Container>
                     {/* Delete user confirmation modal */}
@@ -479,6 +561,44 @@ function Admin() {
                         <Modal.Footer>
                             <Button variant="danger" onClick={() => { unbanUser(selectedUser); setShowUnbanModal(false); }}>Unban</Button>
                             <Button variant="secondary" onClick={() => setShowUnbanModal(false)}>Cancel</Button>
+                        </Modal.Footer>
+                    </Modal>
+
+                    {/* Verify user modal */}
+                    <Modal show={showVerifyModal} onHide={() => setShowVerifyModal(false)}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Verify User</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            Are you sure you want to verify this user?
+                            {verifyMessage !== '' && (
+                                <Alert variant="primary" role="alert" style={{ marginTop: '1rem' }}>
+                                    {verifyMessage}
+                                </Alert>
+                            )}
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="primary" onClick={() => { verifyUser(selectedUser); setShowVerifyModal(false); }}>Verify</Button>
+                            <Button variant="secondary" onClick={() => setShowVerifyModal(false)}>Cancel</Button>
+                        </Modal.Footer>
+                    </Modal>
+
+                    {/* Delete unverified user modal */}
+                    <Modal show={showDeleteUnverifiedModal} onHide={() => setShowDeleteUnverifiedModal(false)}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Delete User</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            Are you sure you want to delete this user?
+                            {deleteUnverifiedMessage !== '' && (
+                                <Alert variant="primary" role="alert" style={{ marginTop: '1rem' }}>
+                                    {deleteUnverifiedMessage}
+                                </Alert>
+                            )}
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="danger" onClick={() => { deleteUnverifiedUser(selectedUser); setShowDeleteUnverifiedModal(false); }}>Delete</Button>
+                            <Button variant="secondary" onClick={() => setShowDeleteUnverifiedModal(false)}>Cancel</Button>
                         </Modal.Footer>
                     </Modal>
                 </Container>

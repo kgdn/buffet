@@ -1,9 +1,11 @@
 import axios from 'axios';
 
+const API_BASE_URL = 'http://localhost:5000';
+
 export default class AccountsAPI {
     static async login(username, password) {
         try {
-            const response = await axios.post('http://localhost:5000/api/user/login/', {
+            const response = await axios.post(`${API_BASE_URL}/api/user/login/`, {
                 username: username,
                 password: password
             });
@@ -15,7 +17,7 @@ export default class AccountsAPI {
 
     static async register(username, email, password) {
         try {
-            const response = await axios.post('http://localhost:5000/api/user/register/', {
+            const response = await axios.post(`${API_BASE_URL}/api/user/register/`, {
                 username: username,
                 email: email,
                 password: password
@@ -29,7 +31,7 @@ export default class AccountsAPI {
 
     static async verifyRegistration(id) {
         try {
-            const response = await axios.get('http://localhost:5000/api/user/verify/' + id);
+            const response = await axios.get(`${API_BASE_URL}/api/user/verify/` + id);
             return { status: response.status, message: response.data.message }
         } catch (error) {
             return { status: error.response.status, message: error.response.data.message };
@@ -38,7 +40,7 @@ export default class AccountsAPI {
 
     static async logout() {
         try {
-            const response = await axios.post('http://localhost:5000/api/user/logout/', {
+            const response = await axios.post(`${API_BASE_URL}/api/user/logout/`, {
                 withCredentials: true,
             });
             return { status: response.status, message: response.message }
@@ -49,7 +51,7 @@ export default class AccountsAPI {
 
     static async deleteAccount(password) {
         try {
-            const response = await axios.delete('http://localhost:5000/api/user/delete/', {
+            const response = await axios.delete(`${API_BASE_URL}/api/user/delete/`, {
                 data: {
                     password: password
                 },
@@ -63,7 +65,7 @@ export default class AccountsAPI {
 
     static async isAuthenticated() {
         try {
-            const response = await axios.get('http://localhost:5000/api/user/verify/', {
+            const response = await axios.get(`${API_BASE_URL}/api/user/verify/`, {
                 withCredentials: true,
             });
             return { status: response.status, message: response.message }
@@ -74,9 +76,9 @@ export default class AccountsAPI {
 
     // Get the details of the currently logged in user
     static async getUserDetails() {
-        // Authenticate against http://localhost:5000/api/user/ which responds with the username
+        // Authenticate against {API_BASE_URL}/api/user/ which responds with the username
         try {
-            const response = await axios.get('http://localhost:5000/api/user/', {
+            const response = await axios.get(`${API_BASE_URL}/api/user/`, {
                 withCredentials: true,
             });
             return { status: response.status, message: response.message, data: response.data }
@@ -89,7 +91,7 @@ export default class AccountsAPI {
     // Allow the user to change their username
     static async changeUsername(username, password) {
         try {
-            const response = await axios.put('http://localhost:5000/api/user/username/', {
+            const response = await axios.put(`${API_BASE_URL}/api/user/username/`, {
                 username: username,
                 password: password
             }, {
@@ -104,7 +106,7 @@ export default class AccountsAPI {
     // User must supply their old password to change their password, as well as their new password and authentication token
     static async changePassword(current_password, new_password) {
         try {
-            const response = await axios.put('http://localhost:5000/api/user/password/', {
+            const response = await axios.put(`${API_BASE_URL}/api/user/password/`, {
                 current_password: current_password,
                 new_password: new_password
             }, {
@@ -119,7 +121,7 @@ export default class AccountsAPI {
     // User must supply their password to change their email
     static async changeEmail(email, password) {
         try {
-            const response = await axios.put('http://localhost:5000/api/user/email/', {
+            const response = await axios.put(`${API_BASE_URL}/api/user/email/`, {
                 email: email,
                 password: password
             }, {

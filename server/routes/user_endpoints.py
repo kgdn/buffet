@@ -1,5 +1,6 @@
 import subprocess
 import os
+import time
 from datetime import datetime, timezone, timedelta
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, create_access_token, set_access_cookies, unset_jwt_cookies, get_jwt_identity, get_jwt
@@ -10,6 +11,32 @@ from models import db, User, UnverifiedUser, BannedUser, VirtualMachine
 user_endpoints = Blueprint('user_endpoints', __name__)
 Bcrypt = Bcrypt()
 mail = Mail()
+
+# Clean up unverified users after 24 hours, keep running in background
+def clean_up_unverified_users():
+    """Clean up unverified users after 24 hours, keep running in background
+    """
+
+    while True:
+        # Get all unverified users
+        unverified_users = UnverifiedUser.query.all()
+
+        # Get the current time
+        now = datetime.now(timezone.utc)
+
+        # Iterate through all unverified users
+        for user in unverified_users:
+            # Get the time the user was created
+            created = user.created
+
+            # If the user was created more than 24 hours ago, delete them
+            if (now - created).total_seconds() > 86400:
+                db.session.delete(user)
+                db.session.commit()
+                print('Deleted unverified user: ' + user.username)
+
+        # Sleep for 24 hours
+        time.sleep(86400)
 
 @user_endpoints.after_request
 def refresh_expiring_jwts(response):
@@ -92,7 +119,11 @@ def register():
         return jsonify({'message': 'Email already taken'}), 409
 
     # If everything is valid, create a new user
-    new_user = UnverifiedUser(username=username, email=email, password=Bcrypt.generate_password_hash(password).decode('utf-8'), role='user')
+    new_user = UnverifiedUser(username=username, email=email, password=Bcrypt.generate_password_hash(password).decode('utf-8'))
+
+    # Get the current time and set in DateTime format for database
+    created = datetime.now(timezone.utc)
+    new_user.created = created
 
     # Add the new user to the database
     db.session.add(new_user)
@@ -121,7 +152,8 @@ def register():
         </head>
         <body>
             <p>Hello! You're recieving this email because you created an account on Buffet.</p>
-            <p>Please click <a href="{os.environ.get('SERVER_URL')}/verify/{new_user_id}/">here</a> to verify your account.</p>
+            <p>Please click the link below to verify your account.</p>
+            <p><a href="{os.environ.get('SERVER_URL')}/verify/{new_user_id}/">{os.environ.get('SERVER_URL')}/verify/{new_user_id}/</a></p>
             <br>
             <p>Buffet is a free and open source student project by <a href="https://kgdn.xyz/">Kieran Gordon</a> at <a href="https://www.hw.ac.uk/">Heriot-Watt University</a>.</p>
             <p>If you have any questions, please contact me at <a href="mailto:kjg2000@hw.ac.uk">kjg2000@hw.ac.uk</a>.</p>
@@ -156,7 +188,7 @@ def verify_user(id):
         return jsonify({'message': 'User already verified'}), 409
 
     # Create a new user with the same information as the unverified user
-    new_user = User(username=user.username, email=user.email, password=user.password, role=user.role)
+    new_user = User(username=user.username, email=user.email, password=user.password, role='user')
 
     # Save the user to the database
     db.session.add(new_user)

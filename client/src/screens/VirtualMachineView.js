@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import RFB from "@novnc/novnc/core/rfb";
 import { Button, ButtonGroup, Card, Modal } from "react-bootstrap";
 import VirtualMachineAPI from "../api/VirtualMachineAPI";
@@ -7,10 +7,10 @@ import VirtualMachineAPI from "../api/VirtualMachineAPI";
 // The url schema should be /vm/
 
 function VirtualMachineView() {
-    const [wsport, setWebsocketPort] = React.useState(0);
-    const [virtualMachineId, setVirtualMachineId] = React.useState(0);
-    const [showModal, setShowModal] = React.useState(true);
-    const [iso, setIso] = React.useState('');
+    const [wsport, setWebsocketPort] = useState(0);
+    const [virtualMachineId, setVirtualMachineId] = useState(0);
+    const [showModal, setShowModal] = useState(true);
+    const [iso, setIso] = useState('');
     const inactivityTimeout = 500000;
 
     // If no user id can be found, redirect to the home page

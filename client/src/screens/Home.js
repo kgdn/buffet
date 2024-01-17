@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Button, Container, Row, Col, Form, Modal, Alert } from 'react-bootstrap';
 import NavbarComponent from '../components/Navbar';
 import AccountsAPI from '../api/AccountsAPI';
@@ -6,13 +6,13 @@ import VirtualMachineAPI from '../api/VirtualMachineAPI';
 import Footer from '../components/Footer';
 
 function Home() {
-    const [loggedIn, setLoggedIn] = React.useState(false);
-    const [images, setImages] = React.useState([]);
-    const [nonLinuxImages, setNonLinuxImages] = React.useState([]);
-    const [linuxSearchQuery, setSearchQuery] = React.useState('');
-    const [nonLinuxSearchQuery, setNonLinuxSearchQuery] = React.useState('');
-    const [errorModal, showErrorModal] = React.useState(false);
-    const [errorMessage, setErrorMessage] = React.useState('');
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [images, setImages] = useState([]);
+    const [nonLinuxImages, setNonLinuxImages] = useState([]);
+    const [linuxSearchQuery, setSearchQuery] = useState('');
+    const [nonLinuxSearchQuery, setNonLinuxSearchQuery] = useState('');
+    const [errorModal, showErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         document.title = 'Buffet - Home';
@@ -118,35 +118,42 @@ function Home() {
                             </Col>
                         )).sort((a, b) => a.key.localeCompare(b.key))}
                     </Row>
-                    <Row>
-                        <Col id="about">
-                            <h1>Non-Linux Operating Systems</h1>
-                            <p>The following operating systems are not based on the Linux kernel. These operating systems were added for educational purposes, or are a part of the Unix-like family, or were simply added because they are interesting.</p>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <Form className="form-inline">
-                                <Form.Control className="mb-3" type="search" placeholder="Search" aria-label="Search" value={nonLinuxSearchQuery} onChange={(e) => setNonLinuxSearchQuery(e.target.value)} />
-                            </Form>
-                        </Col>
-                    </Row>
-                    <Row>
-                        {filteredNonLinuxImages.map((image) => (
-                            <Col key={image.id} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
-                                <Card>
-                                    <Card.Body>
-                                        <Card.Title>{image.name} {image.version}</Card.Title>
-                                        <Card.Text>{image.desktop}</Card.Text>
-                                        <Card.Text>{image.description}</Card.Text>
-                                    </Card.Body>
-                                    <Card.Footer>
-                                        <Button variant="primary" onClick={() => CreateVMButton(image.iso)}>Create VM</Button>
-                                    </Card.Footer>
-                                </Card>
-                            </Col>
-                        )).sort((a, b) => a.key.localeCompare(b.key))}
-                    </Row>
+                    {/* If virtual machines with non-Linux operating systems are added, display them here, else do not display this section */}
+                    {nonLinuxImages.length > 0 ? (
+                        <>
+                            <Row>
+                                <Col id="about">
+                                    <h1>Non-Linux Operating Systems</h1>
+                                    <p>The operating systems below are not based on the Linux kernel. They are included for testing purposes.</p>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                    <Form className="form-inline">
+                                        <Form.Control className="mb-3" type="search" placeholder="Search" aria-label="Search" value={nonLinuxSearchQuery} onChange={(e) => setNonLinuxSearchQuery(e.target.value)} />
+                                    </Form>
+                                </Col>
+                            </Row>
+                            <Row>
+                                {filteredNonLinuxImages.map((image) => (
+                                    <Col key={image.id} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
+                                        <Card>
+                                            <Card.Body>
+                                                <Card.Title>{image.name} {image.version}</Card.Title>
+                                                <Card.Text>{image.desktop}</Card.Text>
+                                                <Card.Text>{image.description}</Card.Text>
+                                            </Card.Body>
+                                            <Card.Footer>
+                                                <Button variant="primary" onClick={() => CreateVMButton(image.iso)}>Create VM</Button>
+                                            </Card.Footer>
+                                        </Card>
+                                    </Col>
+                                )).sort((a, b) => a.key.localeCompare(b.key))}
+                            </Row>
+                        </>
+                    ) : (
+                        <></>
+                    )}
                 </Container>
             ) : (
                 <Container>
