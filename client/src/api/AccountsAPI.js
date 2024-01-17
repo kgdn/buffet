@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Cookie from 'js-cookie';
+import Cookie from 'cookie-js';
 
 const API_BASE_URL = 'http://localhost:5000';
 

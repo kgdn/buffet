@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Cookie from 'js-cookie';
+import Cookie from 'cookie-js';
 
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['X-CSRF-TOKEN'] = Cookie.get('csrf_access_token');
