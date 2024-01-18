@@ -6,7 +6,7 @@ const cookies = new Cookies(null, { path: '/' });
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['X-CSRF-TOKEN'] = cookies.get('csrf_access_token');
 
-const API_BASE_URL = 'https://lxphd06.macs.hw.ac.uk';
+const API_BASE_URL = 'https://lxphd06.macs.hw.ac.uk:8000';
 
 export default class AdminAPI {
     static async getAllVMs() {
