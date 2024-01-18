@@ -75,7 +75,6 @@ def get_user_info():
     }), 200
 
 @user_endpoints.route('/api/user/verify/', methods=['GET'])
-@cross_origin(supports_credentials=True)
 @jwt_required()
 def verify():
     """Verify the user's token
