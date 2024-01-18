@@ -33,6 +33,12 @@ function Home() {
                         });
                     }
                 });
+
+                VirtualMachineAPI.getVirtualMachineByUser(response.data.id).then((response) => {
+                    if (response.status === 200) {
+                        window.location.href = '/vm/';
+                    }
+                });
             }
         });
     }, []);
