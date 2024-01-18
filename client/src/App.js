@@ -15,7 +15,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<AboutHelp />} />
-        <Route path="/verify" element={<ProtectedRoute element={<VerifyUser />} />} />
+        <Route path="/verify" element={<VerifyUser />} />
         <Route path="/verify/:id" element={<ProtectedRoute element={<VerifyUser />} />} />
         <Route path="/login" element={<ProtectedRoute element={<LoginRegis />} />} />
         <Route path="/admin" element={<ProtectedRoute element={<Admin />} />} />
