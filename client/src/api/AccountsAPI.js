@@ -34,7 +34,7 @@ export default class AccountsAPI {
 
     static async verifyRegistration(id) {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/user/verify/` + id);
+            const response = await axios.get(`${API_BASE_URL}/api/user/verify/` + id) + '/';
             return { status: response.status, message: response.data.message }
         } catch (error) {
             return { status: error.response.status, message: error.response.data.message };
