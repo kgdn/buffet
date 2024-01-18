@@ -3,7 +3,7 @@ import Cookies from 'universal-cookie';
 
 const cookies = new Cookies(null, { path: '/' });
 
-const API_BASE_URL = 'https://lxphd06.macs.hw.ac.uk:8000';
+const API_BASE_URL = 'https://lxphd06.macs.hw.ac.uk';
 
 export default class AccountsAPI {
     static async login(username, password) {
