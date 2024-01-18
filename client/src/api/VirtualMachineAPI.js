@@ -1,8 +1,10 @@
 import axios from 'axios';
-import Cookie from 'cookie-js';
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies(null, { path: '/' });
 
 axios.defaults.withCredentials = true;
-axios.defaults.headers.common['X-CSRF-TOKEN'] = Cookie.get('csrf_access_token');
+axios.defaults.headers.common['X-CSRF-TOKEN'] = cookies.get('csrf_access_token');
 
 const API_BASE_URL = 'https://lxphd06.macs.hw.ac.uk:8000';
 

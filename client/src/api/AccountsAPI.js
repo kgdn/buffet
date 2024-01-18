@@ -1,5 +1,7 @@
 import axios from 'axios';
-import Cookie from 'cookie-js';
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies(null, { path: '/' });
 
 const API_BASE_URL = 'https://lxphd06.macs.hw.ac.uk:8000';
 
@@ -58,7 +60,7 @@ export default class AccountsAPI {
                 },
                 withCredentials: true,
                 headers: {
-                    'X-CSRF-TOKEN': Cookie.get('csrf_access_token')
+                    'X-CSRF-TOKEN': cookies.get('csrf_access_token')
                 }
             });
             return { status: response.status, message: response.message }
@@ -72,7 +74,7 @@ export default class AccountsAPI {
             const response = await axios.get(`${API_BASE_URL}/api/user/verify/`, {
                 withCredentials: true,
                 headers: {
-                    'X-CSRF-TOKEN': Cookie.get('csrf_access_token')
+                    'X-CSRF-TOKEN': cookies.get('csrf_access_token')
                 }
             });
             return { status: response.status, message: response.message }
@@ -88,7 +90,7 @@ export default class AccountsAPI {
             const response = await axios.get(`${API_BASE_URL}/api/user/`, {
                 withCredentials: true,
                 headers: {
-                    'X-CSRF-TOKEN': Cookie.get('csrf_access_token')
+                    'X-CSRF-TOKEN': cookies.get('csrf_access_token')
                 }
             });
             return { status: response.status, message: response.message, data: response.data }
@@ -107,7 +109,7 @@ export default class AccountsAPI {
             }, {
                 withCredentials: true,
                 headers: {
-                    'X-CSRF-TOKEN': Cookie.get('csrf_access_token')
+                    'X-CSRF-TOKEN': cookies.get('csrf_access_token')
                 }
             });
             return { status: response.status, message: response.message }
@@ -125,7 +127,7 @@ export default class AccountsAPI {
             }, {
                 withCredentials: true,
                 headers: {
-                    'X-CSRF-TOKEN': Cookie.get('csrf_access_token')
+                    'X-CSRF-TOKEN': cookies.get('csrf_access_token')
                 }
             });
             return { status: response.status, message: response.message }
@@ -143,7 +145,7 @@ export default class AccountsAPI {
             }, {
                 withCredentials: true,
                 headers: {
-                    'X-CSRF-TOKEN': Cookie.get('csrf_access_token')
+                    'X-CSRF-TOKEN': cookies.get('csrf_access_token')
                 }
             });
             return { status: response.status, message: response.message }
