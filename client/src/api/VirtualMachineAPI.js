@@ -4,7 +4,7 @@ import Cookie from 'cookie-js';
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['X-CSRF-TOKEN'] = Cookie.get('csrf_access_token');
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://lxphd06.macs.hw.ac.uk:8000';
 
 export default class VirtualMachineAPI {
     // Get all virtual machines from the database

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookie from 'cookie-js';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://lxphd06.macs.hw.ac.uk:8000';
 
 export default class AccountsAPI {
     static async login(username, password) {
