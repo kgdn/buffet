@@ -7,6 +7,7 @@ from flask_jwt_extended import jwt_required, create_access_token, set_access_coo
 from flask_mail import Message, Mail
 from flask_bcrypt import Bcrypt
 from models import db, User, UnverifiedUser, BannedUser, VirtualMachine
+from flask_cors import cross_origin
 
 user_endpoints = Blueprint('user_endpoints', __name__)
 Bcrypt = Bcrypt()
@@ -74,6 +75,7 @@ def get_user_info():
     }), 200
 
 @user_endpoints.route('/api/user/verify/', methods=['GET'])
+@cross_origin(supports_credentials=True)
 @jwt_required()
 def verify():
     """Verify the user's token
