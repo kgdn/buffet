@@ -13,7 +13,7 @@ from routes.admin_endpoints import admin_endpoints
 
 app = Flask(__name__)
 app.config.from_object(ApplicationConfig)
-CORS(app)
+CORS(app, supports_credentials=True)
 Bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 db.init_app(app)
