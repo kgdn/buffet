@@ -12,17 +12,12 @@ function VerifyUser() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const { status, message } = await AccountsAPI.verifyRegistration(id);
-                if (status === 200) {
-                    setMessage(message);
-                } else {
-                    setMessage(message);
-                }
+                const { message } = await AccountsAPI.verifyRegistration(id);
+                setMessage(message);
             } catch (error) {
                 console.error(error);
             }
         };
-
         fetchData();
     }, [id]);
 
