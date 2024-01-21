@@ -15,10 +15,9 @@ function Home() {
     const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
-        document.title = 'Buffet - Home';
-    }, []);
 
-    useEffect(() => {
+        document.title = 'Buffet';
+
         AccountsAPI.getUserDetails().then((response) => {
             if (response.status === 200) {
                 setLoggedIn(true);
@@ -43,7 +42,7 @@ function Home() {
         });
     }, []);
 
-    const CreateVMButton = (iso) => {
+    const createVMButton = (iso) => {
         const createVM = async () => {
             const response = await VirtualMachineAPI.createVirtualMachine(iso);
             if (response.status === 201) {
@@ -112,7 +111,7 @@ function Home() {
                                         <Card.Text>{image.description}</Card.Text>
                                     </Card.Body>
                                     <Card.Footer>
-                                        <Button variant="primary" onClick={() => CreateVMButton(image.iso)}>Create VM</Button>
+                                        <Button variant="primary" onClick={() => createVMButton(image.iso)}>Create VM</Button>
                                     </Card.Footer>
                                 </Card>
                             </Col>
@@ -144,7 +143,7 @@ function Home() {
                                                 <Card.Text>{image.description}</Card.Text>
                                             </Card.Body>
                                             <Card.Footer>
-                                                <Button variant="primary" onClick={() => CreateVMButton(image.iso)}>Create VM</Button>
+                                                <Button variant="primary" onClick={() => createVMButton(image.iso)}>Create VM</Button>
                                             </Card.Footer>
                                         </Card>
                                     </Col>
