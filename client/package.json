@@ -10,6 +10,7 @@
     "@types/jest": "^29.5.11",
     "axios": "^1.6.3",
     "bootstrap": "^5.3.2",
+    "bootstrap-icons": "^1.11.3",
     "password-validator": "^5.3.0",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",

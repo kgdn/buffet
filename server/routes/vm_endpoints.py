@@ -21,9 +21,11 @@ def index_vm():
     if not user:
         return jsonify({'message': 'Invalid user'}), 401
 
-    # Index the ../iso/index.json file (iso is in the parent directory)
     with open('iso/index.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
+        for iso in data:
+            with open('iso/logos/' + iso['logo'], 'rb') as f:
+                iso['logo'] = base64.b64encode(f.read()).decode('utf-8')
 
     return jsonify(data), 200
 

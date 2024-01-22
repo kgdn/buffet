@@ -71,6 +71,7 @@ function LoginRegis() {
                 <Row>
                     <Col>
                         <h1>Login</h1>
+                        <p>Already have an account? Login.</p>
                         <Form>
                             <Form.Group as={Row} controlId="formHorizontalUsername" className="mb-2">
                                 <Col>
@@ -94,6 +95,8 @@ function LoginRegis() {
                 <Row>
                     <Col>
                         <h1>Register</h1>
+                        <p>New to Buffet? Register for an account.</p>
+                        <p style={{ color: 'red' }}>Note: Buffet is currently in heavy development. You may experience bugs and/or data loss. Please do not use a password that you use for other websites.</p>
                         <Form>
                             <Form.Group as={Row} controlId="formHorizontalUsername" className="mb-2">
                                 <Col>

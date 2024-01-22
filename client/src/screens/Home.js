@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Container, Row, Col, Form, Modal, Alert } from 'react-bootstrap';
+import { Card, Button, Container, Row, Col, Form, Modal, Alert, Carousel } from 'react-bootstrap';
 import NavbarComponent from '../components/Navbar';
 import AccountsAPI from '../api/AccountsAPI';
 import VirtualMachineAPI from '../api/VirtualMachineAPI';
 import Footer from '../components/Footer';
+import fedora from '../assets/carousel/fedora.png'
+import ubuntu from '../assets/carousel/ubuntu.png'
+import opensuse from '../assets/carousel/opensuse.png'
 
 function Home() {
     const [loggedIn, setLoggedIn] = useState(false);
-    const [images, setImages] = useState([]);
+    const [iso, setImages] = useState([]);
     const [nonLinuxImages, setNonLinuxImages] = useState([]);
     const [linuxSearchQuery, setSearchQuery] = useState('');
     const [nonLinuxSearchQuery, setNonLinuxSearchQuery] = useState('');
     const [errorModal, showErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [username, setUsername] = useState('');
 
     useEffect(() => {
 
@@ -21,11 +25,12 @@ function Home() {
         AccountsAPI.getUserDetails().then((response) => {
             if (response.status === 200) {
                 setLoggedIn(true);
-                VirtualMachineAPI.getAllImages().then((response) => {
+                setUsername(response.data.username);
+                VirtualMachineAPI.getIsoFiles().then((response) => {
                     if (response.status === 200) {
                         response.data.forEach((image) => {
                             if (image.linux) {
-                                setImages((images) => [...images, image]);
+                                setImages((iso) => [...iso, image]);
                             } else {
                                 setNonLinuxImages((nonLinuxImages) => [...nonLinuxImages, image]);
                             }
@@ -55,7 +60,7 @@ function Home() {
         createVM();
     };
 
-    const filteredImages = images.filter((image) =>
+    const filteredImages = iso.filter((image) =>
         image.name.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
         image.version.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
         image.iso.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
@@ -73,24 +78,18 @@ function Home() {
         image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(nonLinuxSearchQuery.toLowerCase())
     );
 
+    const decodedLogo = (logo) => {
+        return `data:image/png;base64,${logo}`;
+    }
+
     return (
         <div>
             <NavbarComponent />
-            <Container>
-                <Row>
-                    <Col id="about">
-                        <h1 className="display-4">Welcome to Buffet</h1>
-                        <h3>Buffet is a web-based virtual machine manager that allows you to try various GNU/Linux distributions, and some non-Linux operating systems, all within your browser.</h3>
-                        <p>Buffet is currently in development.</p>
-                    </Col>
-                </Row>
-            </Container>
-
             {loggedIn ? (
                 <Container>
                     <Row>
-                        <Col id="about">
-                            <h1>Operating Systems</h1>
+                        <Col id="welcome" className="text-center" style={{ paddingTop: '1rem' }}>
+                            <h1>Welcome back, {username}!</h1>
                             <p>Choose an operating system to get started.</p>
                         </Col>
                     </Row>
@@ -104,7 +103,8 @@ function Home() {
                     <Row>
                         {filteredImages.map((image) => (
                             <Col key={image.id} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
-                                <Card>
+                                <Card style={{ height: '100%' }}>
+                                    <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain' }} />
                                     <Card.Body>
                                         <Card.Title>{image.name} {image.version}</Card.Title>
                                         <Card.Text>{image.desktop}</Card.Text>
@@ -136,7 +136,7 @@ function Home() {
                             <Row>
                                 {filteredNonLinuxImages.map((image) => (
                                     <Col key={image.id} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
-                                        <Card>
+                                        <Card style={{ height: '100%' }}>
                                             <Card.Body>
                                                 <Card.Title>{image.name} {image.version}</Card.Title>
                                                 <Card.Text>{image.desktop}</Card.Text>
@@ -156,9 +156,55 @@ function Home() {
                 </Container>
             ) : (
                 <Container>
+                    <Row style={{ paddingBottom: '1rem' }}>
+                        <Col id="about" className="text-center" style={{ paddingBottom: '1rem' }}>
+                            <h1 className="display-4 text-center">Welcome to Buffet</h1>
+                            <h3 className="text-center">Buffet is a web-based virtual machine manager that allows you to try various GNU/Linux distributions, all within your browser.</h3>
+                        </Col>
+                    </Row>
                     <Row>
-                        <Col>
-                            <p>You can create an account or login <a href="/login">here</a>.</p>
+                        <Col id="desktop-carousel" className="text-center">
+                            <Carousel style={{ boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.75)', borderRadius: '10px', overflow: 'hidden', margin: '10px' }}>
+                                <Carousel.Item>
+                                    <img
+                                        className="d-block w-100"
+                                        src={fedora}
+                                        alt="Fedora Linux"
+                                    />
+                                    <Carousel.Caption style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                                        <h3>Fedora</h3>
+                                        <p>Fedora is a Linux distribution developed by the Fedora Project which is sponsored by Red Hat.</p>
+                                    </Carousel.Caption>
+                                </Carousel.Item>
+                                <Carousel.Item>
+                                    <img
+                                        className="d-block w-100"
+                                        src={ubuntu}
+                                        alt="Ubuntu Linux"
+                                    />
+                                    <Carousel.Caption style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                                        <h3>Ubuntu</h3>
+                                        <p>Ubuntu is a Linux distribution based on Debian. It is developed by Canonical and the Ubuntu community.</p>
+                                    </Carousel.Caption>
+                                </Carousel.Item>
+                                <Carousel.Item>
+                                    <img
+                                        className="d-block w-100"
+                                        src={opensuse}
+                                        alt="openSUSE Linux"
+                                    />
+                                    <Carousel.Caption style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                                        <h3>openSUSE</h3>
+                                        <p>openSUSE is a Linux distribution sponsored by SUSE Software Solutions Germany GmbH and other companies.</p>
+                                    </Carousel.Caption>
+                                </Carousel.Item>
+                            </Carousel>
+                        </Col>
+                        <Col id="how-it-works">
+                            <h1>How does Buffet work?</h1>
+                            <p>Buffet uses <a href="https://www.qemu.org/">QEMU</a>/<a href="https://linux-kvm.org/page/Main_Page">KVM</a> to run its virtual machines. The virtual machines are run on a server, and you connect to them via a web browser through <a href="https://novnc.com/">noVNC</a>. This means that you can run virtual machines on any device with a web browser, including mobile phones and tablets.</p>
+                            <p>The website you are currently viewing is the front-end of Buffet, written in <a href="https://reactjs.org/">React</a>. The back-end is written in <a href="https://www.python.org/">Python</a> using the <a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a> framework. The source code for Buffet is available on <a href="https://github.com/kgdn/buffet">GitHub</a>.</p>
+                            <p>Buffet is licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License v3.0</a>. This means that you are free to use, modify and distribute Buffet as you wish, as long as you make your modifications available under the same license. Sign up for an account to get started!</p>
                         </Col>
                     </Row>
                 </Container>

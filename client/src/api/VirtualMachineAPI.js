@@ -10,7 +10,7 @@ const API_BASE_URL = 'https://lxphd06.macs.hw.ac.uk:8000';
 
 export default class VirtualMachineAPI {
     // Get all virtual machines from the database
-    static async getAllImages() {
+    static async getIsoFiles() {
         try {
             const response = await axios.get(`${API_BASE_URL}/api/vm/iso/`, {
                 withCredentials: true,
