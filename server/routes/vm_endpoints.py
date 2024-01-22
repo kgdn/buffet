@@ -49,7 +49,7 @@ def create_vm():
 
     iso = data['iso']
 
-    # Get the next available port, choose a random port between 5900 and 6000
+    # Get the next available port
     port = 5900
     while port <= 5904:
         if not VirtualMachine.query.filter_by(port=port).first():

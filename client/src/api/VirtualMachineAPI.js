@@ -63,4 +63,15 @@ export default class VirtualMachineAPI {
             return { status: error.response.status, message: error.response.data.message };
         }
     }
+
+    // Get number of running virtual machines
+    static async getRunningVMs() {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/api/vm/count/`);
+            return { status: response.status, message: response.message, data: response.data };
+        }
+        catch (error) {
+            return { status: error.response.status, message: error.response.data.message };
+        }
+    }
 }
