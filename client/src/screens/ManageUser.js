@@ -132,6 +132,14 @@ function ManageUser() {
                 <Row>
                     <Col>
                         <h1>Manage User</h1>
+                        <Alert variant="info" style={{ display: 'block', marginTop: '1rem' }}>
+                            <Alert.Heading>Rules for usernames and passwords</Alert.Heading>
+                            <hr />
+                            <ul>
+                                <li>Usernames can only contain letters, numbers, underscores, and dashes. It cannot contain spaces.</li>
+                                <li>Passwords must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces.</li>
+                            </ul>
+                        </Alert>
                         <Form>
                             <Form.Group className="mb-3">
                                 <Form.Control type="text" placeholder={getUserName} onChange={(event) => setUsername(event.target.value)} />

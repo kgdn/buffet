@@ -14,9 +14,9 @@ function NavbarComponent() {
                 setUsername(response.data.username);
                 setRole(response.data.role);
             }
-        }
-        );
+        });
     }, []);
+
 
     const logout = () => {
         AccountsAPI.logout().then((response) => {
@@ -31,13 +31,11 @@ function NavbarComponent() {
             <Container>
                 <Navbar.Brand href="/">Buffet</Navbar.Brand>
                 <Nav className="me-auto">
-                    {/* Use bootstrap icons i class to get GitHub logo and link to repo */}
                     <Nav.Link href="https://github.com/kgdn/buffet">
                         <i className="bi bi-github" style={{ color: 'white', marginRight: '5px' }}></i>
                         GitHub
                     </Nav.Link>
                 </Nav>
-                {/* Display two dropdown links in the navbar if the user is logged in, otherwise display a link to the login page */}
                 {
                     username ?
                         <Nav>
@@ -51,8 +49,6 @@ function NavbarComponent() {
                                 }
                                 <NavDropdown.Item onClick={logout}>Logout</NavDropdown.Item>
                             </NavDropdown>
-
-
                         </Nav>
                         :
                         <Nav>

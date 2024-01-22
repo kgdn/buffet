@@ -96,7 +96,14 @@ function LoginRegis() {
                     <Col>
                         <h1>Register</h1>
                         <p>New to Buffet? Register for an account.</p>
-                        <p style={{ color: 'red' }}>Note: Buffet is currently in heavy development. You may experience bugs and/or data loss. Please do not use a password that you use for other websites.</p>
+                        <Alert variant="info" style={{ display: 'block', marginTop: '1rem' }}>
+                            <Alert.Heading>Rules for usernames and passwords</Alert.Heading>
+                            <hr />
+                            <ul>
+                                <li>Usernames can only contain letters, numbers, underscores, and dashes. It cannot contain spaces.</li>
+                                <li>Passwords must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces.</li>
+                            </ul>
+                        </Alert>
                         <Form>
                             <Form.Group as={Row} controlId="formHorizontalUsername" className="mb-2">
                                 <Col>

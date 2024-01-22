@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Container, Row, Col, Form, Modal, Alert, Carousel } from 'react-bootstrap';
+import { Card, Button, Container, Row, Col, Form, Modal, Alert, Carousel, ButtonGroup, ProgressBar } from 'react-bootstrap';
 import NavbarComponent from '../components/Navbar';
 import AccountsAPI from '../api/AccountsAPI';
 import VirtualMachineAPI from '../api/VirtualMachineAPI';
@@ -17,6 +17,7 @@ function Home() {
     const [errorModal, showErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [username, setUsername] = useState('');
+    const [vmCount, setVMCount] = useState(0);
 
     useEffect(() => {
 
@@ -37,12 +38,17 @@ function Home() {
                         });
                     }
                 });
-
                 VirtualMachineAPI.getVirtualMachineByUser(response.data.id).then((response) => {
                     if (response.status === 200) {
                         window.location.href = '/vm/';
                     }
                 });
+                VirtualMachineAPI.getRunningVMs().then((response) => {
+                    if (response.status === 200) {
+                        setVMCount(response.data.vm_count);
+                    }
+                }
+                );
             }
         });
     }, []);
@@ -94,6 +100,23 @@ function Home() {
                         </Col>
                     </Row>
                     <Row>
+                        <Col id="vm-count" className="text-center" style={{ paddingTop: '1rem' }}>
+                            <Alert variant="info" role="alert">
+                                <p>There are currently {vmCount} virtual machines running. The maximum number of virtual machines that can be run at once is 5.</p>
+                                {/* Change the progress bar colour depending on the number of VMs running */}
+                                {vmCount === 0 ? (
+                                    <ProgressBar variant="success" now={vmCount} max={5} />
+                                ) : vmCount > 2 ? (
+                                    <ProgressBar variant="warning" now={vmCount} max={5} />
+                                ) : vmCount > 3 ? (
+                                    <ProgressBar variant="danger" now={vmCount} max={5} />
+                                ) : (
+                                    <ProgressBar variant="info" now={vmCount} max={5} />
+                                )}
+                            </Alert>
+                        </Col>
+                    </Row>
+                    <Row>
                         <Col>
                             <Form className="form-inline">
                                 <Form.Control className="mb-3" type="search" placeholder="Search" aria-label="Search" value={linuxSearchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
@@ -104,14 +127,17 @@ function Home() {
                         {filteredImages.map((image) => (
                             <Col key={image.id} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
                                 <Card style={{ height: '100%' }}>
-                                    <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain' }} />
+                                    <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain', backgroundColor: '#f8f8f8' }} />
                                     <Card.Body>
                                         <Card.Title>{image.name} {image.version}</Card.Title>
                                         <Card.Text>{image.desktop}</Card.Text>
                                         <Card.Text>{image.description}</Card.Text>
                                     </Card.Body>
                                     <Card.Footer>
-                                        <Button variant="primary" onClick={() => createVMButton(image.iso)}>Create VM</Button>
+                                        <ButtonGroup className="d-flex">
+                                            <Button variant="primary" onClick={() => createVMButton(image.iso)}>Create VM</Button>
+                                            <Button variant="secondary" href={image.homepage} target="_blank" rel="noopener noreferrer">Learn More</Button>
+                                        </ButtonGroup>
                                     </Card.Footer>
                                 </Card>
                             </Col>
@@ -121,9 +147,9 @@ function Home() {
                     {nonLinuxImages.length > 0 ? (
                         <>
                             <Row>
-                                <Col id="about">
+                                <Col id="non-linux" className="text-center" style={{ paddingTop: '1rem' }}>
                                     <h1>Non-Linux Operating Systems</h1>
-                                    <p>The operating systems below are not based on the Linux kernel. They are included for testing purposes.</p>
+                                    <p>The following operating systems are not based on the Linux kernel. They were added to Buffet for testing purposes, or share a history with Linux.</p>
                                 </Col>
                             </Row>
                             <Row>
@@ -137,13 +163,17 @@ function Home() {
                                 {filteredNonLinuxImages.map((image) => (
                                     <Col key={image.id} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
                                         <Card style={{ height: '100%' }}>
+                                            <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain', backgroundColor: '#f8f8f8' }} />
                                             <Card.Body>
                                                 <Card.Title>{image.name} {image.version}</Card.Title>
                                                 <Card.Text>{image.desktop}</Card.Text>
                                                 <Card.Text>{image.description}</Card.Text>
                                             </Card.Body>
                                             <Card.Footer>
-                                                <Button variant="primary" onClick={() => createVMButton(image.iso)}>Create VM</Button>
+                                                <ButtonGroup className="d-flex">
+                                                    <Button variant="primary" onClick={() => createVMButton(image.iso)}>Create VM</Button>
+                                                    <Button variant="secondary" href={image.homepage} target="_blank" rel="noopener noreferrer">Learn More</Button>
+                                                </ButtonGroup>
                                             </Card.Footer>
                                         </Card>
                                     </Col>
@@ -199,12 +229,15 @@ function Home() {
                                     </Carousel.Caption>
                                 </Carousel.Item>
                             </Carousel>
+                            <h4>Including Fedora, Ubuntu and openSUSE, and many more!</h4>
+                            <p>All screenshots were taken from virtual machines running on Buffet.</p>
                         </Col>
                         <Col id="how-it-works">
                             <h1>How does Buffet work?</h1>
                             <p>Buffet uses <a href="https://www.qemu.org/">QEMU</a>/<a href="https://linux-kvm.org/page/Main_Page">KVM</a> to run its virtual machines. The virtual machines are run on a server, and you connect to them via a web browser through <a href="https://novnc.com/">noVNC</a>. This means that you can run virtual machines on any device with a web browser, including mobile phones and tablets.</p>
                             <p>The website you are currently viewing is the front-end of Buffet, written in <a href="https://reactjs.org/">React</a>. The back-end is written in <a href="https://www.python.org/">Python</a> using the <a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a> framework. The source code for Buffet is available on <a href="https://github.com/kgdn/buffet">GitHub</a>.</p>
-                            <p>Buffet is licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License v3.0</a>. This means that you are free to use, modify and distribute Buffet as you wish, as long as you make your modifications available under the same license. Sign up for an account to get started!</p>
+                            <p>Buffet is licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License v3.0</a>. This means that you are free to use, modify and distribute Buffet as you wish, as long as you make your modifications available under the same license.</p>
+                            <p><strong>Note:</strong> Buffet is currently in heavy development. You may experience bugs. Please report any bugs you find on <a href="https://github.com/kgdn/buffet/issues">GitHub</a>.</p>
                         </Col>
                     </Row>
                 </Container>
