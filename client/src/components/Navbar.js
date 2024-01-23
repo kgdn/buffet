@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, NavDropdown } from 'react-bootstrap';
 import AccountsAPI from '../api/AccountsAPI';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import logo from '!file-loader!../assets/logo.svg';
 
 function NavbarComponent() {
 
@@ -29,7 +30,17 @@ function NavbarComponent() {
     return (
         <Navbar bg="dark" variant="dark" expand="lg" style={{ padding: '10px', marginBottom: '20px', boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.75)' }} sticky='top'>
             <Container>
-                <Navbar.Brand href="/">Buffet</Navbar.Brand>
+                <Navbar.Brand href="/">
+                    <img
+                        alt=""
+                        src={logo}
+                        width="30"
+                        height="30"
+                        className="d-inline-block align-top"
+                        style={{ marginRight: '5px' }}
+                    />
+                    Buffet
+                </Navbar.Brand>
                 <Nav className="me-auto">
                     <Nav.Link href="https://github.com/kgdn/buffet">
                         <i className="bi bi-github" style={{ color: 'white', marginRight: '5px' }}></i>
