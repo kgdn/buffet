@@ -78,6 +78,7 @@ function VirtualMachineView() {
             const rfb = new RFB(document.getElementById('app'), 'ws://localhost:' + wsport, {});
             rfb.scaleViewport = true;
             rfb.resizeSession = true;
+            rfb.focusOnClick = true;
 
             // If the VM is connected, log a message to the console to indicate that the VM is connected
             rfb.addEventListener("connect", () => {
