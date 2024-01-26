@@ -13,34 +13,10 @@ user_endpoints = Blueprint('user_endpoints', __name__)
 Bcrypt = Bcrypt()
 mail = Mail()
 
-# Clean up unverified users after 24 hours, keep running in background
-def clean_up_unverified_users():
-    """Clean up unverified users after 24 hours, keep running in background
-    """
-
-    while True:
-        # Get all unverified users
-        unverified_users = UnverifiedUser.query.all()
-
-        # Get the current time
-        now = datetime.now(timezone.utc)
-
-        # Iterate through all unverified users
-        for user in unverified_users:
-            # Get the time the user was created
-            created = user.created
-
-            # If the user was created more than 24 hours ago, delete them
-            if (now - created).total_seconds() > 86400:
-                db.session.delete(user)
-                db.session.commit()
-                print('Deleted unverified user: ' + user.username)
-
-        # Sleep for 24 hours
-        time.sleep(86400)
-
 @user_endpoints.after_request
 def refresh_expiring_jwts(response):
+    """Refresh the JWT if it is about to expire
+    """
     try:
         exp_timestamp = get_jwt()["exp"]
         now = datetime.now(timezone.utc)

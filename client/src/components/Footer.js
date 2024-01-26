@@ -3,7 +3,7 @@ import { Container, Row, Col, Image } from 'react-bootstrap';
 
 function Footer() {
     return (
-        <div>
+        <div className='footer'>
             <Container>
                 <Row>
                     <Col className='text-center'>
@@ -18,9 +18,10 @@ function Footer() {
                         </Col>
                         <p className='mb-0' style={{ marginLeft: '10px' }}>&copy; {new Date().getFullYear()} Kieran Gordon &middot; Licensed under the <a href='https://www.gnu.org/licenses/gpl-3.0.en.html'>GNU General Public License v3.0</a></p>
                         <p>Developed as part of a dissertation for <a href='https://www.hw.ac.uk/uk/schools/mathematical-computer-sciences.htm'>Heriot-Watt University&apos;s School of Mathematical and Computer Sciences</a>.</p>
+                        <p>Logos courtesy of <a href='https://commons.wikimedia.org/wiki/Main_Page'>Wikimedia Commons</a>. Respective owners retain all rights, unless otherwise stated.</p>
                     </Col>
                 </Row>
-            </Container>
+            </Container >
         </div >
     );
 }

@@ -126,7 +126,7 @@ function ManageUser() {
     }, []);
 
     return (
-        <div>
+        <div id="manage-user">
             <NavbarComponent />
             <Container>
                 <Row>
@@ -163,14 +163,14 @@ function ManageUser() {
                 </Row>
                 <Row>
                     <Col>
-                        <Form>
+                        <Form onSubmit={(e) => { e.preventDefault(); ChangePasswordButton(); }}>
                             <Form.Group className="mb-3">
                                 <Form.Control type="password" placeholder="Old Password" onChange={(event) => setOldPassword(event.target.value)} />
                             </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Control type="password" placeholder="New Password" onChange={(event) => setNewPassword(event.target.value)} />
                             </Form.Group>
-                            <Button className="me-2" variant="primary" onClick={ChangePasswordButton}>
+                            <Button className="me-2" variant="primary" type="submit">
                                 Change Password
                             </Button>
                             {/* display button on the right */}

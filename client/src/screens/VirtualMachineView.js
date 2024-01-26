@@ -8,6 +8,9 @@ function VirtualMachineView() {
     const [virtualMachineId, setVirtualMachineId] = useState(0);
     const [showModal, setShowModal] = useState(true);
     const [iso, setIso] = useState('');
+    const [name, setName] = useState('');
+    const [version, setVersion] = useState('');
+    const [desktop, setDesktop] = useState('');
     const inactivityTimeout = 500000;
 
     useEffect(() => {
@@ -16,10 +19,15 @@ function VirtualMachineView() {
             setWebsocketPort(response.data.wsport);
             setVirtualMachineId(response.data.id);
             setIso(response.data.iso);
+            setName(response.data.name);
+            setDesktop(response.data.desktop);
+            setVersion(response.data.version);
         };
         getPort();
 
-        document.title = 'Buffet - ' + iso;
+        // Set the title of the page to the name of the operating system and the version
+        // Fedora 39 - Buffet
+        document.title = name + ' ' + version + ' ' + desktop + ' - Buffet';
     }, [iso]);
 
     const deleteVM = useCallback(() => {
@@ -78,6 +86,7 @@ function VirtualMachineView() {
             const rfb = new RFB(document.getElementById('app'), 'ws://localhost:' + wsport, {});
             rfb.scaleViewport = true;
             rfb.resizeSession = true;
+            rfb.focusOnClick = true;
 
             // If the VM is connected, log a message to the console to indicate that the VM is connected
             rfb.addEventListener("connect", () => {
@@ -92,7 +101,7 @@ function VirtualMachineView() {
     }, [wsport, virtualMachineId]);
 
     return (
-        <div>
+        <div id="virtual-machine-view">
             <div id="app" style={{ height: '100vh', width: '100vw', overflow: 'hidden', position: 'absolute', top: 0, left: 0 }}></div>
             <Card style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'transparent', border: 'none' }}>
                 <Card.Body>
@@ -110,6 +119,10 @@ function VirtualMachineView() {
                     <p>Buffet is currently in development.</p>
                     <p>Some features may not work as expected.</p>
                     <p>Please report any bugs on GitHub.</p>
+                    {/* Display the following message: Please note: All internet traffic is logged, and can be viewed by the system administrator. Any misuse of the system will result in your account being terminated.
+                    Your virtual machine will be shut down after 5 minutes of inactivity. */}
+                    <p><strong>Please note:</strong> All internet traffic is logged, and can be viewed by the system administrator. Any misuse of the system will result in your account being terminated.</p>
+                    <p>Your virtual machine will be shut down after 5 minutes of inactivity.</p>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" href="https://github.com/kgdn/issues/new" target="_blank" rel="noreferrer">Report Bug</Button>

@@ -65,14 +65,14 @@ function LoginRegis() {
     };
 
     return (
-        <div>
+        <div id="login-regis">
             <NavbarComponent />
             <Container>
                 <Row>
                     <Col>
                         <h1>Login</h1>
                         <p>Already have an account? Login.</p>
-                        <Form>
+                        <Form onSubmit={(e) => { e.preventDefault(); LoginButton(); }}>
                             <Form.Group as={Row} controlId="formHorizontalUsername" className="mb-2">
                                 <Col>
                                     <Form.Control type="text" placeholder="Username" onChange={(e) => setLoginUsername(e.target.value)} />
@@ -85,7 +85,7 @@ function LoginRegis() {
                             </Form.Group>
                             <Form.Group as={Row}>
                                 <Col>
-                                    <Button onClick={LoginButton}>Login</Button>
+                                    <Button type="submit">Login</Button>
                                 </Col>
                             </Form.Group>
                         </Form>
@@ -104,7 +104,7 @@ function LoginRegis() {
                                 <li>Passwords must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces.</li>
                             </ul>
                         </Alert>
-                        <Form>
+                        <Form onSubmit={(e) => { e.preventDefault(); RegisterButton(); }}>
                             <Form.Group as={Row} controlId="formHorizontalUsername" className="mb-2">
                                 <Col>
                                     <Form.Control type="text" placeholder="Username" onChange={(e) => setRegisterUsername(e.target.value)} />
@@ -122,7 +122,7 @@ function LoginRegis() {
                             </Form.Group>
                             <Form.Group as={Row}>
                                 <Col>
-                                    <Button onClick={RegisterButton}>Register</Button>
+                                    <Button type="submit">Register</Button>
                                 </Col>
                             </Form.Group>
                         </Form>
@@ -133,7 +133,7 @@ function LoginRegis() {
                 </Row>
             </Container>
             <Footer />
-        </div>
+        </div >
     );
 }
 

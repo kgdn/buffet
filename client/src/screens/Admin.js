@@ -232,7 +232,7 @@ function Admin() {
 
     return (
         // Map through all users and display their information in a Card
-        <div>
+        <div id="admin">
             <NavbarComponent />
             <Container>
                 <h1>Admin</h1>
@@ -337,10 +337,11 @@ function Admin() {
                                     <Col key={vm.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
                                         <Card>
                                             <Card.Body>
-                                                <Card.Title>{vm.iso}</Card.Title>
+                                                <Card.Title>{vm.name} {vm.version} {vm.desktop} ({vm.iso})</Card.Title>
                                                 <Card.Text>User ID: {vm.user_id}</Card.Text>
                                                 <Card.Text>VM ID: {vm.id}</Card.Text>
                                                 <Card.Text>Port: {vm.port}</Card.Text>
+                                                <Card.Text>Websocket Port: {vm.wsport}</Card.Text>
                                             </Card.Body>
                                             <Card.Footer>
                                                 <Button
