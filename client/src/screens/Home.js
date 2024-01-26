@@ -89,7 +89,7 @@ function Home() {
     }
 
     return (
-        <div>
+        <div id="home">
             <NavbarComponent />
             {loggedIn ? (
                 <Container>
@@ -103,12 +103,11 @@ function Home() {
                         <Col id="vm-count" className="text-center" style={{ paddingTop: '1rem' }}>
                             <Alert variant="info" role="alert">
                                 <p>There are currently {vmCount} virtual machines running. The maximum number of virtual machines that can be run at once is 5.</p>
-                                {/* Change the progress bar colour depending on the number of VMs running */}
                                 {vmCount === 0 ? (
                                     <ProgressBar variant="success" now={vmCount} max={5} />
-                                ) : vmCount > 2 ? (
+                                ) : vmCount > 2 && vmCount < 5 ? (
                                     <ProgressBar variant="warning" now={vmCount} max={5} />
-                                ) : vmCount > 3 ? (
+                                ) : vmCount === 5 ? (
                                     <ProgressBar variant="danger" now={vmCount} max={5} />
                                 ) : (
                                     <ProgressBar variant="info" now={vmCount} max={5} />
@@ -119,13 +118,13 @@ function Home() {
                     <Row>
                         <Col>
                             <Form className="form-inline">
-                                <Form.Control className="mb-3" type="search" placeholder="Search" aria-label="Search" value={linuxSearchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                                <Form.Control className="mb-3" type="search" placeholder="Search by name, desktop, description, version..." aria-label="Search" value={linuxSearchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                             </Form>
                         </Col>
                     </Row>
                     <Row>
                         {filteredImages.map((image) => (
-                            <Col key={image.id} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
+                            <Col key={image.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
                                 <Card style={{ height: '100%' }}>
                                     <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain', backgroundColor: '#f8f8f8' }} />
                                     <Card.Body>
@@ -155,13 +154,13 @@ function Home() {
                             <Row>
                                 <Col>
                                     <Form className="form-inline">
-                                        <Form.Control className="mb-3" type="search" placeholder="Search" aria-label="Search" value={nonLinuxSearchQuery} onChange={(e) => setNonLinuxSearchQuery(e.target.value)} />
+                                        <Form.Control className="mb-3" type="search" placeholder="Search by name, desktop, description, version..." aria-label="Search" value={nonLinuxSearchQuery} onChange={(e) => setNonLinuxSearchQuery(e.target.value)} />
                                     </Form>
                                 </Col>
                             </Row>
                             <Row>
                                 {filteredNonLinuxImages.map((image) => (
-                                    <Col key={image.id} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
+                                    <Col key={image.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
                                         <Card style={{ height: '100%' }}>
                                             <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain', backgroundColor: '#f8f8f8' }} />
                                             <Card.Body>

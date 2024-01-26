@@ -1,3 +1,4 @@
+import json
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, unset_jwt_cookies
 from flask_bcrypt import Bcrypt
@@ -30,6 +31,20 @@ def get_all_vm():
     if not vms:
         return jsonify({'message': 'No virtual machines'}), 404
 
+    name = None
+    version = None
+    desktop = None
+
+    # Get the name of the operating system, version and desktop environment
+    with open('iso/index.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+        for iso in data:
+            if iso['iso'] == vms[0].iso:
+                name = iso['name']
+                version = iso['version']
+                desktop = iso['desktop']
+                break
+
     vms_list = []
     for vm in vms:
         vms_list.append({
@@ -38,7 +53,10 @@ def get_all_vm():
             'wsport': vm.wsport,
             'iso': vm.iso,
             'process_id': vm.process_id,
-            'user_id': vm.user_id
+            'user_id': vm.user_id,
+            'name': name,
+            'version': version,
+            'desktop': desktop
         })
 
     return jsonify(vms_list), 200

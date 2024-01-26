@@ -65,7 +65,7 @@ function LoginRegis() {
     };
 
     return (
-        <div>
+        <div id="login-regis">
             <NavbarComponent />
             <Container>
                 <Row>

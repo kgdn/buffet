@@ -126,7 +126,7 @@ function ManageUser() {
     }, []);
 
     return (
-        <div>
+        <div id="manage-user">
             <NavbarComponent />
             <Container>
                 <Row>

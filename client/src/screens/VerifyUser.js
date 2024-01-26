@@ -22,7 +22,7 @@ function VerifyUser() {
     }, [id]);
 
     return (
-        <div>
+        <div id="verify-user">
             <NavbarComponent />
             <Container>
                 <Row>

@@ -1,11 +1,30 @@
 import json
 import base64
 import subprocess
+from datetime import datetime
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, User, VirtualMachine
+import json
+import base64
+import subprocess
+from datetime import datetime, timedelta
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from models import db, User, VirtualMachine
+from apscheduler.schedulers.background import BackgroundScheduler
 
 vm_endpoints = Blueprint('vm', __name__)
+
+# Automatically delete empty logs from the logs directory every 15 minutes
+@vm_endpoints.before_app_request
+def delete_empty_logs():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(delete_logs, 'interval', minutes=15)
+    scheduler.start()
+
+def delete_logs():
+    subprocess.run(['find', 'logs/', '-type', 'f', '-empty', '-delete'])
 
 @vm_endpoints.route('/api/vm/iso/', methods=['GET'])
 @jwt_required()
@@ -66,10 +85,21 @@ def create_vm():
     if VirtualMachine.query.filter_by(user_id=user.id).count() > 0:
         return jsonify({'message': 'Users may only have one virtual machine at a time. Please shut down your current virtual machine before creating a new one.'}), 403
 
-    # Create the virtual machine
+    # Create the virtual machine with the following parameters
+    # - 2048M: 2GB of RAM
+    # - -host: Use the host CPU
+    # - -smp 2: Two cores
+    # - -enable-kvm: Enable KVM
+    # - -device virtio-balloon: Enable virtio-balloon for memory ballooning (to free up memory)
+    # - -cdrom iso/<iso>: Use the specified ISO
+    # - -vga virtio: Use the virtio graphics card
+    # - -netdev user,id=net0: Create a user network device
+    # - -device e1000,netdev=net0: Use the e1000 network device
+    # - -object filter-dump,id=f1,netdev=net0,file=logs/<user.id>-<timestamp>.pcap: Create a packet capture filter
+    # - -vnc :0,websocket=<wsport>,to=5: Create a VNC server on port 5900 + <wsport> and limit to 5 connections
     try:
         process = subprocess.Popen([
-            'qemu-system-x86_64', '-m', '2048M', '-smp', '2', '-enable-kvm', '-device', 'virtio-balloon', '-cdrom', 'iso/' + iso, '-vga', 'virtio', '-net', 'nic', '-net', 'user', '-vnc', ':0,websocket=' + str(wsport) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            'qemu-system-x86_64', '-m', '2048M', '-cpu', 'host', '-smp', '2', '-enable-kvm', '-device', 'virtio-balloon', '-cdrom', 'iso/' + iso, '-vga', 'virtio', '-netdev', 'user,id=net0', '-device', 'e1000,netdev=net0', '-object', 'filter-dump,id=f1,netdev=net0,file=logs/' + str(user.id) + '-' + str(datetime.now().timestamp()) + '.pcap', '-vnc', ':0,websocket=' + str(wsport) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process_id = process.pid
     except Exception as e:
         return jsonify({'message': 'QEMU failed to create virtual machine. This is likely due to a lack of resources on the server.'}), 500
@@ -81,7 +111,6 @@ def create_vm():
 
     return jsonify({
         'id': new_vm.id,
-        'port': new_vm.port,
         'wsport': new_vm.wsport,
         'iso': new_vm.iso,
         'process_id': new_vm.process_id,
@@ -145,13 +174,30 @@ def get_user_vm():
     if not vm:
         return jsonify({'message': 'Invalid virtual machine'}), 404
 
+    name = None
+    version = None
+    desktop = None
+
+    # Get the name of the operating system, version and desktop environment
+    with open('iso/index.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+        for iso in data:
+            if iso['iso'] == vm.iso:
+                name = iso['name']
+                version = iso['version']
+                desktop = iso['desktop']
+                break
+
     return jsonify({
         'id': vm.id,
-        'iso': vm.iso,
         'wsport': vm.wsport,
+        'iso': vm.iso,
         'process_id': vm.process_id,
-        'user_id': vm.user_id
-    }), 200
+        'user_id': vm.user_id,
+        'name': name,
+        'version': version,
+        'desktop': desktop
+    }), 201
 
 @vm_endpoints.route('/api/vm/', methods=['GET'])
 @jwt_required()
@@ -180,7 +226,6 @@ def get_vm_by_id():
 
     return jsonify({
         'id': vm.id,
-        'port': vm.port,
         'wsport': vm.wsport,
         'iso': vm.iso,
         'process_id': vm.process_id,
