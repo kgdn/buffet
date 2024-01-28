@@ -1,4 +1,5 @@
 import React from 'react';
+import { useMediaQuery } from 'react-responsive'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginRegis from './screens/LoginRegis';
 import VerifyUser from './screens/VerifyUser';
@@ -9,6 +10,18 @@ import VirtualMachineView from './screens/VirtualMachineView';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
+  const prefersDarkMode = useMediaQuery(
+    {
+      query: '(prefers-color-scheme: dark)'
+    }
+  );
+
+  if (prefersDarkMode) {
+    document.documentElement.setAttribute('data-bs-theme', 'dark')
+  } else {
+    document.documentElement.setAttribute('data-bs-theme', 'light')
+  }
+
   return (
     <BrowserRouter>
       <Routes>

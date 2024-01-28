@@ -1,4 +1,7 @@
+import os
 import json
+import cef
+from datetime import datetime
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, unset_jwt_cookies
 from flask_bcrypt import Bcrypt
@@ -99,6 +102,9 @@ def delete_vm_by_id():
     db.session.delete(vm)
     db.session.commit()
 
+    # Log the event in CEF format
+    cef.log_cef('Virtual machine of user ' + user.username + ' deleted by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+
     return jsonify({'message': 'Virtual machine deleted'}), 200
 
 # Get all users
@@ -181,6 +187,9 @@ def delete_user_by_id():
     db.session.delete(user_to_delete)
     db.session.commit()
 
+    # Log the event in CEF format
+    cef.log_cef('User' + user_to_delete.username + 'deleted by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+
     return jsonify({'message': 'User deleted'}), 200
 
 @admin_endpoints.route('/api/admin/user/role/', methods=['PUT'])
@@ -218,6 +227,9 @@ def change_user_role():
 
     db.session.commit()
 
+    # Log the event in CEF format
+    cef.log_cef('User ' + user_to_change.username + ' role changed to ' + data['role'] + ' by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+
     return jsonify({'message': 'User role changed'}), 200
 
 @admin_endpoints.route('/api/admin/user/password/', methods=['PUT'])
@@ -251,6 +263,9 @@ def change_user_password():
     user_to_change.password = Bcrypt.generate_password_hash(data['new_password']).decode('utf-8')
 
     db.session.commit()
+
+    # Log the event in CEF format
+    cef.log_cef('User ' + user_to_change.username + ' password changed by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'User password changed'}), 200
 
@@ -287,6 +302,9 @@ def change_user_username():
 
     db.session.commit()
 
+    # Log the event in CEF format
+    cef.log_cef('User ' + user_to_change.username + ' username changed to ' + data['username'] + ' by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+
     return jsonify({'message': 'User username changed'}), 200
 
 @admin_endpoints.route('/api/admin/user/email/', methods=['PUT'])
@@ -320,6 +338,9 @@ def change_user_email():
     user_to_change.email = data['email']
 
     db.session.commit()
+
+    # Log the event in CEF format
+    cef.log_cef('User ' + user_to_change.username + ' email changed to ' + data['email'] + ' by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'User email changed'}), 200
 
@@ -367,6 +388,9 @@ def get_user_vms():
             'process_id': vm.process_id,
             'user_id': vm.user_id
         })
+
+    # Log the event in CEF format
+    cef.log_cef('Virtual machines of user ' + user.username + ' retrieved by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
 
     return jsonify(vms_list), 200
 
@@ -428,6 +452,9 @@ def ban_user():
     db.session.delete(user)
     db.session.commit()
 
+    # Log the event in CEF format
+    cef.log_cef('User ' + user.username + ' banned by admin with reason ' + data['ban_reason'], 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
+
     return jsonify({'message': 'User banned'}), 200
 
 @admin_endpoints.route('/api/admin/user/unban/', methods=['PUT'])
@@ -471,6 +498,9 @@ def unban_user():
     db.session.add(user)
     db.session.delete(banned_user)
     db.session.commit()
+
+    # Log the event in CEF format
+    cef.log_cef('User ' + user.username + ' unbanned by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
 
     return jsonify({'message': 'User unbanned'}), 200
 
@@ -610,6 +640,9 @@ def delete_unverified_user():
     db.session.delete(unverified_user)
     db.session.commit()
 
+    # Log the event in CEF format
+    cef.log_cef('Unverified user ' + unverified_user.username + ' deleted by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
+
     return jsonify({'message': 'Unverified user deleted'}), 200
 
 @admin_endpoints.route('/api/admin/user/unverified/verify/', methods=['PUT'])
@@ -653,5 +686,8 @@ def verify_unverified_user():
     db.session.add(user)
     db.session.delete(unverified_user)
     db.session.commit()
+
+    # Log the event in CEF format
+    cef.log_cef('Unverified user ' + unverified_user.username + ' verified by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
 
     return jsonify({'message': 'Unverified user verified'}), 200

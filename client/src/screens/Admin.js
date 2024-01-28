@@ -117,8 +117,7 @@ function Admin() {
         AdminAPI.changeUsername(id, newUsername)
             .then(response => {
                 if (response.status === 200) {
-                    setUsers(prevUsers => prevUsers.map(user => (user.id === id ? { ...user, username: newUsername } : user)));
-                    setUsernameMessage('');
+                    window.location.reload();
                 } else {
                     setUsernameMessage(response.message);
                 }
@@ -141,8 +140,7 @@ function Admin() {
         AdminAPI.changeEmail(id, newEmail)
             .then(response => {
                 if (response.status === 200) {
-                    setUsers(prevUsers => prevUsers.map(user => (user.id === id ? { ...user, email: newEmail } : user)));
-                    setEmailMessage('');
+                    window.location.reload();
                 } else {
                     setEmailMessage(response.message);
                 }
@@ -154,7 +152,7 @@ function Admin() {
         AdminAPI.deleteUser(id)
             .then(response => {
                 if (response.status === 200) {
-                    setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
+                    window.location.reload();
                 } else {
                     setDeleteUserMessage(response.message);
                 }
@@ -167,8 +165,7 @@ function Admin() {
         AdminAPI.banUser(id, banReason)
             .then(response => {
                 if (response.status === 200) {
-                    setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
-                    setBannedUsers(prevBannedUsers => [...prevBannedUsers, users.find(user => user.id === id)]);
+                    window.location.reload();
                 } else {
                     setBanMessage(response.message);
                 }
@@ -181,7 +178,7 @@ function Admin() {
         AdminAPI.unbanUser(id)
             .then(response => {
                 if (response.status === 200) {
-                    setBannedUsers(prevBannedUsers => prevBannedUsers.filter(user => user.id !== id));
+                    window.location.reload();
                 } else {
                     setUnbanMessage(response.message);
                 }
@@ -194,7 +191,7 @@ function Admin() {
         AdminAPI.deleteVM(id)
             .then(response => {
                 if (response.status === 200) {
-                    setVMs(prevVMs => prevVMs.filter(vm => vm.id !== id));
+                    window.location.reload();
                 } else {
                     setStopVMMessage(response.message);
                 }
@@ -207,8 +204,7 @@ function Admin() {
         AdminAPI.verifyUser(id)
             .then(response => {
                 if (response.status === 200) {
-                    setUnverifiedUsers(prevUnverifiedUsers => prevUnverifiedUsers.filter(user => user.id !== id));
-                    setUsers(prevUsers => [...prevUsers, unverifiedUsers.find(user => user.id === id)]);
+                    window.location.reload();
                 } else {
                     setVerifyMessage(response.message);
                 }
@@ -221,7 +217,7 @@ function Admin() {
         AdminAPI.deleteUser(id)
             .then(response => {
                 if (response.status === 200) {
-                    setUnverifiedUsers(prevUnverifiedUsers => prevUnverifiedUsers.filter(user => user.id !== id));
+                    window.location.reload();
                 } else {
                     setDeleteUnverifiedMessage(response.message);
                 }
@@ -231,7 +227,6 @@ function Admin() {
     }
 
     return (
-        // Map through all users and display their information in a Card
         <div id="admin">
             <NavbarComponent />
             <Container>
@@ -254,12 +249,10 @@ function Admin() {
                                 </Col>
                             </Row>
                             <Row>
+                                {/* Make all cards the same size regardless of content */}
                                 {filteredUsers.map((user) => (
-                                    // If the user is banned, don't display them
-                                    // If the user is not banned, display them
-                                    // <div key={user.name} className="col-12 col-md-6 col-lg-4" style={{ paddingBottom: '1rem' }}>
                                     <Col key={user.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
-                                        <Card>
+                                        <Card style={{ height: '100%' }}>
                                             <Card.Body>
                                                 <Card.Title>{user.username}</Card.Title>
                                                 <Card.Text>Email: {user.email}</Card.Text>
@@ -270,8 +263,6 @@ function Admin() {
                                                     <Card.Text>Last Login: {new Date(user.login_time).toLocaleString()} from {user.ip}</Card.Text>
                                                 }
                                             </Card.Body>
-                                            {/* Change username and email (top) */}
-                                            {/* Delete user, delete VM (if the user has one) on bottom, add spacing between top and bottom */}
                                             <Card.Footer>
                                                 <Row style={{ paddingBottom: '1rem' }}>
                                                     <Col>
@@ -335,7 +326,7 @@ function Admin() {
                             <Row>
                                 {filteredVMs.map((vm) => (
                                     <Col key={vm.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
-                                        <Card>
+                                        <Card style={{ height: '100%' }}>
                                             <Card.Body>
                                                 <Card.Title>{vm.name} {vm.version} {vm.desktop} ({vm.iso})</Card.Title>
                                                 <Card.Text>User ID: {vm.user_id}</Card.Text>
@@ -378,7 +369,7 @@ function Admin() {
                             <Row>
                                 {filteredBannedUsers.map((user) => (
                                     <Col key={user.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
-                                        <Card>
+                                        <Card style={{ height: '100%' }}>
                                             <Card.Body>
                                                 <Card.Title>{user.username}</Card.Title>
                                                 <Card.Text>Email: {user.email}</Card.Text>
@@ -416,7 +407,7 @@ function Admin() {
                             <Row>
                                 {filteredUnverifiedUsers.map((user) => (
                                     <Col key={user.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
-                                        <Card>
+                                        <Card style={{ height: '100%' }}>
                                             <Card.Body>
                                                 <Card.Title>{user.username}</Card.Title>
                                                 <Card.Text>Email: {user.email}</Card.Text>
