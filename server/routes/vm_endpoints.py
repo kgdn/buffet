@@ -1,3 +1,5 @@
+import os
+import cef
 import json
 import base64
 import subprocess
@@ -84,30 +86,38 @@ def create_vm():
     # If the user has more than one virtual machine at a time, throw an error
     if VirtualMachine.query.filter_by(user_id=user.id).count() > 0:
         return jsonify({'message': 'Users may only have one virtual machine at a time. Please shut down your current virtual machine before creating a new one.'}), 403
-
-    # Create the virtual machine with the following parameters
-    # - 2048M: 2GB of RAM
-    # - -host: Use the host CPU
-    # - -smp 2: Two cores
-    # - -enable-kvm: Enable KVM
-    # - -device virtio-balloon: Enable virtio-balloon for memory ballooning (to free up memory)
-    # - -cdrom iso/<iso>: Use the specified ISO
-    # - -vga virtio: Use the virtio graphics card
-    # - -netdev user,id=net0: Create a user network device
-    # - -device e1000,netdev=net0: Use the e1000 network device
-    # - -object filter-dump,id=f1,netdev=net0,file=logs/<user.id>-<timestamp>.pcap: Create a packet capture filter
-    # - -vnc :0,websocket=<wsport>,to=5: Create a VNC server on port 5900 + <wsport> and limit to 5 connections
     try:
+        # If the directory for the current date and user-id does not exist, create it
+        if not os.path.exists('logs/' + str(datetime.now().date()) + '/' + str(user.id)):
+            os.makedirs('logs/' + str(datetime.now().date()) + '/' + str(user.id))
+
+        # Create the virtual machine
         process = subprocess.Popen([
-            'qemu-system-x86_64', '-m', '2048M', '-cpu', 'host', '-smp', '2', '-enable-kvm', '-device', 'virtio-balloon', '-cdrom', 'iso/' + iso, '-vga', 'virtio', '-netdev', 'user,id=net0', '-device', 'e1000,netdev=net0', '-object', 'filter-dump,id=f1,netdev=net0,file=logs/' + str(user.id) + '-' + str(datetime.now().timestamp()) + '.pcap', '-vnc', ':0,websocket=' + str(wsport) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            'qemu-system-x86_64', 
+            '-m', '2048M', # 2GB of RAM
+            '-cpu', 'host', # Use the host CPU
+            '-smp', '2', # 2 cores
+            '-enable-kvm', # Enable KVM (hypervisor)
+            '-device', 'virtio-balloon', # Enable virtio-balloon for memory ballooning (dynamic memory allocation)
+            '-cdrom', 'iso/' + iso, # The ISO to boot from
+            '-vga', 'virtio', # Use the virtio graphics card
+            '-netdev', 'user,id=net0', # Create a user network device with the id 'net0'
+            '-device', 'e1000,netdev=net0', # Create an e1000 network device with the id 'net0'
+            '-object', 'filter-dump,id=f1,netdev=net0,file=logs/'
+            + str(datetime.now().date()) + '/' + str(user.id) + '/'
+            + str(datetime.now().strftime('%H:%M:%S') + '-' + str(iso) + '.pcap'), # Create a filter-dump object to log network traffic
+            '-vnc', ':0,websocket=' + str(wsport) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process_id = process.pid
     except Exception as e:
-        return jsonify({'message': 'QEMU failed to create virtual machine. This is likely due to a lack of resources on the server.'}), 500
+        return jsonify({'message': 'Critical error creating virtual machine. Details: ' + str(e)}), 500
 
     # Create the virtual machine in the database
     new_vm = VirtualMachine(port=port, wsport=wsport, iso=iso, process_id=process_id, user_id=user.id)
     db.session.add(new_vm)
     db.session.commit()
+
+    # Log the request to cef.log
+    cef.log_cef('Virtual machine created with ISO ' + iso, 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({
         'id': new_vm.id,
@@ -152,6 +162,9 @@ def delete_vm():
     # Stop the virtual machine from the database
     db.session.delete(vm)
     db.session.commit()
+
+    # Log the request to cef.log
+    cef.log_cef('Virtual machine deleted', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'Virtual machine deleted'}), 200
 
@@ -224,6 +237,10 @@ def get_vm_by_id():
     if not vm:
         return jsonify({'message': 'Invalid virtual machine'}), 404
 
+    # Ensure the user is getting their own virtual machine
+    if vm.user_id != user.id:
+        return jsonify({'message': 'You can only get your own virtual machine'}), 403
+
     return jsonify({
         'id': vm.id,
         'wsport': vm.wsport,
@@ -240,6 +257,11 @@ def get_vm_count():
     Returns:
         json: Number of virtual machines
     """
+
+    # Get the user from the authorization token
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
 
     # Get the number of virtual machines
     vm_count = VirtualMachine.query.count()

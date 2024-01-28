@@ -1,6 +1,7 @@
 import subprocess
 import os
 import time
+import cef
 from datetime import datetime, timezone, timedelta
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, create_access_token, set_access_cookies, unset_jwt_cookies, get_jwt_identity, get_jwt
@@ -49,6 +50,7 @@ def get_user_info():
         'role': user.role
     }), 200
 
+
 @user_endpoints.route('/api/user/verify/', methods=['GET'])
 @jwt_required()
 def verify():
@@ -57,6 +59,8 @@ def verify():
     Returns:
         json: Message
     """
+
+    cef.log_cef('Token verified', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=User.query.filter_by(id=get_jwt_identity()).first().username)
 
     return jsonify({'message': 'Token verified'}), 200
 
@@ -140,6 +144,9 @@ def register():
     """
     mail.send(msg)
 
+    # Log the user's registration
+    cef.log_cef('User registered', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=new_user.username)
+
     return jsonify({'message': 'User created. Check your email to verify your account. Please check your spam folder if you do not see the email.'}), 201
 
 
@@ -174,6 +181,9 @@ def verify_user(id):
 
     # Save the changes
     db.session.commit()
+
+    # Log the user's verification
+    cef.log_cef('User verified', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=new_user.username)
 
     return jsonify({'message': 'Your account has been verified. You can now access the site.'}), 200
 
@@ -219,6 +229,10 @@ def login():
     access_token = create_access_token(identity=user.id)
     resp = jsonify({'login': True})
     set_access_cookies(resp, access_token)
+
+    # Log the user's login
+    cef.log_cef('User logged in', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+
     return resp, 200
 
 @user_endpoints.route('/api/user/logout/', methods=['POST'])
@@ -244,6 +258,10 @@ def logout():
     # Unset the JWT cookies
     resp = jsonify({'logout': True})
     unset_jwt_cookies(resp)
+
+    # Log the user's logout
+    cef.log_cef('User logged out', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=User.query.filter_by(id=get_jwt_identity()).first().username)
+
     return resp, 200
     
 @user_endpoints.route('/api/user/delete/', methods=['DELETE'])
@@ -286,6 +304,9 @@ def delete_user():
     db.session.delete(user)
     db.session.commit()
 
+    # Log the user's deletion
+    cef.log_cef('User deleted', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+
     return jsonify({'message': 'User deleted'}), 200
 
 @user_endpoints.route('/api/user/password/', methods=['PUT'])
@@ -321,6 +342,9 @@ def change_password():
     # Save the user
     db.session.commit()
 
+    # Log the user's password change
+    cef.log_cef('User password changed', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+
     return jsonify({'message': 'Password changed'}), 200
 
 @user_endpoints.route('/api/user/username/', methods=['PUT'])
@@ -355,6 +379,9 @@ def change_username():
     # Save the user
     db.session.commit()
 
+    # Log the user's username change
+    cef.log_cef('User with ID: ' + str(user.id) + ' changed username to ' + username, 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+
     return jsonify({'message': 'Username changed'}), 200
 
 @user_endpoints.route('/api/user/email/', methods=['PUT'])
@@ -388,5 +415,8 @@ def change_email():
 
     # Save the user
     db.session.commit()
+
+    # Log the user's email change
+    cef.log_cef('User with ID: ' + str(user.id) + ' changed email to ' + email, 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'Email changed'}), 200
