@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Container, Row, Col, Form, Modal, Alert, Carousel, ButtonGroup, ProgressBar } from 'react-bootstrap';
+import { Card, Button, Container, Row, Col, Form, Modal, Alert, Carousel, ButtonGroup, ProgressBar, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import NavbarComponent from '../components/Navbar';
 import AccountsAPI from '../api/AccountsAPI';
 import VirtualMachineAPI from '../api/VirtualMachineAPI';
@@ -18,6 +18,8 @@ function Home() {
     const [errorMessage, setErrorMessage] = useState('');
     const [username, setUsername] = useState('');
     const [vmCount, setVMCount] = useState(0);
+    const [complexIso, setComplexIso] = useState('');
+    const [complexityModal, showComplexityModal] = useState(false);
 
     useEffect(() => {
 
@@ -36,11 +38,6 @@ function Home() {
                                 setNonLinuxImages((nonLinuxImages) => [...nonLinuxImages, image]);
                             }
                         });
-                    }
-                });
-                VirtualMachineAPI.getVirtualMachineByUser(response.data.id).then((response) => {
-                    if (response.status === 200) {
-                        window.location.href = '/vm/';
                     }
                 });
                 VirtualMachineAPI.getRunningVMs().then((response) => {
@@ -72,7 +69,8 @@ function Home() {
         image.iso.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
         image.description.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
         image.desktop.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
-        image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(linuxSearchQuery.toLowerCase())
+        image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(linuxSearchQuery.toLowerCase()) ||
+        image.beginner_friendly
     );
 
     const filteredNonLinuxImages = nonLinuxImages.filter((image) =>
@@ -81,7 +79,8 @@ function Home() {
         image.iso.toLowerCase().includes(nonLinuxSearchQuery.toLowerCase()) ||
         image.description.toLowerCase().includes(nonLinuxSearchQuery.toLowerCase()) ||
         image.desktop.toLowerCase().includes(nonLinuxSearchQuery.toLowerCase()) ||
-        image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(nonLinuxSearchQuery.toLowerCase())
+        image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(nonLinuxSearchQuery.toLowerCase()) ||
+        image.beginner_friendly
     );
 
     const decodedLogo = (logo) => {
@@ -126,16 +125,27 @@ function Home() {
                         {filteredImages.map((image) => (
                             <Col key={image.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
                                 <Card style={{ height: '100%' }}>
-                                    <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain', backgroundColor: '#f8f8f8' }} />
+                                    <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain' }} />
                                     <Card.Body>
-                                        <Card.Title>{image.name} {image.version}</Card.Title>
+                                        {/* If the operating system is beginner-friendly, show a star icon at the end of the name. On mouse over, show an overlay with the beginner-friendly text. */}
+                                        {image.beginner_friendly ? (
+                                            <Card.Title>{image.name} {image.version} <OverlayTrigger placement="right" overlay={<Tooltip id="tooltip-beginner-friendly">Beginner-friendly</Tooltip>}><i className="bi bi-star-fill text-warning"></i></OverlayTrigger></Card.Title>
+                                        ) : (
+                                            <Card.Title>{image.name} {image.version}</Card.Title>
+                                        )}
                                         <Card.Text>{image.desktop}</Card.Text>
                                         <Card.Text>{image.description}</Card.Text>
                                     </Card.Body>
                                     <Card.Footer>
                                         <ButtonGroup className="d-flex">
-                                            <Button variant="primary" onClick={() => createVMButton(image.iso)}>Create VM</Button>
                                             <Button variant="secondary" href={image.homepage} target="_blank" rel="noopener noreferrer">Learn More</Button>
+                                            {/* If the operating system is not beginner-friendly, show a warning modal */}
+                                            {image.beginner_friendly ? (
+                                                <Button variant="primary" onClick={() => createVMButton(image.iso)}>Create VM</Button>
+                                            ) : (
+                                                // pass the iso to the modal so that it can be used in the createVMButton function
+                                                <Button variant="primary" onClick={() => { showComplexityModal(true); setComplexIso(image.iso); }}>Create VM</Button>
+                                            )}
                                         </ButtonGroup>
                                     </Card.Footer>
                                 </Card>
@@ -162,16 +172,24 @@ function Home() {
                                 {filteredNonLinuxImages.map((image) => (
                                     <Col key={image.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
                                         <Card style={{ height: '100%' }}>
-                                            <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain', backgroundColor: '#f8f8f8' }} />
+                                            <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain' }} />
                                             <Card.Body>
-                                                <Card.Title>{image.name} {image.version}</Card.Title>
+                                                {image.beginner_friendly ? (
+                                                    <Card.Title>{image.name} {image.version} <OverlayTrigger placement="right" overlay={<Tooltip id="tooltip-beginner-friendly">Beginner-friendly</Tooltip>}><i className="bi bi-star-fill text-warning"></i></OverlayTrigger></Card.Title>
+                                                ) : (
+                                                    <Card.Title>{image.name} {image.version}</Card.Title>
+                                                )}
                                                 <Card.Text>{image.desktop}</Card.Text>
                                                 <Card.Text>{image.description}</Card.Text>
                                             </Card.Body>
                                             <Card.Footer>
                                                 <ButtonGroup className="d-flex">
-                                                    <Button variant="primary" onClick={() => createVMButton(image.iso)}>Create VM</Button>
                                                     <Button variant="secondary" href={image.homepage} target="_blank" rel="noopener noreferrer">Learn More</Button>
+                                                    {image.beginner_friendly ? (
+                                                        <Button variant="primary" onClick={() => createVMButton(image.iso)}>Create VM</Button>
+                                                    ) : (
+                                                        <Button variant="primary" onClick={() => { showComplexityModal(true); setComplexIso(image.iso); }}>Create VM</Button>
+                                                    )}
                                                 </ButtonGroup>
                                             </Card.Footer>
                                         </Card>
@@ -259,9 +277,33 @@ function Home() {
                     </Alert>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => showErrorModal(false)}>
-                        Close
-                    </Button>
+                    <ButtonGroup>
+                        <Button variant="secondary" onClick={() => showErrorModal(false)}>
+                            Close
+                        </Button>
+                        <Button variant="primary" href="/vm/">
+                            View VM
+                        </Button>
+                    </ButtonGroup>
+                </Modal.Footer>
+            </Modal>
+            {/* Show modal warning the user if the ISO they've chosen is not beginner-friendly */}
+            <Modal show={complexityModal} onHide={() => showComplexityModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Warning</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>This operating system is not beginner-friendly. It is recommended that you use a different operating system if you are new to Linux.</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <ButtonGroup>
+                        <Button variant="secondary" onClick={() => showComplexityModal(false)}>
+                            Close
+                        </Button>
+                        <Button variant="primary" onClick={() => { createVMButton(complexIso); showComplexityModal(false); }}>
+                            Create VM
+                        </Button>
+                    </ButtonGroup>
                 </Modal.Footer>
             </Modal>
             <Footer />
