@@ -106,6 +106,7 @@ function VirtualMachineView() {
             <Card style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'transparent', border: 'none' }}>
                 <Card.Body>
                     <ButtonGroup>
+                        <Button variant="warning" onClick={() => setShowModal(true)}>Info</Button>
                         <Button variant="primary" onClick={() => fullscreen()}>Full Screen</Button>
                         <Button variant="danger" onClick={() => deleteVM()}>Shutdown</Button>
                     </ButtonGroup>
@@ -116,17 +117,15 @@ function VirtualMachineView() {
                     <Modal.Title>For Your Information</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>Buffet is currently in development.</p>
-                    <p>Some features may not work as expected.</p>
-                    <p>Please report any bugs on GitHub.</p>
-                    {/* Display the following message: Please note: All internet traffic is logged, and can be viewed by the system administrator. Any misuse of the system will result in your account being terminated.
-                    Your virtual machine will be shut down after 5 minutes of inactivity. */}
-                    <p><strong>Please note:</strong> All internet traffic is logged, and can be viewed by the system administrator. Any misuse of the system will result in your account being terminated.</p>
+                    <p>Buffet is currently in development Some features may not work as expected. If you find a bug, please report it on GitHub.</p>
                     <p>Your virtual machine will be shut down after 5 minutes of inactivity.</p>
+                    <p><strong>Please note:</strong> All internet traffic is logged, and can be viewed by the system administrator. Any misuse of the system will result in your account being terminated.</p>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="primary" href="https://github.com/kgdn/issues/new" target="_blank" rel="noreferrer">Report Bug</Button>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
+                    <ButtonGroup>
+                        <Button variant="secondary" href="https://github.com/kgdn/issues/new" target="_blank" rel="noreferrer">Report Bug</Button>
+                        <Button variant="primary" onClick={() => setShowModal(false)}>Close</Button>
+                    </ButtonGroup>
                 </Modal.Footer>
             </Modal>
         </div >

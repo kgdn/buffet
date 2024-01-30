@@ -1,5 +1,6 @@
-.vscode/
+.vscode/settings.json
 .vscode/launch.json
+.vscode/
 
 server/iso/
 server/venv/
@@ -12,6 +13,7 @@ server/test-workflow.sh
 server/app-backup.py
 server/logs/
 server/migrations/
+server/restful_api_collection
 
 client/node_modules/
 client/.pnp
@@ -29,3 +31,5 @@ client/yarn-debug.log*
 client/yarn-error.log*
 client/.env
 client.code-workspace
+
+dissertation/

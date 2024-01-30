@@ -18,16 +18,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 vm_endpoints = Blueprint('vm', __name__)
 
-# Automatically delete empty logs from the logs directory every 15 minutes
-@vm_endpoints.before_app_request
-def delete_empty_logs():
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(delete_logs, 'interval', minutes=15)
-    scheduler.start()
-
-def delete_logs():
-    subprocess.run(['find', 'logs/', '-type', 'f', '-empty', '-delete'])
-
 @vm_endpoints.route('/api/vm/iso/', methods=['GET'])
 @jwt_required()
 def index_vm():
@@ -87,7 +77,6 @@ def create_vm():
     if VirtualMachine.query.filter_by(user_id=user.id).count() > 0:
         return jsonify({'message': 'Users may only have one virtual machine at a time. Please shut down your current virtual machine before creating a new one.'}), 403
     try:
-        # If the directory for the current date and user-id does not exist, create it
         if not os.path.exists('logs/' + str(datetime.now().date()) + '/' + str(user.id)):
             os.makedirs('logs/' + str(datetime.now().date()) + '/' + str(user.id))
 
@@ -112,7 +101,7 @@ def create_vm():
         return jsonify({'message': 'Critical error creating virtual machine. Details: ' + str(e)}), 500
 
     # Create the virtual machine in the database
-    new_vm = VirtualMachine(port=port, wsport=wsport, iso=iso, process_id=process_id, user_id=user.id)
+    new_vm = VirtualMachine(port=port, wsport=wsport, iso=iso, process_id=process_id, user_id=user.id, log_file=str(datetime.now().strftime('%H:%M:%S') + '-' + str(iso) + '.pcap'))
     db.session.add(new_vm)
     db.session.commit()
 
@@ -162,6 +151,10 @@ def delete_vm():
     # Stop the virtual machine from the database
     db.session.delete(vm)
     db.session.commit()
+
+    # If the contents of the log file are empty, delete it
+    if os.stat('logs/' + str(datetime.now().date()) + '/' + str(user.id) + '/' + vm.log_file).st_size == 24: # 24 bytes is the size of the pcap header
+        os.remove('logs/' + str(datetime.now().date()) + '/' + str(user.id) + '/' + vm.log_file)
 
     # Log the request to cef.log
     cef.log_cef('Virtual machine deleted', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)

@@ -43,3 +43,4 @@ class VirtualMachine(db.Model):
     iso = db.Column(db.String(80), nullable=False)
     process_id = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.String(32), db.ForeignKey('user.id'), nullable=False)
+    log_file = db.Column(db.String(80), nullable=False)
