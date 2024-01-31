@@ -60,6 +60,9 @@ def create_vm():
 
     iso = data['iso']
 
+    if not os.path.exists('iso/' + iso):
+        return jsonify({'message': 'Invalid ISO'}), 404
+
     # Get the next available port
     port = 5900
     while port <= 5904:
