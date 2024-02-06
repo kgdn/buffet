@@ -246,7 +246,7 @@ function Home() {
                                     </Carousel.Caption>
                                 </Carousel.Item>
                             </Carousel>
-                            <h4>Including Fedora, Ubuntu and openSUSE, and many more!</h4>
+                            <h4>Including Fedora, Ubuntu and openSUSE, and more!</h4>
                             <p>All screenshots were taken from virtual machines running on Buffet.</p>
                         </Col>
                         <Col id="what-is-buffet">
