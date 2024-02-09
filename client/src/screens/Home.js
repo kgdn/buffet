@@ -67,20 +67,16 @@ function Home() {
         image.name.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
         image.version.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
         image.iso.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
-        image.description.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
         image.desktop.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
-        image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(linuxSearchQuery.toLowerCase()) ||
-        image.beginner_friendly
+        image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(linuxSearchQuery.toLowerCase())
     );
 
     const filteredNonLinuxImages = nonLinuxImages.filter((image) =>
         image.name.toLowerCase().includes(nonLinuxSearchQuery.toLowerCase()) ||
         image.version.toLowerCase().includes(nonLinuxSearchQuery.toLowerCase()) ||
         image.iso.toLowerCase().includes(nonLinuxSearchQuery.toLowerCase()) ||
-        image.description.toLowerCase().includes(nonLinuxSearchQuery.toLowerCase()) ||
         image.desktop.toLowerCase().includes(nonLinuxSearchQuery.toLowerCase()) ||
-        image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(nonLinuxSearchQuery.toLowerCase()) ||
-        image.beginner_friendly
+        image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(nonLinuxSearchQuery.toLowerCase())
     );
 
     const decodedLogo = (logo) => {
@@ -117,7 +113,7 @@ function Home() {
                     <Row>
                         <Col>
                             <Form className="form-inline">
-                                <Form.Control className="mb-3" type="search" placeholder="Search by name, desktop, description, version..." aria-label="Search" value={linuxSearchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                                <Form.Control className="mb-3" type="search" placeholder="Search by name, desktop, version..." aria-label="Search" value={linuxSearchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                             </Form>
                         </Col>
                     </Row>
@@ -164,7 +160,7 @@ function Home() {
                             <Row>
                                 <Col>
                                     <Form className="form-inline">
-                                        <Form.Control className="mb-3" type="search" placeholder="Search by name, desktop, description, version..." aria-label="Search" value={nonLinuxSearchQuery} onChange={(e) => setNonLinuxSearchQuery(e.target.value)} />
+                                        <Form.Control className="mb-3" type="search" placeholder="Search by name, desktop, version..." aria-label="Search" value={nonLinuxSearchQuery} onChange={(e) => setNonLinuxSearchQuery(e.target.value)} />
                                     </Form>
                                 </Col>
                             </Row>
