@@ -26,7 +26,6 @@ function VirtualMachineView() {
         getPort();
 
         // Set the title of the page to the name of the operating system and the version
-        // Fedora 39 - Buffet
         document.title = name + ' ' + version + ' ' + desktop + ' - Buffet';
     }, [iso]);
 
@@ -123,7 +122,7 @@ function VirtualMachineView() {
                 </Modal.Body>
                 <Modal.Footer>
                     <ButtonGroup>
-                        <Button variant="secondary" href="https://github.com/kgdn/issues/new" target="_blank" rel="noreferrer">Report Bug</Button>
+                        <Button variant="secondary" href="https://github.com/kgdn/buffet/issues/new" target="_blank" rel="noreferrer">Report Bug</Button>
                         <Button variant="primary" onClick={() => setShowModal(false)}>Close</Button>
                     </ButtonGroup>
                 </Modal.Footer>

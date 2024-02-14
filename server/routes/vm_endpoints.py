@@ -91,7 +91,7 @@ def create_vm():
             '-smp', '2', # 2 cores
             '-enable-kvm', # Enable KVM (hypervisor)
             '-device', 'virtio-balloon', # Enable virtio-balloon for memory ballooning (dynamic memory allocation)
-            '-cdrom', 'iso/' + iso, # The ISO to boot from
+            '-cdrom', 'iso/' + iso, # The ISO to boot from, specified in the request
             '-vga', 'virtio', # Use the virtio graphics card
             '-netdev', 'user,id=net0', # Create a user network device with the id 'net0'
             '-device', 'e1000,netdev=net0', # Create an e1000 network device with the id 'net0'

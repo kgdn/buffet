@@ -277,9 +277,14 @@ function Home() {
                         <Button variant="secondary" onClick={() => showErrorModal(false)}>
                             Close
                         </Button>
-                        <Button variant="primary" href="/vm/">
-                            View VM
-                        </Button>
+                        {/* If the error message is anything but "Users may only have one virtual machine at a time. Please shut down your current virtual machine before creating a new one.", do not show a button to view the user's VMs */}
+                        {errorMessage === "Users may only have one virtual machine at a time. Please shut down your current virtual machine before creating a new one." ? (
+                            <Button variant="primary" href="/vm/">
+                                View VMs
+                            </Button>
+                        ) : (
+                            <></>
+                        )}
                     </ButtonGroup>
                 </Modal.Footer>
             </Modal>
@@ -289,7 +294,9 @@ function Home() {
                     <Modal.Title>Warning</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>This operating system is not beginner-friendly. It is recommended that you use a different operating system if you are new to Linux.</p>
+                    <p>This distribution has been marked as not beginner-friendly. This means that it may be more difficult to use than other distributions.</p>
+
+                    <p>Are you sure you want to continue? If you are new to Linux, it is recommended that you choose a beginner-friendly distribution marked with a star.</p>
                 </Modal.Body>
                 <Modal.Footer>
                     <ButtonGroup>
