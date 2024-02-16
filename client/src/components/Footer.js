@@ -9,9 +9,6 @@ function Footer() {
                     <Col className='text-center'>
                         <hr />
                         <Col className='py-3'>
-                            <a href='https://www.hw.ac.uk'>
-                                <Image src='https://www.hw.ac.uk/img/hw-logo.svg' alt='Heriot-Watt University logo' style={{ width: '120px', marginRight: '10px', borderRight: '2.5px solid #54616d', paddingRight: '15px' }} />
-                            </a>
                             <a href='https://www.gnu.org/licenses/gpl-3.0.en.html'>
                                 <Image src='https://www.gnu.org/graphics/gplv3-with-text-136x68.png' alt='GNU General Public License v3.0' style={{ width: '120px' }} />
                             </a>
