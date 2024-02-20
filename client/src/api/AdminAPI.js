@@ -189,4 +189,14 @@ export default class AdminAPI {
             return { status: error.response.status, message: error.response.data.message }
         }
     }
+
+    static async getLogs() {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/api/admin/logs/`);
+            return { status: response.status, message: response.message, data: response.data }
+        }
+        catch (error) {
+            return { status: error.response.status, message: error.response.data.message }
+        }
+    }
 }

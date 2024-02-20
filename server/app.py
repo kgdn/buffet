@@ -48,13 +48,5 @@ if not os.path.exists('iso/index.json'):
 if not os.path.exists('logs'):
     os.makedirs('logs')
 
-# Create logs/ directory if it doesn't exist
-if not os.path.exists('logs/' + datetime.now().strftime('%Y-%m-%d')):
-    os.makedirs('logs/' + datetime.now().strftime('%Y-%m-%d'))
-    
-# Create logs/buffet.log if it doesn't exist
-if not os.path.exists('logs/' + datetime.now().strftime('%Y-%m-%d') + '/buffet.log'):
-    open('logs/' + datetime.now().strftime('%Y-%m-%d') + '/buffet.log', 'a').close()
-
 if __name__ == '__main__':
     app.run()

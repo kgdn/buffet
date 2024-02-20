@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, User, VirtualMachine
-from apscheduler.schedulers.background import BackgroundScheduler
+from helper_functions import HelperFunctions
 
 vm_endpoints = Blueprint('vm', __name__)
 
@@ -109,6 +109,8 @@ def create_vm():
     db.session.commit()
 
     # Log the request to cef.log
+    HelperFunctions.create_cef_logs_folders()
+
     cef.log_cef('Virtual machine created with ISO ' + iso, 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({
@@ -160,6 +162,8 @@ def delete_vm():
         os.remove('logs/' + str(datetime.now().date()) + '/' + str(user.id) + '/' + vm.log_file)
 
     # Log the request to cef.log
+    HelperFunctions.create_cef_logs_folders()
+
     cef.log_cef('Virtual machine deleted', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'Virtual machine deleted'}), 200

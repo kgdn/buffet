@@ -6,6 +6,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, unset_jwt_cookies
 from flask_bcrypt import Bcrypt
 from models import db, User, VirtualMachine, BannedUser, UnverifiedUser
+from helper_functions import HelperFunctions
 import subprocess
 
 admin_endpoints = Blueprint('admin', __name__)
@@ -102,8 +103,10 @@ def delete_vm_by_id():
     db.session.delete(vm)
     db.session.commit()
 
+    HelperFunctions.create_cef_logs_folders()
+
     # Log the event in CEF format
-    cef.log_cef('Virtual machine of user ' + user.username + ' deleted by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('Virtual machine deleted by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'Virtual machine deleted'}), 200
 
@@ -187,6 +190,8 @@ def delete_user_by_id():
     db.session.delete(user_to_delete)
     db.session.commit()
 
+    HelperFunctions.create_cef_logs_folders()
+
     # Log the event in CEF format
     cef.log_cef('User' + user_to_delete.username + 'deleted by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
@@ -227,6 +232,8 @@ def change_user_role():
 
     db.session.commit()
 
+    HelperFunctions.create_cef_logs_folders()
+
     # Log the event in CEF format
     cef.log_cef('User ' + user_to_change.username + ' role changed to ' + data['role'] + ' by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
@@ -263,6 +270,8 @@ def change_user_password():
     user_to_change.password = Bcrypt.generate_password_hash(data['new_password']).decode('utf-8')
 
     db.session.commit()
+
+    HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
     cef.log_cef('User ' + user_to_change.username + ' password changed by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
@@ -302,6 +311,8 @@ def change_user_username():
 
     db.session.commit()
 
+    HelperFunctions.create_cef_logs_folders()
+
     # Log the event in CEF format
     cef.log_cef('User ' + user_to_change.username + ' username changed to ' + data['username'] + ' by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
@@ -338,6 +349,8 @@ def change_user_email():
     user_to_change.email = data['email']
 
     db.session.commit()
+
+    HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
     cef.log_cef('User ' + user_to_change.username + ' email changed to ' + data['email'] + ' by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
@@ -388,6 +401,8 @@ def get_user_vms():
             'process_id': vm.process_id,
             'user_id': vm.user_id
         })
+
+    HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
     cef.log_cef('Virtual machines of user ' + user.username + ' retrieved by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
@@ -452,6 +467,8 @@ def ban_user():
     db.session.delete(user)
     db.session.commit()
 
+    HelperFunctions.create_cef_logs_folders()
+
     # Log the event in CEF format
     cef.log_cef('User ' + user.username + ' banned by admin with reason ' + data['ban_reason'], 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
 
@@ -498,6 +515,8 @@ def unban_user():
     db.session.add(user)
     db.session.delete(banned_user)
     db.session.commit()
+
+    HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
     cef.log_cef('User ' + user.username + ' unbanned by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
@@ -640,6 +659,8 @@ def delete_unverified_user():
     db.session.delete(unverified_user)
     db.session.commit()
 
+    HelperFunctions.create_cef_logs_folders()
+
     # Log the event in CEF format
     cef.log_cef('Unverified user ' + unverified_user.username + ' deleted by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
 
@@ -687,7 +708,42 @@ def verify_unverified_user():
     db.session.delete(unverified_user)
     db.session.commit()
 
-    # Log the event in CEF format
+    HelperFunctions.create_cef_logs_folders()
+
     cef.log_cef('Unverified user ' + unverified_user.username + ' verified by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
 
     return jsonify({'message': 'Unverified user verified'}), 200
+
+@admin_endpoints.route('/api/admin/logs/', methods=['GET'])
+@jwt_required()
+def get_all_logs():
+    """Get all logs
+
+    Returns:
+        json: Logs
+    """
+    
+    # Get the user from the authorization token
+    admin = User.query.filter_by(id=get_jwt_identity()).first()
+    if not admin:
+        return jsonify({'message': 'Invalid user'}), 401
+    
+    # Ensure the user is an admin
+    if admin.role != 'admin':
+        return jsonify({'message': 'Insufficient permissions'}), 403
+
+    # Get all logs by recursively reading all log files and separate them by date
+    # [
+    #    '2021-01-01': ['log entry 1', 'log entry 2'],
+    #    '2021-01-02': ['log entry 1', 'log entry 2']
+    # ]
+    logs = {}
+    for log_date in os.listdir('logs'):
+        if os.path.isdir('logs/' + log_date):
+            logs[log_date] = []
+            for log_file in os.listdir('logs/' + log_date):
+                if os.path.isfile('logs/' + log_date + '/' + log_file):
+                    with open ('logs/' + log_date + '/' + log_file, 'r') as f:
+                        logs[log_date].extend(f.readlines())
+
+    return jsonify(logs), 200
