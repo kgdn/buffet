@@ -201,8 +201,8 @@ function Home() {
                 <Container>
                     <Row style={{ paddingBottom: '1rem' }}>
                         <Col id="about" className="text-center" style={{ paddingBottom: '1rem' }}>
-                            <h1 className="display-4 text-center">Welcome to Buffet</h1>
-                            <h3 className="text-center">Buffet is a web-based virtual machine manager that allows you to try various GNU/Linux distributions, all within your browser.</h3>
+                            <h1 className="display-4 text-center">Welcome to Buffet.</h1>
+                            <h3 className="text-center">The all-you-can-eat GNU/Linux buffet.</h3>
                         </Col>
                     </Row>
                     <Row>
@@ -246,18 +246,20 @@ function Home() {
                             <p>All screenshots were taken from virtual machines running on Buffet.</p>
                         </Col>
                         <Col id="what-is-buffet">
-                            <h1>What is Buffet?</h1>
-                            <p>As mentioned above, Buffet is a web-based virtual machine manager that allows you to try various GNU/Linux distributions, all from within your browser.</p>
+                            <p>Buffet is a web-based virtual machine manager that allows you to try various GNU/Linux distributions, all from within your browser.</p>
                             <p>Simply choose an operating system from the list, and Buffet will create a virtual machine for you. You can then connect to the virtual machine via a web browser, and use it as if it were installed on your computer.</p>
                             <p>When you are finished with the virtual machine, you can delete it, and Buffet will remove all traces of it from the server. This means that you can try as many operating systems as you like, without having to worry about the complexities of the installation process, or the security implications of running a virtual machine on your computer.</p>
-                            <p>Buffet is completely free to use, and always will be.</p>
+                            <p>What&apos;s more, Buffet is completely free to use, and always will be. In the spirit of free and open-source software, Buffet is free as in freedom, and free as in beer.</p>
+                            <ButtonGroup className="d-flex">
+                                <Button variant="primary" href="/login">Get Started</Button>
+                            </ButtonGroup>
                         </Col>
                     </Row>
                     <Col id="how-it-works">
                         <h1 className="text-center">How does Buffet work?</h1>
                         <p>Buffet uses <a href="https://www.qemu.org/">QEMU</a>/<a href="https://linux-kvm.org/page/Main_Page">KVM</a> to run its virtual machines. The virtual machines are run on a server, and you connect to them via a web browser through <a href="https://novnc.com/">noVNC</a>. This means that you can run virtual machines on any device with a web browser, including mobile phones and tablets.</p>
                         <p>The website you are currently viewing is the front-end of Buffet, written in <a href="https://reactjs.org/">React</a>. The back-end is written in <a href="https://www.python.org/">Python</a> using the <a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a> framework. The source code for Buffet is available on <a href="https://github.com/kgdn/buffet">GitHub</a>.</p>
-                        <p>Buffet is licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License v3.0</a>. This means that you are free to use, modify and distribute Buffet as you wish, as long as you make your modifications available under the same license.</p>
+                        <p>Buffet is licensed under the <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">GNU Affero General Public License v3.0</a>. This means that you are free to use, modify and distribute Buffet as you wish, as long as you make your modifications available under the same license. Network use of Buffet is also permitted, as long as you make the source code available to the users of the network.</p>
                         <p><strong>Note:</strong> Buffet is currently in heavy development. You may experience bugs. Please report any bugs you find on <a href="https://github.com/kgdn/buffet/issues">GitHub</a>.</p>
                     </Col>
                 </Container>

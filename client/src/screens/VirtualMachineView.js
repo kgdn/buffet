@@ -70,12 +70,11 @@ function VirtualMachineView() {
 
     // Handle reloading and leaving the page. If the user opens the page in a new tab, keep the VM running in that tab. If the user closes the tab, shut down the VM.
     useEffect(() => {
-        const handleUnload = () => {
-            deleteVM();
-        };
-        window.addEventListener('unload', handleUnload);
+        window.addEventListener('beforeunload', deleteVM);
+        window.addEventListener('unload', deleteVM);
         return () => {
-            window.removeEventListener('unload', handleUnload);
+            window.removeEventListener('beforeunload', deleteVM);
+            window.removeEventListener('unload', deleteVM);
         };
     }, [virtualMachineId]);
 
