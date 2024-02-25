@@ -201,8 +201,8 @@ function Home() {
                 <Container>
                     <Row style={{ paddingBottom: '1rem' }}>
                         <Col id="about" className="text-center" style={{ paddingBottom: '1rem' }}>
-                            <h1 className="display-4 text-center">Welcome to Buffet</h1>
-                            <h3 className="text-center">Buffet is a web-based virtual machine manager that allows you to try various GNU/Linux distributions, all within your browser.</h3>
+                            <h1 className="display-4 text-center">Welcome to Buffet.</h1>
+                            <h3 className="text-center">The all-you-can-eat GNU/Linux buffet.</h3>
                         </Col>
                     </Row>
                     <Row>
@@ -246,11 +246,13 @@ function Home() {
                             <p>All screenshots were taken from virtual machines running on Buffet.</p>
                         </Col>
                         <Col id="what-is-buffet">
-                            <h1>What is Buffet?</h1>
-                            <p>As mentioned above, Buffet is a web-based virtual machine manager that allows you to try various GNU/Linux distributions, all from within your browser.</p>
+                            <p>Buffet is a web-based virtual machine manager that allows you to try various GNU/Linux distributions, all from within your browser.</p>
                             <p>Simply choose an operating system from the list, and Buffet will create a virtual machine for you. You can then connect to the virtual machine via a web browser, and use it as if it were installed on your computer.</p>
                             <p>When you are finished with the virtual machine, you can delete it, and Buffet will remove all traces of it from the server. This means that you can try as many operating systems as you like, without having to worry about the complexities of the installation process, or the security implications of running a virtual machine on your computer.</p>
-                            <p>Buffet is completely free to use, and always will be.</p>
+                            <p>What&apos;s more, Buffet is completely free to use, and always will be. In the spirit of free and open-source software, Buffet is free as in freedom, and free as in beer.</p>
+                            <ButtonGroup className="d-flex">
+                                <Button variant="primary" href="/login">Get Started</Button>
+                            </ButtonGroup>
                         </Col>
                     </Row>
                     <Col id="how-it-works">
