@@ -6,7 +6,12 @@ import { Alert, Container, Col, Row, Button, Form, ButtonGroup, Modal, Tab, Tabl
 import Footer from '../components/Footer';
 
 function Admin() {
-
+	/* 
+	 * I have to admit, this is not the most elegant solution, but it works. I have to use multiple states for each modal, 
+	 * because if I use one state for all modals, the modals will not work as expected. A better solution for state management would 
+	 * be to use a state management library like Redux. I did not use Redux because I wasn't aware of it when I started this project, 
+	 * and I didn't want to refactor the entire project to use Redux. 
+	 */
 	const [users, setUsers] = useState([]);
 	const [vms, setVMs] = useState([]);
 	const [newUsername, setNewUsername] = useState('');
