@@ -33,3 +33,4 @@ client/.env
 client.code-workspace
 
 dissertation/
+model/

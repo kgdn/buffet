@@ -4,6 +4,11 @@ from uuid import uuid4
 db = SQLAlchemy()
 
 def generate_uuid():
+    """Generates a random UUID (universally unique identifier) and returns it as a string.
+
+    Returns:
+        str: A random UUID as a string.
+    """
     return uuid4().hex
 
 class UnverifiedUser(db.Model):
@@ -22,7 +27,6 @@ class User(db.Model):
     ip = db.Column(db.String(80), nullable=True)
     role = db.Column(db.String(80), nullable=False)
 
-# Move banned users to a separate table
 class BannedUser(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String(32), db.ForeignKey('user.id'), nullable=False)
