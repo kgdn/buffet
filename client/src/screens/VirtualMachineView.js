@@ -67,17 +67,6 @@ function VirtualMachineView() {
         });
     }, [virtualMachineId, inactivityTimeout]);
 
-
-    // Handle reloading and leaving the page. If the user opens the page in a new tab, keep the VM running in that tab. If the user closes the tab, shut down the VM.
-    useEffect(() => {
-        window.addEventListener('beforeunload', deleteVM);
-        window.addEventListener('unload', deleteVM);
-        return () => {
-            window.removeEventListener('beforeunload', deleteVM);
-            window.removeEventListener('unload', deleteVM);
-        };
-    }, [virtualMachineId]);
-
     // Connect to the VM
     useEffect(() => {
         if (wsport) { // If the websocket port is not 0 then connect to the VM
@@ -99,8 +88,9 @@ function VirtualMachineView() {
     }, [wsport, virtualMachineId]);
 
     return (
+        // display
         <div id="virtual-machine-view">
-            <div id="app" style={{ height: '100vh', width: '100vw', overflow: 'hidden', position: 'absolute', top: 0, left: 0 }}></div>
+            <div id="app" style={{ height: '100vh', width: '100vw', overflow: 'hidden', position: 'absolute', top: 0, left: 0 }} />
             <Card style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'transparent', border: 'none' }}>
                 <Card.Body>
                     <ButtonGroup>
