@@ -7,7 +7,6 @@ function VirtualMachineView() {
     const [wsport, setWebsocketPort] = useState(0);
     const [virtualMachineId, setVirtualMachineId] = useState(0);
     const [showModal, setShowModal] = useState(true);
-    const [iso, setIso] = useState('');
     const [name, setName] = useState('');
     const [version, setVersion] = useState('');
     const [desktop, setDesktop] = useState('');
@@ -18,16 +17,16 @@ function VirtualMachineView() {
             const response = await VirtualMachineAPI.getVirtualMachineByUser();
             setWebsocketPort(response.data.wsport);
             setVirtualMachineId(response.data.id);
-            setIso(response.data.iso);
             setName(response.data.name);
             setDesktop(response.data.desktop);
             setVersion(response.data.version);
         };
         getPort();
+    }, []);
 
-        // Set the title of the page to the name of the operating system and the version
-        document.title = name + ' ' + version + ' ' + desktop + ' - Buffet';
-    }, [iso]);
+    useEffect(() => {
+        document.title = `${name} ${version} ${desktop} - Buffet`;
+    }, [name, version, desktop]);
 
     const deleteVM = useCallback(() => {
         VirtualMachineAPI.deleteVirtualMachine(virtualMachineId).then(() => {
