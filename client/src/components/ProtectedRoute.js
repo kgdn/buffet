@@ -56,16 +56,6 @@ function ProtectedRoute({ element }) {
         return <Navigate to="/" />;
     }
 
-    // If the user is logged in and tries to access the user verification page, redirect them to the home page
-    // If the user is not logged in and tries to access the user verification page, show them the login page
-    if (window.location.pathname === '/verify' || window.location.pathname === '/verify/' || window.location.pathname === '/verify/:token') {
-        if (loggedIn) {
-            return <Navigate to="/" />;
-        } else {
-            return element;
-        }
-    }
-
     // If all else fails, redirect to the home page
     return element;
 }

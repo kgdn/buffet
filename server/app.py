@@ -1,6 +1,4 @@
 import os
-from asyncio import sleep
-from datetime import datetime
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -47,6 +45,9 @@ if not os.path.exists('iso/index.json'):
 # Create logs/ directory if it doesn't exist
 if not os.path.exists('logs'):
     os.makedirs('logs')
+
+def create_app():
+    return app
 
 if __name__ == '__main__':
     app.run()

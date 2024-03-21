@@ -2,7 +2,6 @@ import React from 'react';
 import { useMediaQuery } from 'react-responsive'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginRegis from './screens/LoginRegis';
-import VerifyUser from './screens/VerifyUser';
 import ManageUser from './screens/ManageUser';
 import Home from './screens/Home';
 import Admin from './screens/Admin';
@@ -26,8 +25,6 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/verify" element={<ProtectedRoute element={<VerifyUser />} />} />
-        <Route path="/verify/:id" element={<ProtectedRoute element={<VerifyUser />} />} />
         <Route path="/login" element={<ProtectedRoute element={<LoginRegis />} />} />
         <Route path="/admin" element={<ProtectedRoute element={<Admin />} />} />
         <Route path="/account" element={<ProtectedRoute element={<ManageUser />} />} />
