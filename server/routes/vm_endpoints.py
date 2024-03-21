@@ -104,7 +104,7 @@ def create_vm():
     # Log the request to cef.log
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('Virtual machine created with ISO ' + iso, 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('Virtual machine created with ISO ' + iso, 0, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({
         'id': new_vm.id,
@@ -157,7 +157,7 @@ def delete_vm():
     # Log the request to cef.log
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('Virtual machine deleted', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('Virtual machine deleted', 0, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'Virtual machine deleted'}), 200
 

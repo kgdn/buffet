@@ -135,7 +135,7 @@ def register():
     # Log the user's registration
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User registered', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=new_user.username)
+    cef.log_cef('User registered', 1, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=new_user.username)
 
     return jsonify({'message': 'User created. Check your email to verify your account. Please check your spam folder if you do not see the email.'}), 201
 
@@ -180,7 +180,7 @@ def verify_user():
     # Log the user's verification
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User verified', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=new_user.username)
+    cef.log_cef('User verified', 1, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=new_user.username)
 
     return jsonify({'message': 'User verified'}), 200
 
@@ -232,7 +232,7 @@ def login():
     # Log the user's login
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User logged in', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User logged in', 1, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return resp, 200
 
@@ -263,7 +263,7 @@ def logout():
     # Log the user's logout
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User logged out', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=User.query.filter_by(id=get_jwt_identity()).first().username)
+    cef.log_cef('User logged out', 1, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=User.query.filter_by(id=get_jwt_identity()).first().username)
 
     return resp, 200
     
@@ -350,7 +350,7 @@ def change_password():
     # Log the user's password change
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User password changed', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User password changed', 3, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'Password changed'}), 200
 
@@ -389,7 +389,7 @@ def change_username():
     # Log the user's username change
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User with ID: ' + str(user.id) + ' changed username to ' + username, 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User with ID: ' + str(user.id) + ' changed username to ' + username, 3, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'Username changed'}), 200
 
@@ -428,6 +428,6 @@ def change_email():
     # Log the user's email change
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User with ID: ' + str(user.id) + ' changed email to ' + email, 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User with ID: ' + str(user.id) + ' changed email to ' + email, 3, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'Email changed'}), 200

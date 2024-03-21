@@ -18,6 +18,8 @@ function Admin() {
 	const [newEmail, setNewEmail] = useState('');
 	const [userSearchQuery, setSearchQuery] = useState('');
 	const [vmSearchQuery, setVmSearchQuery] = useState('');
+	const [bannedUserSearchQuery, setBannedUserSearchQuery] = useState('');
+	const [unverifiedUserSearchQuery, setUnverifiedUserSearchQuery] = useState('');
 	const [showDeleteUserModal, setShowDeleteUserModal] = useState(false);
 	const [showStopVMModal, setShowStopVMModal] = useState(false);
 	const [showUsernameModal, setShowUsernameModal] = useState(false);
@@ -107,11 +109,11 @@ function Admin() {
 	});
 
 	const filteredBannedUsers = bannedUsers.filter(user => {
-		return user.username.toLowerCase().includes(userSearchQuery.toLowerCase());
+		return user.username.toLowerCase().includes(bannedUserSearchQuery.toLowerCase());
 	});
 
 	const filteredUnverifiedUsers = unverifiedUsers.filter(user => {
-		return user.username.toLowerCase().includes(userSearchQuery.toLowerCase());
+		return user.username.toLowerCase().includes(unverifiedUserSearchQuery.toLowerCase());
 	});
 
 	const changeUsername = (id) => {
@@ -379,7 +381,7 @@ function Admin() {
 								<Col>
 									<Form>
 										<Form.Group className="mb-3">
-											<Form.Control type="text" placeholder="Search" value={userSearchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+											<Form.Control type="text" placeholder="Search" value={bannedUserSearchQuery} onChange={(e) => setBannedUserSearchQuery(e.target.value)} />
 										</Form.Group>
 										<Alert variant="primary" role="alert" style={{ display: bannedUsers.length === 0 ? 'block' : 'none' }}>
 											{bannedMessage}
@@ -417,7 +419,7 @@ function Admin() {
 								<Col>
 									<Form>
 										<Form.Group className="mb-3">
-											<Form.Control type="text" placeholder="Search" value={userSearchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+											<Form.Control type="text" placeholder="Search" value={unverifiedUserSearchQuery} onChange={(e) => setUnverifiedUserSearchQuery(e.target.value)} />
 										</Form.Group>
 										<Alert variant="primary" role="alert" style={{ display: unverifiedUsers.length === 0 ? 'block' : 'none' }}>
 											{unverifiedMessage}
@@ -449,6 +451,16 @@ function Admin() {
 					<Tab eventKey="logs" title="Logs">
 						<Container>
 							<h2>Logs</h2>
+							<Row>
+								<Col>
+									<Form>
+										<Form.Group className="mb-3">
+											<Form.Control type="text" placeholder="Search" value={userSearchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+										</Form.Group>
+
+									</Form>
+								</Col>
+							</Row>
 							<Row>
 								<Col>
 									{Object.keys(logs)
