@@ -26,14 +26,15 @@ function LoginRegis() {
             return;
         }
         AccountsAPI.login(loginUsername, loginPassword).then((response) => {
-            if (response.status === 401) {
+            // If account is unverified, show modal to verify email
+            if (response.message === 'Please verify your account before logging in') {
                 setMessage(response.message);
                 setShowModal(true);
-                return;
             }
             if (response.status === 200) {
                 window.location.href = '/';
-            } else {
+            }
+            if (response.status === 401) {
                 setMessage(response.message);
             }
         });
@@ -80,9 +81,11 @@ function LoginRegis() {
             setMessage('Token cannot be empty.');
             return;
         }
-        AccountsAPI.verifyRegistration(registerUsername, token).then((response) => {
+        const username = registerUsername || loginUsername;
+        const password = registerPassword || loginPassword;
+        AccountsAPI.verifyRegistration(username, token).then((response) => {
             if (response.status === 200) {
-                AccountsAPI.login(registerUsername, registerPassword).then((response) => {
+                AccountsAPI.login(username, password).then((response) => {
                     if (response.status === 200) {
                         window.location.href = '/';
                     } else {

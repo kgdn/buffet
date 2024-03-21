@@ -203,14 +203,16 @@ def login():
 
     # Check if the user exists and if the password is correct
     # If the user is found in the banned users table, return an error
+    # If the user is found in the unverified users table, return an error
     user = User.query.filter_by(username=username).first()
     if not user:
         if BannedUser.query.filter_by(username=username).first():
             return jsonify({'message': 'You were banned for: ' + BannedUser.query.filter_by(username=username).first().ban_reason + '. Please contact the head admin to appeal.'}), 403
+        if UnverifiedUser.query.filter_by(username=username).first():
+            return jsonify({'message': 'Please verify your account before logging in'}), 401
         return jsonify({'message': 'Invalid username or password'}), 401
     if not Bcrypt.check_password_hash(user.password, password):
         return jsonify({'message': 'Invalid password or username'}), 401
-
     # Get user's login time and set in DateTime format for database
     login_time = datetime.now(timezone.utc)
     user.login_time = login_time

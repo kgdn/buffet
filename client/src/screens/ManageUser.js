@@ -212,7 +212,7 @@ function ManageUser() {
                         <></>
                     ) : (
                         <Alert variant="primary" role="alert">
-                            <p>{deleteMessage}</p>
+                            {deleteMessage}
                         </Alert>
                     )}
                 </Modal.Body>
