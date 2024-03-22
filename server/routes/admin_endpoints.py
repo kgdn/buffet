@@ -193,7 +193,7 @@ def delete_user_by_id():
     HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
-    cef.log_cef('User' + user_to_delete.username + 'deleted by admin', 9, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User ' + user_to_delete.username + ' deleted by admin', 9, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'User deleted'}), 200
 

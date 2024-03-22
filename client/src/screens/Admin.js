@@ -453,24 +453,14 @@ function Admin() {
 							<h2>Logs</h2>
 							<Row>
 								<Col>
-									<Form>
-										<Form.Group className="mb-3">
-											<Form.Control type="text" placeholder="Search" value={userSearchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-										</Form.Group>
-
-									</Form>
-								</Col>
-							</Row>
-							<Row>
-								<Col>
 									{Object.keys(logs)
 										.sort((a, b) => new Date(b) - new Date(a))
 										.map((date) => {
 											return (
 												<Fragment key={date}>
 													<h3>{date}</h3>
-													{/* Rounded corners, striped, bordered, hover effect, small table */}
-													<Table striped bordered hover>
+													{/* Rounded corners, striped, bordered, hover effect, small table, rounded corners */}
+													<Table striped bordered hover size="sm" variant="dark">
 														<thead>
 															<tr>
 																<th>Date</th>
