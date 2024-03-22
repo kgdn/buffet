@@ -101,14 +101,7 @@ def register():
     unique_code = new_user.unique_code
 
     # Send the verification email
-    # Format:
-    # Hello! You're recieving this email because you created an account on Buffet.
-    # Please click <a href="<SERVER_URL>/verify/<USER_ID>/">here</a> to verify your account. (<SERVER_URL> is the URL of the server that should be set in the .env file)
-    # 
-    # Signature:
-    # Buffet is a free and open source student project by <a href="https://kgdn.xyz/">Kieran Gordon</a> at <a href="https://www.hw.ac.uk/">Heriot-Watt University</a>.
-    # If you have any questions, please contact me at <a href="mailto:kjg2000@hw.ac.uk">kjg2000@hw</a>.
-    msg = Message('Verify your account', sender=(os.environ.get('MAIL_USERNAME')), recipients=[email])
+    msg = Message('Buffet - Verify your account', sender=(os.environ.get('MAIL_USERNAME')), recipients=[email])
     msg.html = f"""\
     <html>
         <head>
@@ -123,10 +116,12 @@ def register():
             <p>Your unique 6 character code is: {unique_code}</p>
             <p>Please enter this code on the website to verify your account.</p>
             <br>
-            <p>Buffet is a free and open source student project by <a href="https://kgdn.xyz/">Kieran Gordon</a> at <a href="https://www.hw.ac.uk/">Heriot-Watt University</a>.</p>
+            <p>Buffet is a free and open source student project developed by <a href="https://kgdn.xyz/">Kieran Gordon</a> as a part of a final year project at <a href="https://www.hw.ac.uk/">Heriot-Watt University</a>.</p>
+            <p>The source code for Buffet can be found on <a href="https://github.com/kgdn/buffet">GitHub</a>. If you would like to contribute, please feel free to make a pull request or open an issue.</p>
             <p>If you have any questions, please contact me at <a href="mailto:kjg2000@hw.ac.uk">kjg2000@hw.ac.uk</a>.</p>
             <br>
             <p>Thank you!</p>
+            <p><i>Kieran Gordon</i></p>
         </body>
     </html>
     """
