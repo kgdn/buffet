@@ -106,7 +106,7 @@ def delete_vm_by_id():
     HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
-    cef.log_cef('Virtual machine deleted by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('Virtual machine deleted by admin', 9, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'Virtual machine deleted'}), 200
 
@@ -193,7 +193,7 @@ def delete_user_by_id():
     HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
-    cef.log_cef('User' + user_to_delete.username + 'deleted by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User ' + user_to_delete.username + ' deleted by admin', 9, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'User deleted'}), 200
 
@@ -235,7 +235,7 @@ def change_user_role():
     HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
-    cef.log_cef('User ' + user_to_change.username + ' role changed to ' + data['role'] + ' by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User ' + user_to_change.username + ' role changed to ' + data['role'] + ' by admin', 10, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'User role changed'}), 200
 
@@ -274,7 +274,7 @@ def change_user_password():
     HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
-    cef.log_cef('User ' + user_to_change.username + ' password changed by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User ' + user_to_change.username + ' password changed by admin', 7, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'User password changed'}), 200
 
@@ -314,7 +314,7 @@ def change_user_username():
     HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
-    cef.log_cef('User ' + user_to_change.username + ' username changed to ' + data['username'] + ' by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User ' + user_to_change.username + ' username changed to ' + data['username'] + ' by admin', 3, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'User username changed'}), 200
 
@@ -353,7 +353,7 @@ def change_user_email():
     HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
-    cef.log_cef('User ' + user_to_change.username + ' email changed to ' + data['email'] + ' by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User ' + user_to_change.username + ' email changed to ' + data['email'] + ' by admin', 3, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'User email changed'}), 200
 
@@ -405,7 +405,7 @@ def get_user_vms():
     HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
-    cef.log_cef('Virtual machines of user ' + user.username + ' retrieved by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
+    cef.log_cef('Virtual machines of user ' + user.username + ' retrieved by admin', 8, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
 
     return jsonify(vms_list), 200
 
@@ -470,7 +470,7 @@ def ban_user():
     HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
-    cef.log_cef('User ' + user.username + ' banned by admin with reason ' + data['ban_reason'], 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
+    cef.log_cef('User ' + user.username + ' banned by admin with reason ' + data['ban_reason'], 8, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
 
     return jsonify({'message': 'User banned'}), 200
 
@@ -519,7 +519,7 @@ def unban_user():
     HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
-    cef.log_cef('User ' + user.username + ' unbanned by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
+    cef.log_cef('User ' + user.username + ' unbanned by admin', 8, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
 
     return jsonify({'message': 'User unbanned'}), 200
 
@@ -662,7 +662,7 @@ def delete_unverified_user():
     HelperFunctions.create_cef_logs_folders()
 
     # Log the event in CEF format
-    cef.log_cef('Unverified user ' + unverified_user.username + ' deleted by admin', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
+    cef.log_cef('Unverified user ' + unverified_user.username + ' deleted by admin', 7, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=admin.username)
 
     return jsonify({'message': 'Unverified user deleted'}), 200
 

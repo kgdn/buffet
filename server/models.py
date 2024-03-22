@@ -1,3 +1,5 @@
+import random
+import string
 from flask_sqlalchemy import SQLAlchemy
 from uuid import uuid4
 
@@ -11,12 +13,16 @@ def generate_uuid():
     """
     return uuid4().hex
 
+def generate_unique_code():
+        return ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+
 class UnverifiedUser(db.Model):
     id = db.Column(db.String(32), primary_key=True, default=generate_uuid)
     username = db.Column(db.String(80), nullable=False, unique=True)
     email = db.Column(db.String(80), nullable=False)
     password = db.Column(db.String(80), nullable=False)
     created = db.Column(db.DateTime, nullable=False)
+    unique_code = db.Column(db.String(6), nullable=False, default=generate_unique_code)
 
 class User(db.Model):
     id = db.Column(db.String(32), primary_key=True, default=generate_uuid)

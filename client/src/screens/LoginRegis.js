@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import NavbarComponent from '../components/Navbar';
-import { Form, Button, Row, Col, Container, Alert } from 'react-bootstrap';
+import { Form, Button, Row, Col, Container, Alert, Modal } from 'react-bootstrap';
 import AccountsAPI from '../api/AccountsAPI';
 import validator from 'validator';
 import passwordValidator from 'password-validator';
@@ -13,6 +13,8 @@ function LoginRegis() {
     const [registerEmail, setRegisterEmail] = useState('');
     const [registerPassword, setRegisterPassword] = useState('');
     const [message, setMessage] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const [token, setToken] = useState('');
 
     useEffect(() => {
         document.title = 'Buffet - Login/Register';
@@ -24,10 +26,15 @@ function LoginRegis() {
             return;
         }
         AccountsAPI.login(loginUsername, loginPassword).then((response) => {
+            // If account is unverified, show modal to verify email
+            if (response.message === 'Please verify your account before logging in') {
+                setMessage(response.message);
+                setShowModal(true);
+            }
             if (response.status === 200) {
-                // navigate to home page
                 window.location.href = '/';
-            } else {
+            }
+            if (response.status === 401) {
                 setMessage(response.message);
             }
         });
@@ -60,9 +67,37 @@ function LoginRegis() {
         }
 
         AccountsAPI.register(registerUsername, registerEmail, registerPassword).then((response) => {
-            setMessage(response.message);
+            if (response.status === 201) {
+                setMessage(response.message);
+                setShowModal(true);
+            } else {
+                setMessage(response.message);
+            }
         });
     };
+
+    const VerifyButton = () => {
+        if (token.trim() === '') {
+            setMessage('Token cannot be empty.');
+            return;
+        }
+        const username = registerUsername || loginUsername;
+        const password = registerPassword || loginPassword;
+        AccountsAPI.verifyRegistration(username, token).then((response) => {
+            if (response.status === 200) {
+                AccountsAPI.login(username, password).then((response) => {
+                    if (response.status === 200) {
+                        window.location.href = '/';
+                    } else {
+                        setMessage(response.message);
+                    }
+                });
+            }
+            if (response.status === 401) {
+                setMessage(response.message);
+            }
+        });
+    }
 
     return (
         <div id="login-regis">
@@ -133,6 +168,26 @@ function LoginRegis() {
                 </Row>
             </Container>
             <Footer />
+            <Modal show={showModal} onHide={() => setShowModal(false)} backdrop="static" keyboard={false}>
+                <Modal.Header>
+                    <Modal.Title>Verify your email</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>An email has been sent to your email address. Please enter the verification code below.</p>
+                    <Form onSubmit={(e) => { e.preventDefault(); VerifyButton(); }}>
+                        <Form.Group as={Row} controlId="formHorizontalToken" className="mb-2">
+                            <Col>
+                                <Form.Control type="text" placeholder="Verification code" onChange={(e) => setToken(e.target.value)} />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row}>
+                            <Col>
+                                <Button type="submit">Verify</Button>
+                            </Col>
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+            </Modal>
         </div >
     );
 }

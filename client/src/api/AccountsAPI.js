@@ -32,10 +32,13 @@ export default class AccountsAPI {
     }
 
 
-    static async verifyRegistration(id) {
+    static async verifyRegistration(username, unique_code) {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/user/verify/` + id) + '/';
-            return { status: response.status, message: response.data.message }
+            const response = await axios.post(`${API_BASE_URL}/api/user/verify/`, {
+                username: username,
+                unique_code: unique_code
+            });
+            return { status: response.status, message: response.message }
         } catch (error) {
             return { status: error.response.status, message: error.response.data.message };
         }

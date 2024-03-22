@@ -46,6 +46,10 @@ function NavbarComponent() {
                         <i className="bi bi-github" style={{ color: 'white', marginRight: '5px' }}></i>
                         GitHub
                     </Nav.Link>
+                    <Nav.Link href="https://kgdn.xyz">
+                        <i className="bi bi-globe" style={{ color: 'white', marginRight: '5px' }}></i>
+                        kgdn.xyz
+                    </Nav.Link>
                 </Nav>
                 {
                     username ?

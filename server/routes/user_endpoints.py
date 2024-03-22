@@ -53,21 +53,6 @@ def get_user_info():
     }), 200
 
 
-@user_endpoints.route('/api/user/verify/', methods=['GET'])
-@jwt_required()
-def verify():
-    """Verify the user's token
-
-    Returns:
-        json: Message
-    """
-
-    HelperFunctions.create_cef_logs_folders()
-
-    cef.log_cef('Token verified', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=User.query.filter_by(id=get_jwt_identity()).first().username)
-
-    return jsonify({'message': 'Token verified'}), 200
-
 @user_endpoints.route('/api/user/register/', methods=['POST'])
 def register():
     """Register a new user, and send a verification email. 
@@ -113,18 +98,11 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    # Get the user's id
-    new_user_id = new_user.id
+    # Generate a 6 character unique code
+    unique_code = new_user.unique_code
 
     # Send the verification email
-    # Format:
-    # Hello! You're recieving this email because you created an account on Buffet.
-    # Please click <a href="<SERVER_URL>/verify/<USER_ID>/">here</a> to verify your account. (<SERVER_URL> is the URL of the server that should be set in the .env file)
-    # 
-    # Signature:
-    # Buffet is a free and open source student project by <a href="https://kgdn.xyz/">Kieran Gordon</a> at <a href="https://www.hw.ac.uk/">Heriot-Watt University</a>.
-    # If you have any questions, please contact me at <a href="mailto:kjg2000@hw.ac.uk">kjg2000@hw</a>.
-    msg = Message('Verify your account', sender=(os.environ.get('MAIL_USERNAME')), recipients=[email])
+    msg = Message('Buffet - Verify your account', sender=(os.environ.get('MAIL_USERNAME')), recipients=[email])
     msg.html = f"""\
     <html>
         <head>
@@ -136,13 +114,15 @@ def register():
         </head>
         <body>
             <p>Hello! You're recieving this email because you created an account on Buffet.</p>
-            <p>Please click the link below to verify your account.</p>
-            <p><a href="{os.environ.get('SERVER_URL')}/verify/{new_user_id}/">{os.environ.get('SERVER_URL')}/verify/{new_user_id}/</a></p>
+            <p>Your unique 6 character code is: {unique_code}</p>
+            <p>Please enter this code on the website to verify your account.</p>
             <br>
-            <p>Buffet is a free and open source student project by <a href="https://kgdn.xyz/">Kieran Gordon</a> at <a href="https://www.hw.ac.uk/">Heriot-Watt University</a>.</p>
+            <p>Buffet is a free and open source student project developed by <a href="https://kgdn.xyz/">Kieran Gordon</a> as a part of a final year project at <a href="https://www.hw.ac.uk/">Heriot-Watt University</a>.</p>
+            <p>The source code for Buffet can be found on <a href="https://github.com/kgdn/buffet">GitHub</a>. If you would like to contribute, please feel free to make a pull request or open an issue.</p>
             <p>If you have any questions, please contact me at <a href="mailto:kjg2000@hw.ac.uk">kjg2000@hw.ac.uk</a>.</p>
             <br>
             <p>Thank you!</p>
+            <p><i>Kieran Gordon</i></p>
         </body>
     </html>
     """
@@ -151,49 +131,54 @@ def register():
     # Log the user's registration
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User registered', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=new_user.username)
+    cef.log_cef('User registered', 1, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=new_user.username)
 
     return jsonify({'message': 'User created. Check your email to verify your account. Please check your spam folder if you do not see the email.'}), 201
 
 
-@user_endpoints.route('/api/user/verify/<string:id>/', methods=['GET'])
-def verify_user(id):
-    """Verify the user's account
-
-    Args:
-        id (string): The user's id
+@user_endpoints.route('/api/user/verify/', methods=['POST'])
+def verify_user():
+    """Verify a user's account
 
     Returns:
         json: Message
     """
 
-    # Get the user from the unverified users table
-    user = UnverifiedUser.query.filter_by(id=id).first()
+    # Get the data from the request
+    data = request.get_json()
+    if not data or 'username' not in data or 'unique_code' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    # Check if the username and unique code are in the request
+    username = data['username']
+    unique_code = data['unique_code']
+
+    # Check if the user exists in the unverified users table
+    user = UnverifiedUser.query.filter_by(username=username).first()
     if not user:
-        return jsonify({'message': 'Invalid user'}), 401
+        return jsonify({'message': 'Invalid username or unique code'}), 401
 
-    # If the user is already verified, return an error
-    if User.query.filter_by(username=user.username).first():
-        return jsonify({'message': 'User already verified'}), 409
+    # Check if the unique code is correct
+    if user.unique_code != unique_code:
+        return jsonify({'message': 'Invalid username or unique code'}), 401
 
-    # Create a new user with the same information as the unverified user
+    # If everything is valid, create a new user
     new_user = User(username=user.username, email=user.email, password=user.password, role='user')
 
-    # Save the user to the database
+    # Add the new user to the database
     db.session.add(new_user)
+    db.session.commit()
 
     # Delete the unverified user
     db.session.delete(user)
-
-    # Save the changes
     db.session.commit()
 
     # Log the user's verification
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User verified', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=new_user.username)
+    cef.log_cef('User verified', 1, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=new_user.username)
 
-    return jsonify({'message': 'Your account has been verified. You can now access the site.'}), 200
+    return jsonify({'message': 'User verified'}), 200
 
 @user_endpoints.route('/api/user/login/', methods=['POST'])
 def login():
@@ -214,14 +199,16 @@ def login():
 
     # Check if the user exists and if the password is correct
     # If the user is found in the banned users table, return an error
+    # If the user is found in the unverified users table, return an error
     user = User.query.filter_by(username=username).first()
     if not user:
         if BannedUser.query.filter_by(username=username).first():
             return jsonify({'message': 'You were banned for: ' + BannedUser.query.filter_by(username=username).first().ban_reason + '. Please contact the head admin to appeal.'}), 403
+        if UnverifiedUser.query.filter_by(username=username).first():
+            return jsonify({'message': 'Please verify your account before logging in'}), 401
         return jsonify({'message': 'Invalid username or password'}), 401
     if not Bcrypt.check_password_hash(user.password, password):
         return jsonify({'message': 'Invalid password or username'}), 401
-
     # Get user's login time and set in DateTime format for database
     login_time = datetime.now(timezone.utc)
     user.login_time = login_time
@@ -241,7 +228,7 @@ def login():
     # Log the user's login
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User logged in', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User logged in', 1, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return resp, 200
 
@@ -272,7 +259,7 @@ def logout():
     # Log the user's logout
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User logged out', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=User.query.filter_by(id=get_jwt_identity()).first().username)
+    cef.log_cef('User logged out', 1, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=User.query.filter_by(id=get_jwt_identity()).first().username)
 
     return resp, 200
     
@@ -359,7 +346,7 @@ def change_password():
     # Log the user's password change
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User password changed', 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User password changed', 3, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'Password changed'}), 200
 
@@ -398,7 +385,7 @@ def change_username():
     # Log the user's username change
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User with ID: ' + str(user.id) + ' changed username to ' + username, 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User with ID: ' + str(user.id) + ' changed username to ' + username, 3, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'Username changed'}), 200
 
@@ -437,6 +424,6 @@ def change_email():
     # Log the user's email change
     HelperFunctions.create_cef_logs_folders()
 
-    cef.log_cef('User with ID: ' + str(user.id) + ' changed email to ' + email, 5, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    cef.log_cef('User with ID: ' + str(user.id) + ' changed email to ' + email, 3, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'Email changed'}), 200
