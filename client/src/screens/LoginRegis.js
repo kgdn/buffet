@@ -15,6 +15,7 @@ function LoginRegis() {
     const [message, setMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [token, setToken] = useState('');
+    const [flash, setFlash] = useState(false);
 
     useEffect(() => {
         document.title = 'Buffet - Login/Register';
@@ -37,7 +38,7 @@ function LoginRegis() {
             if (response.status === 401) { // Unauthorized
                 setMessage(response.message);
             }
-            else {
+            if (response.status === 403) { // Forbidden/Banned
                 setMessage(response.message);
             }
         });
@@ -46,16 +47,19 @@ function LoginRegis() {
     const RegisterButton = () => {
         if (registerUsername.trim() === '' || registerEmail.trim() === '' || registerPassword.trim() === '') {
             setMessage('Username, email, and password cannot be empty.');
+            setFlash(true);
             return;
         }
         if (!validator.isEmail(registerEmail)) {
             setMessage('Invalid email.');
+            setFlash(true);
             return;
         }
 
         // Username can only contain letters, numbers, underscores, and dashes. It cannot contain spaces.
         if (!validator.matches(registerUsername, /^[a-zA-Z0-9_-]+$/)) {
             setMessage('Invalid username. Your username can only contain letters, numbers, underscores, and dashes. It cannot contain spaces.');
+            setFlash(true);
             return;
         }
 
@@ -66,18 +70,29 @@ function LoginRegis() {
 
         if (!schema.validate(registerPassword)) {
             setMessage('Invalid password. Your password must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces.');
+            setFlash(true);
             return;
         }
 
         AccountsAPI.register(registerUsername, registerEmail, registerPassword).then((response) => {
             if (response.status === 201) {
                 setMessage(response.message);
+                setFlash(true);
                 setShowModal(true);
             } else {
                 setMessage(response.message);
+                setFlash(true);
             }
         });
     };
+
+    useEffect(() => {
+        if (flash) {
+            setTimeout(() => {
+                setFlash(false);
+            }, 5000);
+        }
+    }, [flash]);
 
     const VerifyButton = () => {
         if (token.trim() === '') {
@@ -93,11 +108,13 @@ function LoginRegis() {
                         window.location.href = '/';
                     } else {
                         setMessage(response.message);
+                        setFlash(true);
                     }
                 });
             }
             if (response.status === 401) {
                 setMessage(response.message);
+                setFlash(true);
             }
         });
     }
@@ -164,7 +181,7 @@ function LoginRegis() {
                                 </Col>
                             </Form.Group>
                         </Form>
-                        <Alert variant="primary" style={{ display: message === '' ? 'none' : 'block', marginTop: '1rem' }}>
+                        <Alert variant="primary" style={{ display: message === '' ? 'none' : 'block', marginTop: '1rem' }} className={flash ? 'flash' : ''} onClose={() => setMessage('')} dismissible>
                             {message}
                         </Alert>
                     </Col>
