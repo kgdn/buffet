@@ -1,7 +1,3 @@
-.vscode/settings.json
-.vscode/launch.json
-.vscode/
-
 server/iso/
 server/venv/
 server/__pycache__/
@@ -9,11 +5,10 @@ server/instance/
 server/.env
 server/.venv/
 server/routes/__pycache__/
-server/test-workflow.sh
-server/app-backup.py
 server/logs/
 server/migrations/
 server/restful_api_collection
+server/.pytest_cache/
 
 client/node_modules/
 client/.pnp
@@ -30,7 +25,4 @@ client/npm-debug.log*
 client/yarn-debug.log*
 client/yarn-error.log*
 client/.env
-client.code-workspace
-
-dissertation/
-model/
+client/.eslintrc.js
