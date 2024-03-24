@@ -37,6 +37,9 @@ function LoginRegis() {
             if (response.status === 401) {
                 setMessage(response.message);
             }
+            else {
+                setMessage(response.message);
+            }
         });
     };
 

@@ -261,6 +261,7 @@ function Home() {
                         <p>The website you are currently viewing is the front-end of Buffet, written in <a href="https://reactjs.org/">React</a>. The back-end is written in <a href="https://www.python.org/">Python</a> using the <a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a> framework. The source code for Buffet is available on <a href="https://github.com/kgdn/buffet">GitHub</a>.</p>
                         <p>Buffet is licensed under the <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">GNU Affero General Public License v3.0</a>. This means that you are free to use, modify and distribute Buffet as you wish, as long as you make your modifications available under the same license. Network use of Buffet is also permitted, as long as you make the source code available to the users of the network.</p>
                         <p><strong>Note:</strong> Buffet is currently in heavy development. You may experience bugs. Please report any bugs you find on <a href="https://github.com/kgdn/buffet/issues">GitHub</a>.</p>
+                        <p><b>For the best experience, Chrome or a Chromium based browser is recommended.</b></p>
                     </Col>
                 </Container>
             )}
