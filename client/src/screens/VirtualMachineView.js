@@ -64,7 +64,7 @@ function VirtualMachineView() {
                 deleteVM();
             }, inactivityTimeout);
         });
-    }, [virtualMachineId, inactivityTimeout]);
+    }, [virtualMachineId, inactivityTimeout, deleteVM]);
 
     // Connect to the VM
     useEffect(() => {
@@ -84,7 +84,7 @@ function VirtualMachineView() {
                 });
             });
         }
-    }, [wsport, virtualMachineId]);
+    }, [wsport, virtualMachineId, deleteVM]);
 
     return (
         // display
