@@ -110,7 +110,6 @@ def create_vm():
         'id': new_vm.id,
         'wsport': new_vm.wsport,
         'iso': new_vm.iso,
-        'process_id': new_vm.process_id,
         'user_id': new_vm.user_id
     }), 201
 
@@ -198,7 +197,6 @@ def get_user_vm():
         'id': vm.id,
         'wsport': vm.wsport,
         'iso': vm.iso,
-        'process_id': vm.process_id,
         'user_id': vm.user_id,
         'name': name,
         'version': version,
@@ -238,7 +236,6 @@ def get_vm_by_id():
         'id': vm.id,
         'wsport': vm.wsport,
         'iso': vm.iso,
-        'process_id': vm.process_id,
         'user_id': vm.user_id
     }), 200
 
