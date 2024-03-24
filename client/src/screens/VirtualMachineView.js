@@ -69,7 +69,7 @@ function VirtualMachineView() {
     // Connect to the VM
     useEffect(() => {
         if (wsport) { // If the websocket port is not 0 then connect to the VM
-            const rfb = new RFB(document.getElementById('app'), 'wss://lxphd06.macs.hw.ac.uk/connect/' + wsport, {});
+            const rfb = new RFB(document.getElementById('app'), 'ws://localhost:' + wsport, {});
             rfb.scaleViewport = true;
             rfb.resizeSession = true;
             rfb.focusOnClick = true;
