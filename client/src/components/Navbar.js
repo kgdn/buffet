@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, NavDropdown } from 'react-bootstrap';
 import AccountsAPI from '../api/AccountsAPI';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import logo from '!file-loader!../assets/logo.svg';
+import logo from '../assets/logo.svg';
 
 function NavbarComponent() {
 
