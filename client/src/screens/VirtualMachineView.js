@@ -88,7 +88,7 @@ function VirtualMachineView() {
                 });
             });
         }
-    }, [wsport, virtualMachineId, API_BASE_URL, deleteVM]);
+    }, [wsport, virtualMachineId, deleteVM, strippedBaseUrl]);
 
     return (
         // display
