@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Card, Button, Container, Row, Col, Form, Modal, Alert, Carousel, ButtonGroup, ProgressBar, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import NavbarComponent from '../components/Navbar';
-import AccountsAPI from '../api/AccountsAPI';
+import { AuthContext } from '../AuthContext';
 import VirtualMachineAPI from '../api/VirtualMachineAPI';
 import Footer from '../components/Footer';
 import fedora from '../assets/carousel/fedora.png'
@@ -9,6 +9,7 @@ import ubuntu from '../assets/carousel/ubuntu.png'
 import opensuse from '../assets/carousel/opensuse.png'
 
 function Home() {
+    const { user } = useContext(AuthContext);
     const [loggedIn, setLoggedIn] = useState(false);
     const [iso, setImages] = useState([]);
     const [nonLinuxImages, setNonLinuxImages] = useState([]);
@@ -22,39 +23,47 @@ function Home() {
     const [complexityModal, showComplexityModal] = useState(false);
 
     useEffect(() => {
-
         document.title = 'Buffet';
 
-        AccountsAPI.getUserDetails().then((response) => {
+        if (user) {
+            setLoggedIn(true);
+            setUsername(user.username);
+        }
+
+        const getImages = async () => {
+            const response = await VirtualMachineAPI.getIsoFiles();
             if (response.status === 200) {
-                setLoggedIn(true);
-                setUsername(response.data.username);
-                VirtualMachineAPI.getIsoFiles().then((response) => {
-                    if (response.status === 200) {
-                        response.data.forEach((image) => {
-                            if (image.linux) {
-                                setImages((iso) => [...iso, image]);
-                            } else {
-                                setNonLinuxImages((nonLinuxImages) => [...nonLinuxImages, image]);
-                            }
-                        });
+                const linuxImages = [];
+                const nonLinuxImages = [];
+                response.data.forEach((image) => {
+                    if (image.linux) {
+                        linuxImages.push(image);
+                    } else {
+                        nonLinuxImages.push(image);
                     }
                 });
-                VirtualMachineAPI.getRunningVMs().then((response) => {
-                    if (response.status === 200) {
-                        setVMCount(response.data.vm_count);
-                    }
-                }
-                );
+                setImages(linuxImages);
+                setNonLinuxImages(nonLinuxImages);
             }
-        });
-    }, []);
+        };
+
+        const getVMCount = async () => {
+            const response = await VirtualMachineAPI.getRunningVMs();
+            if (response.status === 200) {
+                setVMCount(response.data.vm_count);
+            }
+        };
+
+        getImages();
+        getVMCount();
+    }, [user]);
+
 
     const createVMButton = (iso) => {
         const createVM = async () => {
             const response = await VirtualMachineAPI.createVirtualMachine(iso);
             if (response.status === 201) {
-                window.location.href = '/vm/';
+                window.location.href = '/vm';
             } else {
                 showErrorModal(true);
                 setErrorMessage(response.message);

@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import NavbarComponent from '../components/Navbar';
 import { Modal, Form, Button, ButtonGroup, Container, Row, Col, Alert } from 'react-bootstrap';
 import AccountsAPI from '../api/AccountsAPI';
 import validator from 'validator';
 import passwordValidator from 'password-validator';
 import Footer from '../components/Footer';
+import { AuthContext } from '../AuthContext';
 
 function ManageUser() {
+    const { user, logout } = useContext(AuthContext);
     const [getEmail, setCurrentEmail] = useState('');
     const [getUserName, setCurrentUserName] = useState('');
     const [username, setUsername] = useState('');
@@ -108,22 +110,16 @@ function ManageUser() {
     };
 
     const LogoutButton = () => {
-        AccountsAPI.logout().then((response) => {
-            if (response.status === 200) {
-                window.location.href = '/';
-            }
-        });
+        logout();
     };
 
     useEffect(() => {
-        AccountsAPI.getUserDetails().then((response) => {
-            if (response.status === 200) {
-                setCurrentEmail(response.data.email);
-                setCurrentUserName(response.data.username);
-                setRole(response.data.role);
-            }
-        });
-    }, []);
+        if (user) {
+            setCurrentEmail(user.email);
+            setCurrentUserName(user.username);
+            setRole(user.role);
+        }
+    }, [user]);
 
     return (
         <div id="manage-user">

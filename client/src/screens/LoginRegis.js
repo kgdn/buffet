@@ -111,12 +111,12 @@ function LoginRegis() {
                         <h1>Login</h1>
                         <p>Already have an account? Login.</p>
                         <Form onSubmit={(e) => { e.preventDefault(); LoginButton(); }}>
-                            <Form.Group as={Row} controlId="formHorizontalUsername" className="mb-2">
+                            <Form.Group as={Row} controlId="formLoginUsername" className="mb-2">
                                 <Col>
                                     <Form.Control type="text" placeholder="Username" onChange={(e) => setLoginUsername(e.target.value)} />
                                 </Col>
                             </Form.Group>
-                            <Form.Group as={Row} controlId="formHorizontalPassword" className="mb-2">
+                            <Form.Group as={Row} controlId="formLoginPassword" className="mb-2">
                                 <Col>
                                     <Form.Control type="password" placeholder='Password' onChange={(e) => setLoginPassword(e.target.value)} />
                                 </Col>
@@ -143,17 +143,17 @@ function LoginRegis() {
                             </ul>
                         </Alert>
                         <Form onSubmit={(e) => { e.preventDefault(); RegisterButton(); }}>
-                            <Form.Group as={Row} controlId="formHorizontalUsername" className="mb-2">
+                            <Form.Group as={Row} controlId="formRegisterUsername" className="mb-2">
                                 <Col>
                                     <Form.Control type="text" placeholder="Username" onChange={(e) => setRegisterUsername(e.target.value)} />
                                 </Col>
                             </Form.Group>
-                            <Form.Group as={Row} controlId="formHorizontalEmail" className="mb-2">
+                            <Form.Group as={Row} controlId="formRegisterEmail" className="mb-2">
                                 <Col>
                                     <Form.Control type="email" placeholder="Email" onChange={(e) => setRegisterEmail(e.target.value)} />
                                 </Col>
                             </Form.Group>
-                            <Form.Group as={Row} controlId="formHorizontalPassword" className="mb-2">
+                            <Form.Group as={Row} controlId="formRegisterPassword" className="mb-2">
                                 <Col>
                                     <Form.Control type="password" placeholder='Password' onChange={(e) => setRegisterPassword(e.target.value)} />
                                 </Col>
@@ -178,7 +178,7 @@ function LoginRegis() {
                 <Modal.Body>
                     <p>An email has been sent to your email address. Please enter the verification code below.</p>
                     <Form onSubmit={(e) => { e.preventDefault(); VerifyButton(); }}>
-                        <Form.Group as={Row} controlId="formHorizontalToken" className="mb-2">
+                        <Form.Group as={Row} controlId="formToken" className="mb-2">
                             <Col>
                                 <Form.Control type="text" placeholder="Verification code" onChange={(e) => setToken(e.target.value)} />
                             </Col>

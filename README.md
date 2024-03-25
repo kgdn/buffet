@@ -1,0 +1,1 @@
+# Buffet - A Web-Based GNU/Linux Virtual Machine Manager

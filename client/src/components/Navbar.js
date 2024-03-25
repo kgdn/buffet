@@ -1,31 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Container, Navbar, Nav, NavDropdown } from 'react-bootstrap';
-import AccountsAPI from '../api/AccountsAPI';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import logo from '../assets/logo.svg';
+import { AuthContext } from '../AuthContext';
 
 function NavbarComponent() {
 
-    const [username, setUsername] = useState('');
-    const [role, setRole] = useState('');
-
-    useEffect(() => {
-        AccountsAPI.getUserDetails().then((response) => {
-            if (response.status === 200) {
-                setUsername(response.data.username);
-                setRole(response.data.role);
-            }
-        });
-    }, []);
-
-
-    const logout = () => {
-        AccountsAPI.logout().then((response) => {
-            if (response.status === 200) {
-                window.location.href = '/';
-            }
-        });
-    }
+    const { user, logout } = useContext(AuthContext);
 
     return (
         <Navbar bg="dark" variant="dark" expand="lg" style={{ padding: '10px', marginBottom: '20px', boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.75)' }} sticky='top'>
@@ -52,12 +33,12 @@ function NavbarComponent() {
                     </Nav.Link>
                 </Nav>
                 {
-                    username ?
+                    user ?
                         <Nav>
-                            <NavDropdown title={username} id="basic-nav-dropdown">
+                            <NavDropdown title={user.username} id="basic-nav-dropdown">
                                 <NavDropdown.Item href="/account">Manage Account</NavDropdown.Item>
                                 {
-                                    role === 'admin' ?
+                                    user.role === 'admin' ?
                                         <NavDropdown.Item href="/admin">Admin Panel</NavDropdown.Item>
                                         :
                                         null

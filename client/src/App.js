@@ -7,6 +7,7 @@ import Home from './screens/Home';
 import Admin from './screens/Admin';
 import VirtualMachineView from './screens/VirtualMachineView';
 import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './AuthContext';
 
 function App() {
   const prefersDarkMode = useMediaQuery(
@@ -22,15 +23,17 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<ProtectedRoute element={<LoginRegis />} />} />
-        <Route path="/admin" element={<ProtectedRoute element={<Admin />} />} />
-        <Route path="/account" element={<ProtectedRoute element={<ManageUser />} />} />
-        <Route path="/vm" element={<ProtectedRoute element={<VirtualMachineView />} />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<ProtectedRoute element={<LoginRegis />} />} />
+          <Route path="/admin" element={<ProtectedRoute element={<Admin />} />} />
+          <Route path="/account" element={<ProtectedRoute element={<ManageUser />} />} />
+          <Route path="/vm" element={<ProtectedRoute element={<VirtualMachineView />} />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
