@@ -53,8 +53,5 @@ if not os.path.exists('iso/index.json'):
 if not os.path.exists('logs'):
     os.makedirs('logs')
 
-def create_app():
-    return app
-
 if __name__ == '__main__':
     app.run()
