@@ -239,45 +239,6 @@ def change_user_role():
 
     return jsonify({'message': 'User role changed'}), 200
 
-@admin_endpoints.route('/api/admin/user/password/', methods=['PUT'])
-@jwt_required()
-def change_user_password():
-    """Change the password of the user
-
-    Returns:
-        json: Message
-    """
-    
-    # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
-    if not user:
-        return jsonify({'message': 'Invalid user'}), 401
-    
-    # Ensure the user is an admin
-    if user.role != 'admin':
-        return jsonify({'message': 'Insufficient permissions'}), 403
-
-    # Get the user id from the request
-    data = request.get_json()
-    if not data or 'user_id' not in data or 'new_password' not in data:
-        return jsonify({'message': 'Invalid data format'}), 400
-
-    # Get the user, if it exists
-    user_to_change = User.query.filter_by(id=data['user_id']).first()
-    if not user_to_change:
-        return jsonify({'message': 'Invalid user'}), 404
-
-    user_to_change.password = Bcrypt.generate_password_hash(data['new_password']).decode('utf-8')
-
-    db.session.commit()
-
-    HelperFunctions.create_cef_logs_folders()
-
-    # Log the event in CEF format
-    cef.log_cef('User ' + user_to_change.username + ' password changed by admin', 7, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
-
-    return jsonify({'message': 'User password changed'}), 200
-
 @admin_endpoints.route('/api/admin/user/username/', methods=['PUT'])
 @jwt_required()
 def change_user_username():

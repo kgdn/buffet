@@ -69,7 +69,7 @@ npm install
 ```bash
 BROWSER= # none
 GENERATE_SOURCEMAP= # true or false
-REACT_APP_BASE_URL= # url of api (e.g. http://localhost:)
+REACT_APP_BASE_URL= # url of api (e.g. http://localhost)
 REACT_APP_BASE_PORT= # port of api (e.g. 8000)
 ```
 

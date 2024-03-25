@@ -10,6 +10,7 @@ const API_BASE_URL = process.env.REACT_APP_BASE_URL;
 const API_BASE_PORT = process.env.REACT_APP_BASE_PORT;
 
 export default class AdminAPI {
+    // Get all currently running VMs
     static async getAllVMs() {
         try {
             const response = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/vm/all/`);
@@ -20,6 +21,7 @@ export default class AdminAPI {
         }
     }
 
+    // Get all users
     static async getAllUsers() {
         try {
             const response = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/all/`);
@@ -30,6 +32,7 @@ export default class AdminAPI {
         }
     }
 
+    // Get all VMs by user
     static async getAllVMsByUser(id) {
         try {
             const response = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/vm/`, {
@@ -44,6 +47,7 @@ export default class AdminAPI {
         }
     }
 
+    // Delete user by ID
     static async deleteUser(id) {
         try {
             const response = await axios.delete(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/delete/`, {
@@ -58,6 +62,7 @@ export default class AdminAPI {
         }
     }
 
+    // Delete VM by ID
     static async deleteVM(id) {
         try {
             const response = await axios.delete(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/vm/delete/`, {
@@ -72,6 +77,7 @@ export default class AdminAPI {
         }
     }
 
+    // Change a user's username
     static async changeUsername(user_id, username) {
         try {
             const response = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/username/`, {
@@ -85,6 +91,7 @@ export default class AdminAPI {
         }
     }
 
+    // Change a user's email
     static async changeEmail(user_id, email) {
         try {
             const response = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/email/`, {
@@ -98,19 +105,7 @@ export default class AdminAPI {
         }
     }
 
-    static async changePassword(user_id, password) {
-        try {
-            const response = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/password/`, {
-                user_id: user_id,
-                password: password
-            });
-            return { status: response.status, message: response.message }
-        }
-        catch (error) {
-            return { status: error.response.status, message: error.response.data.message };
-        }
-    }
-
+    // Ban a user for a specific reason
     static async banUser(user_id, reason) {
         try {
             const response = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/ban/`, {
@@ -124,6 +119,7 @@ export default class AdminAPI {
         }
     }
 
+    // Unban a user
     static async unbanUser(user_id) {
         try {
             const response = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/unban/`, {
@@ -136,6 +132,7 @@ export default class AdminAPI {
         }
     }
 
+    // Get all banned users
     static async getBannedUsers() {
         try {
             const response = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/banned/`);
@@ -146,19 +143,7 @@ export default class AdminAPI {
         }
     }
 
-    static async changeBanReason(user_id, reason) {
-        try {
-            const response = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/ban/reason/`, {
-                user_id: user_id,
-                ban_reason: reason
-            });
-            return { status: response.status, message: response.message }
-        }
-        catch (error) {
-            return { status: error.response.status, message: error.response.data.message };
-        }
-    }
-
+    // Get all unverified users
     static async getUnverifiedUsers() {
         try {
             const response = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/unverified/`);
@@ -169,6 +154,7 @@ export default class AdminAPI {
         }
     }
 
+    // Delete an unverified user
     static async deleteUnverifiedUser(user_id) {
         try {
             const response = await axios.delete(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/unverified/delete/`, {
@@ -183,6 +169,7 @@ export default class AdminAPI {
         }
     }
 
+    // Verify an unverified user
     static async verifyUser(user_id) {
         try {
             const response = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/unverified/verify/`, {
@@ -195,6 +182,7 @@ export default class AdminAPI {
         }
     }
 
+    // Get all logs
     static async getLogs() {
         try {
             const response = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/logs/`);
