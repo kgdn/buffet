@@ -95,8 +95,29 @@ The back-end is a Flask application that provides the REST API for the front-end
 - QEMU 8.1.3 or later
 - Any GNU/Linux distribution for the host operating system
 - Virtualization support enabled in the BIOS/UEFI settings
-- KVM kernel module loaded
+- KVM kernel module loaded*
 
+*To check if the KVM kernel module is loaded, run the following command:
+
+```bash
+lsmod | grep kvm
+```
+
+You should see output similar to the following:
+
+```bash
+kvm_intel             425984  0
+kvm_amd                98304  0
+kvm                  1376256  1 kvm_intel
+irqbypass              12288  1 kvm
+```
+
+If you do not see any output, you may need to load the KVM kernel module manually:
+
+```bash
+sudo modprobe kvm
+```
+ 
 #### Instructions
 
 1. Clone the repository:
