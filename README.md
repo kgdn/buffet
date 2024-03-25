@@ -153,7 +153,7 @@ MAIL_ASCII_ATTACHMENTS= # True or False
 ```
 
 7. Put your virtual machine images in the `iso` directory, and create an `index.json` file in the `iso` directory with the following structure:
-```json
+```jsonc
 [
     {
         "iso": "archlinux.iso", // name of the ISO file
