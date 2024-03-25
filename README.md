@@ -5,7 +5,7 @@
 # Buffet [![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![GitHub issues](https://img.shields.io/github/issues/kgdn/buffet)](https://github.com/kgdn/buffet/issues) [![GitHub stars](https://img.shields.io/github/stars/kgdn/buffet)](https://github.com/kgdn/buffet/stargazers)
 
 Buffet is a full-stack, fully-featured web-based virtual machine manager that aims to provide a free, open-source, lightweight, easy-to-use, and secure alternative to other web-based virtual machine managers such as [DistroSea](https://distrosea.com/) and [DistroTest](https://www.reddit.com/r/DistroHopping/comments/wqrwbw/what_happened_to_distrotestnet/).
-The back-end is written in Python using the Flask web framework, and the front-end is written in React using the Bootstrap CSS framework.
+The back-end is written in Python using the Flask web framework, and the front-end is written in JavaScript with the React library. Buffet uses QEMU and KVM for virtualization, and noVNC for remote desktop access.
 
 Buffet was made over the course of 12 weeks as part of the final project for my bachelor's degree in Computer Systems at the [School of Mathematical and Computer Sciences](https://www.hw.ac.uk/schools/mathematical-computer-sciences.htm) at [Heriot-Watt University](https://www.hw.ac.uk/). 
 
@@ -13,10 +13,10 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 
 ## Features
 
-- Create, start, stop, and delete virtual machines
+- Create, start, stop, and delete QEMU/KVM virtual machines
 - Connect to virtual machines using [noVNC](https://github.com/novnc/noVNC), a web-based VNC client
-- Manage virtual machine images, logos, and other files
-- Administer users, virtual machines and logs
+- Manage virtual machine images, logos, and distributions using a JSON file
+- Administer users, virtual machines and logs from the admin panel
 - Secure user authentication and authorisation using JSON Web Tokens (JWT) and bcrypt
 - Lightweight and easy to install on any GNU/Linux server
 
