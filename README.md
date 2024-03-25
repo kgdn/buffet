@@ -4,7 +4,7 @@
 
 # Buffet [![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![GitHub issues](https://img.shields.io/github/issues/kgdn/buffet)](https://github.com/kgdn/buffet/issues) [![GitHub stars](https://img.shields.io/github/stars/kgdn/buffet)](https://github.com/kgdn/buffet/stargazers)
 
-Buffet is a full-stack, fully-featured web-based virtual machine manager for GNU/Linux. It is designed to be an open source, lightweight, easy-to-use, and secure alternative to other web-based virtual machine managers such as DistroSea and DistroTest. The backend is written in Python using the Flask web framework, and the frontend is written in React using the Bootstrap CSS framework.
+Buffet is a full-stack, fully-featured web-based virtual machine manager that aims to provide a free, open-source, lightweight, easy-to-use, and secure alternative to other web-based virtual machine managers such as DistroSea and DistroTest. The backend is written in Python using the Flask web framework, and the frontend is written in React using the Bootstrap CSS framework.
 
 Buffet was made over the course of 12 weeks as part of the final project for my bachelor's degree in Computer Systems at the [School of Mathematical and Computer Sciences](https://www.hw.ac.uk/schools/mathematical-computer-sciences.htm) at [Heriot-Watt University](https://www.hw.ac.uk/). 
 
