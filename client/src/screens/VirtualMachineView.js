@@ -11,6 +11,10 @@ function VirtualMachineView() {
     const [version, setVersion] = useState('');
     const [desktop, setDesktop] = useState('');
     const inactivityTimeout = 500000;
+    const API_BASE_URL = process.env.REACT_APP_BASE_URL;
+
+    // strip http from the base url
+    const strippedBaseUrl = API_BASE_URL.replace(/(^\w+:|^)\/\//, '');
 
     useEffect(() => {
         const getPort = async () => {
@@ -69,7 +73,7 @@ function VirtualMachineView() {
     // Connect to the VM
     useEffect(() => {
         if (wsport) { // If the websocket port is not 0 then connect to the VM
-            const rfb = new RFB(document.getElementById('app'), 'wss://lxphd06.macs.hw.ac.uk:' + wsport, {});
+            const rfb = new RFB(document.getElementById('app'), 'ws://' + strippedBaseUrl + ':' + wsport, {});
             rfb.scaleViewport = true;
             rfb.resizeSession = true;
             rfb.focusOnClick = true;
@@ -84,7 +88,7 @@ function VirtualMachineView() {
                 });
             });
         }
-    }, [wsport, virtualMachineId, deleteVM]);
+    }, [wsport, virtualMachineId, API_BASE_URL, deleteVM]);
 
     return (
         // display
