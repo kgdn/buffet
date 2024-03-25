@@ -172,6 +172,7 @@ MAIL_ASCII_ATTACHMENTS= # True or False
 8. Create a `logos` directory in the `iso` directory and put your distribution logos in it.
 ```bash
 mkdir iso/logos
+mv archlinux.png iso/logos
 ```
 
 9. Start the development server (optional):
