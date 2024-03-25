@@ -152,12 +152,34 @@ MAIL_MAX_EMAILS= # max_emails (int)
 MAIL_ASCII_ATTACHMENTS= # True or False
 ```
 
-7. Start the development server (optional):
+7. Put your virtual machine images in the `iso` directory, and create an `index.json` file in the `iso` directory with the following structure:
+```json
+[
+    {
+        "iso": "archlinux.iso", // name of the ISO file
+        "desktop": "No desktop", // desktop environment
+        "name": "Arch Linux", // name of the distribution
+        "version": "Latest", // version of the distribution
+        "description": "Bleeding edge GNU/Linux distribution where you build your own system from the ground up, tailored to your needs.", // description of the distribution
+        "linux": true, // whether the distribution uses the Linux kernel or not
+        "logo": "archlinux.png", // name of the logo file found in the iso/logos directory
+        "homepage": "https://archlinux.org", // homepage of the distribution
+        "beginner_friendly": false // whether the distribution is beginner-friendly or not
+    },
+]
+```
+
+8. Create a `logos` directory in the `iso` directory and put your distribution logos in it.
+```bash
+mkdir iso/logos
+```
+
+9. Start the development server (optional):
 ```bash
 flask -A app run
 ```
 
-8. Run the production server:
+10. Run the production server:
 ```bash
 gunicorn --bind 0.0.0.0:8000 --workers 4 app:app
 ```

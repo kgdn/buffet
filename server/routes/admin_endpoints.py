@@ -732,11 +732,7 @@ def get_all_logs():
     if admin.role != 'admin':
         return jsonify({'message': 'Insufficient permissions'}), 403
 
-    # Get all logs by recursively reading all log files and separate them by date
-    # [
-    #    '2021-01-01': ['log entry 1', 'log entry 2'],
-    #    '2021-01-02': ['log entry 1', 'log entry 2']
-    # ]
+    # Get all logs
     logs = {}
     for log_date in os.listdir('logs'):
         if os.path.isdir('logs/' + log_date):

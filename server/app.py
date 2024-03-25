@@ -31,7 +31,7 @@ app.register_blueprint(user_endpoints)
 app.register_blueprint(vm_endpoints)
 app.register_blueprint(admin_endpoints)
 
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1) # Gunicorn gets confused if it doesn't know that it's behind a proxy, so we need to tell it that it is
 
 # Create logs/ directory if it doesn't exist
 if not os.path.exists('logs'):
