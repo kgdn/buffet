@@ -21,15 +21,15 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 
 ## Screenshots
 
-<figure align="center">
-  <img src="images/homepage.png" alt="Homepage">
-  <figcaption>The Buffet homepage</figcaption>
-</figure>
+<div align="center">
+    <img src="images/homepage.png" alt="Homepage">
+    <p>The homepage</p>
+</div>
 
-<figure align="center">
-  <img src="images/virtual-machine-view.png" alt="Virtual Machines">
-  <figcaption>The virtual machines view</figcaption>
-</figure>
+<div align="center">
+    <img src="images/virtual-machine-view.png" alt="Virtual Machines">
+    <p>A virtual machine running Linux Mint</p>
+</div>
 
 ## Installation
 
