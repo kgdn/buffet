@@ -106,7 +106,8 @@ The back-end is a Flask application that provides the REST API for the front-end
 - Virtualization support enabled in the BIOS/UEFI settings
 - KVM kernel module loaded*
 
-*To check if the KVM kernel module is loaded, run the following command:
+> [!TIP]
+> You can check if the KVM kernel module is loaded by running the following command:
 
 ```bash
 lsmod | grep kvm
