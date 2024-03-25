@@ -34,10 +34,10 @@ function LoginRegis() {
             if (response.status === 200) {
                 window.location.href = '/';
             }
-            if (response.status === 401) {
+            if (response.status === 401) { // Unauthorized
                 setMessage(response.message);
             }
-            else {
+            if (response.status === 403) { // Forbidden/Banned
                 setMessage(response.message);
             }
         });
