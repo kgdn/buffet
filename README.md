@@ -1,8 +1,8 @@
-# Buffet - A Web-Based GNU/Linux Virtual Machine Manager
+<div align="center" style="margin-bottom: 20px;">
+  <img src="images/logo.png" alt="Buffet Logo" width="200" height="200">
+</div>
 
-[![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-
-## Introduction
+# Buffet [![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![GitHub issues](https://img.shields.io/github/issues/kgdn/buffet)](https://github.com/kgdn/buffet/issues) [![GitHub stars](https://img.shields.io/github/stars/kgdn/buffet)](https://github.com/kgdn/buffet/stargazers)
 
 Buffet is a full-stack, fully-featured web-based virtual machine manager for GNU/Linux. It is designed to be an open source, lightweight, easy-to-use, and secure alternative to other web-based virtual machine managers such as DistroSea and DistroTest. The backend is written in Python using the Flask web framework, and the frontend is written in React using the Bootstrap CSS framework.
 
@@ -17,7 +17,19 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 - Manage virtual machine images, logos, and other files
 - Administer users, virtual machines and logs
 - Secure user authentication and authorisation using JSON Web Tokens (JWT) and bcrypt
-- Lightweight and easy to install
+- Lightweight and easy to install on any GNU/Linux server
+
+## Screenshots
+
+<figure align="center">
+  <img src="images/homepage.png" alt="Homepage">
+  <figcaption>The Buffet homepage</figcaption>
+</figure>
+
+<figure align="center">
+  <img src="images/virtual-machine-view.png" alt="Virtual Machines">
+  <figcaption>The virtual machines view</figcaption>
+</figure>
 
 ## Installation
 
@@ -51,6 +63,8 @@ npm install
 ```
 
 4. Create a .env file in the `client` directory with the following contents:
+
+**`.env`**
 ```bash
 BROWSER= # none
 GENERATE_SOURCEMAP= # true or false
@@ -109,7 +123,10 @@ source .venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
+
 6. Create a .env file in the `server` directory with the following contents:
+
+**`.env`**
 ```bash
 SECRET_KEY= # your_secret
 SQLALCHEMY_DATABASE_URI= # your_database_uri
