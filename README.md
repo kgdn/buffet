@@ -104,7 +104,7 @@ The back-end is a Flask application that provides the REST API for the front-end
 - QEMU 8.1.3 or later
 - Any GNU/Linux distribution for the host operating system
 - Virtualization support enabled in the BIOS/UEFI settings
-- KVM kernel module loaded*
+- KVM kernel module loaded
 
 > [!TIP]
 > You can check if the KVM kernel module is loaded by running the following command:
