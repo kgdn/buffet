@@ -41,7 +41,10 @@ This section is only for people, including systems administrators, who want to i
 
 ### Front-end Installation
 
-The front-end is a React application that communicates with the back-end using the REST API. It is designed to be lightweight, easy to install, and easy to use. You can install the front-end on any server that supports Node.js and npm, i.e. on Windows, macOS, or GNU/Linux.
+The front-end is a React application that communicates with the back-end using the REST API. It is designed to be lightweight, easy to install, and easy to use. 
+
+> [!NOTE]
+> You can install the front-end on any server that supports Node.js and npm, i.e. on Windows, macOS, or GNU/Linux.
 
 #### Requirements
 
@@ -88,7 +91,10 @@ npm run build
 
 ### Back-end Installation
 
-The back-end is a Flask application that provides the REST API for the front-end. Unlike the front-end, the back-end is designed to be installed on a GNU/Linux server, as it makes extensive use of QEMU and KVM for virtualization. You can install the back-end on any GNU/Linux distribution that supports Python 3 and pip. Ensure that you have the required dependencies installed before proceeding.
+The back-end is a Flask application that provides the REST API for the front-end. 
+
+> [!NOTE]
+> Unlike the front-end, the back-end is designed to be installed on a GNU/Linux server, as it makes extensive use of QEMU and KVM for virtualization. You can install the back-end on any GNU/Linux distribution that supports Python 3 and pip. Ensure that you have the required dependencies installed before proceeding.
 
 #### Requirements
 
