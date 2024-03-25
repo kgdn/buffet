@@ -1,6 +1,10 @@
 import axios from 'axios';
+import Cookies from 'universal-cookie';
+
+const cookies = new Cookies(null, { path: '/' });
 
 axios.defaults.withCredentials = true;
+axios.defaults.headers.common['X-CSRF-TOKEN'] = cookies.get('csrf_access_token');
 
 const API_BASE_URL = process.env.REACT_APP_BASE_URL;
 const API_BASE_PORT = process.env.REACT_APP_BASE_PORT;

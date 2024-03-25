@@ -164,7 +164,7 @@ function LoginRegis() {
                                 </Col>
                             </Form.Group>
                         </Form>
-                        <Alert variant="primary" style={{ display: message === '' ? 'none' : 'block', marginTop: '1rem' }} onClose={() => setMessage('')} dismissible>
+                        <Alert variant="primary" style={{ display: message === '' ? 'none' : 'block', marginTop: '1rem' }}>
                             {message}
                         </Alert>
                     </Col>
