@@ -165,7 +165,7 @@ MAIL_ASCII_ATTACHMENTS= # True or False
         "logo": "archlinux.png", // name of the logo file found in the iso/logos directory
         "homepage": "https://archlinux.org", // homepage of the distribution
         "beginner_friendly": false // whether the distribution is beginner-friendly or not
-    },
+    }, // add more distributions here
 ]
 ```
 
