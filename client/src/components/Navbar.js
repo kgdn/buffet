@@ -18,7 +18,7 @@ function NavbarComponent() {
                         width="30"
                         height="30"
                         className="d-inline-block align-top"
-                        style={{ marginRight: '5px' }}
+                        style={{ marginRight: '10px' }}
                     />
                     Buffet
                 </Navbar.Brand>

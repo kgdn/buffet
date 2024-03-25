@@ -128,7 +128,7 @@ function Home() {
                     </Row>
                     <Row>
                         {filteredImages.map((image) => (
-                            <Col key={image.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
+                            <Col key={image.name} xs={12} md={6} lg={4} className="d-flex align-items-stretch p-2">
                                 <Card style={{ height: '100%' }}>
                                     <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain' }} />
                                     <Card.Body>
@@ -175,7 +175,7 @@ function Home() {
                             </Row>
                             <Row>
                                 {filteredNonLinuxImages.map((image) => (
-                                    <Col key={image.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
+                                    <Col key={image.name} xs={12} md={6} lg={4} className="d-flex align-items-stretch p-2">
                                         <Card style={{ height: '100%' }}>
                                             <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain' }} />
                                             <Card.Body>
