@@ -460,7 +460,7 @@ function Admin() {
 												<Fragment key={date}>
 													<h3>{date}</h3>
 													{/* Rounded corners, striped, bordered, hover effect, small table, rounded corners */}
-													<Table striped bordered hover size="sm" variant="dark">
+													<Table striped bordered hover size="sm">
 														<thead>
 															<tr>
 																<th>Date</th>
