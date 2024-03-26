@@ -1,5 +1,4 @@
 server/iso/
-server/venv/
 server/__pycache__/
 server/instance/
 server/.env

@@ -1,6 +1,6 @@
 {
   "name": "buffet-frontend",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@novnc/novnc": "^1.4.0",
@@ -26,8 +26,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "REACT_APP_COMMIT_HASH=`git rev-parse --short HEAD` REACT_APP_VERSION=`node -p \"require('./package.json').version\"` react-scripts start",
+    "build": "REACT_APP_COMMIT_HASH=`git rev-parse --short HEAD` REACT_APP_VERSION=`node -p \"require('./package.json').version\"` react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
