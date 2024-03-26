@@ -21,8 +21,8 @@ class ApplicationConfig:
 
     MAIL_SERVER = os.environ.get('MAIL_SERVER') # Mail server
     MAIL_PORT = os.environ.get('MAIL_PORT') # Mail server port
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') # Use TLS
-    MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL') # Use SSL
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME') # Mail server username
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') # Mail server password
     MAIL_DEFAULT_SENDER= os.environ.get('MAIL_DEFAULT_SENDER') # Default sender

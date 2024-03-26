@@ -1,6 +1,5 @@
 import subprocess
 import os
-import time
 import cef
 from datetime import datetime, timezone, timedelta
 from flask import Blueprint, jsonify, request
@@ -8,7 +7,6 @@ from flask_jwt_extended import jwt_required, create_access_token, set_access_coo
 from flask_mail import Message, Mail
 from flask_bcrypt import Bcrypt
 from models import db, User, UnverifiedUser, BannedUser, VirtualMachine
-from flask_cors import cross_origin
 from helper_functions import HelperFunctions
 
 user_endpoints = Blueprint('user_endpoints', __name__)
