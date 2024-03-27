@@ -40,37 +40,42 @@ function NavbarComponent() {
                     />
                     Buffet
                 </Navbar.Brand>
-                <Nav className="me-auto">
-                    <Nav.Link href="https://github.com/kgdn/buffet">
-                        <i className="bi bi-github" style={{ color: 'white', marginRight: '5px' }}></i>
-                        GitHub
-                    </Nav.Link>
-                    <Nav.Link href="https://kgdn.xyz">
-                        <i className="bi bi-globe" style={{ color: 'white', marginRight: '5px' }}></i>
-                        kgdn.xyz
-                    </Nav.Link>
-                </Nav>
-                {
-                    user ?
-                        <Nav>
-                            <NavDropdown title={user.username} id="basic-nav-dropdown">
-                                <NavDropdown.Item href="/account">Manage Account</NavDropdown.Item>
-                                {
-                                    user.role === 'admin' ?
-                                        <NavDropdown.Item href="/admin">Admin Panel</NavDropdown.Item>
-                                        :
-                                        null
-                                }
-                                <NavDropdown.Item onClick={logout}>Logout</NavDropdown.Item>
-                            </NavDropdown>
-                        </Nav>
-                        :
-                        <Nav>
-                            <Nav.Link href="/login">Login</Nav.Link>
-                        </Nav>
-                }
-            </Container >
-        </Navbar >
+                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Collapse id="basic-navbar-nav">
+                    <Nav className="me-auto">
+                        <Nav.Link href="https://github.com/kgdn/buffet">
+                            <i className="bi bi-github" style={{ color: 'white', marginRight: '5px' }}></i>
+                            GitHub
+                        </Nav.Link>
+                        <Nav.Link href="https://kgdn.xyz">
+                            <i className="bi bi-globe" style={{ color: 'white', marginRight: '5px' }}></i>
+                            kgdn.xyz
+                        </Nav.Link>
+                    </Nav>
+                </Navbar.Collapse>
+                <Navbar.Collapse className="justify-content-end">
+                    {
+                        user ?
+                            <Nav>
+                                <NavDropdown title={user.username} id="basic-nav-dropdown">
+                                    <NavDropdown.Item href="/account">Manage Account</NavDropdown.Item>
+                                    {
+                                        user.role === 'admin' ?
+                                            <NavDropdown.Item href="/admin">Admin Panel</NavDropdown.Item>
+                                            :
+                                            null
+                                    }
+                                    <NavDropdown.Item onClick={logout}>Logout</NavDropdown.Item>
+                                </NavDropdown>
+                            </Nav>
+                            :
+                            <Nav>
+                                <Nav.Link href="/login">Login</Nav.Link>
+                            </Nav>
+                    }
+                </Navbar.Collapse>
+            </Container>
+        </Navbar>
     );
 }
 
