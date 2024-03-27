@@ -67,6 +67,7 @@ class VirtualMachine(db.Model):
     port = db.Column(db.Integer, nullable=False)
     wsport = db.Column(db.Integer, nullable=False)
     iso = db.Column(db.String(80), nullable=False)
+    websockify_process_id = db.Column(db.Integer, nullable=False)
     process_id = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.String(32), db.ForeignKey('user.id'), nullable=False)
     log_file = db.Column(db.String(80), nullable=False)

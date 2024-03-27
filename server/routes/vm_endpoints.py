@@ -24,6 +24,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, User, VirtualMachine
 from helper_functions import HelperFunctions
+import dotenv
 
 vm_endpoints = Blueprint('vm', __name__)
 
@@ -73,17 +74,18 @@ def create_vm():
         return jsonify({'message': 'Invalid ISO'}), 404
 
     # Get the next available port
-    port = 5900
-    while port <= 5904:
-        if not VirtualMachine.query.filter_by(port=port).first():
+    port_int = 0
+    while port_int <= 4:
+        if not VirtualMachine.query.filter_by(port=port_int + 5900).first():
             break
-        port += 1
+        port_int += 1
 
     # If there are no available ports, throw an error
-    if port > 5904:
+    if port_int > 4:
         return jsonify({'message': 'Due to the limited resources on the server, there are no machines available. Please try again later.'}), 500
 
-    wsport = port - 200
+    wsport = port_int + 5700
+    port = port_int + 5900
 
     # If the user has more than one virtual machine at a time, throw an error
     if VirtualMachine.query.filter_by(user_id=user.id).count() > 0:
@@ -91,10 +93,18 @@ def create_vm():
     try:
         if not os.path.exists('logs/' + str(datetime.now().date()) + '/' + str(user.id)):
             os.makedirs('logs/' + str(datetime.now().date()) + '/' + str(user.id))
+            
+        # Start websockify to enable VNC over WebSocket
+        dotenv.load_dotenv()
+        front_end_address = os.getenv('FRONT_END_ADDRESS')
+        back_end_address = os.getenv('BACK_END_ADDRESS')
+        cert_path = os.getenv('SSL_CERTIFICATE_PATH')
+        key_path = os.getenv('SSL_KEY_PATH')
 
         # Create the virtual machine
         process = subprocess.Popen([
-            'qemu-system-x86_64', 
+            'qemu-system-x86_64',
+            '-monitor' , 'stdio', 
             '-m', '2048M', # 2GB of RAM
             '-cpu', 'host', # Use the host CPU
             '-smp', '2', # 2 cores
@@ -107,13 +117,25 @@ def create_vm():
             '-object', 'filter-dump,id=f1,netdev=net0,file=logs/'
             + str(datetime.now().date()) + '/' + str(user.id) + '/'
             + str(datetime.now().strftime('%H:%M:%S') + '-' + str(iso) + '.pcap'), # Create a filter-dump object to log network traffic
-            '-vnc', ':0,websocket=' + str(wsport) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            '-vnc', ':' + str(port_int) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process_id = process.pid
+        
+        # Start websockify to enable VNC over WebSocket
+        websockify_process = subprocess.Popen([
+            'websockify',
+            '--cert', cert_path,
+            '--key', key_path,
+            '--ssl-only',
+            front_end_address + ':' + str(wsport),
+            back_end_address + ':' + str(port)
+        ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        websockify_process_id = websockify_process.pid
+
     except Exception as e:
         return jsonify({'message': 'Critical error creating virtual machine. Details: ' + str(e)}), 500
 
     # Create the virtual machine in the database
-    new_vm = VirtualMachine(port=port, wsport=wsport, iso=iso, process_id=process_id, user_id=user.id, log_file=str(datetime.now().strftime('%H:%M:%S') + '-' + str(iso) + '.pcap'))
+    new_vm = VirtualMachine(port=port, wsport=wsport, iso=iso, websockify_process_id=websockify_process_id, process_id=process_id, user_id=user.id, log_file=str(datetime.now().strftime('%H:%M:%S') + '-' + str(iso) + '.pcap'))
     db.session.add(new_vm)
     db.session.commit()
 
@@ -157,6 +179,7 @@ def delete_vm():
 
     # Stop the virtual machine
     try:
+        subprocess.Popen(['kill', str(vm.websockify_process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         subprocess.Popen(['kill', str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except:
         return jsonify({'message': 'Error deleting virtual machine'}), 500

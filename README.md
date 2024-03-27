@@ -5,7 +5,7 @@
 # Buffet [![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![GitHub issues](https://img.shields.io/github/issues/kgdn/buffet)](https://github.com/kgdn/buffet/issues) [![GitHub stars](https://img.shields.io/github/stars/kgdn/buffet)](https://github.com/kgdn/buffet/stargazers)
 
 Buffet is a full-stack, fully-featured web-based virtual machine manager that aims to provide a free, open-source, lightweight, easy-to-use, and secure alternative to other web-based virtual machine managers such as [DistroSea](https://distrosea.com/) and [DistroTest](https://www.reddit.com/r/DistroHopping/comments/wqrwbw/what_happened_to_distrotestnet/).
-The back-end is written in Python using the Flask web framework, and the front-end is written in JavaScript with the React library. Buffet uses QEMU and KVM for virtualization, and noVNC for remote desktop access.
+The back-end is written in Python using the [Flask](https://github.com/pallets/flask) web framework, and the front-end is written in JavaScript with the [React](https://github.com/facebook/react) library. Buffet uses [QEMU](https://github.com/qemu/qemu) and [KVM](https://www.linux-kvm.org/) for virtualization, and [noVNC](https://github.com/novnc/noVNC) + [websockify](https://github.com/novnc/websockify) for remote desktop access.
 
 Buffet was made over the course of 12 weeks as part of the final project for my bachelor's degree in Computer Systems at the [School of Mathematical and Computer Sciences](https://www.hw.ac.uk/schools/mathematical-computer-sciences.htm) at [Heriot-Watt University](https://www.hw.ac.uk/). 
 
@@ -17,7 +17,7 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 ## Features
 
 - Create, start, stop, and delete QEMU/KVM virtual machines
-- Connect to virtual machines using [noVNC](https://github.com/novnc/noVNC), a web-based VNC client
+- Connect to virtual machines using noVNC and websockify
 - Manage virtual machine images, logos, and distributions using a JSON file
 - Administer users, virtual machines and logs from the admin panel
 - Secure user authentication and authorisation using JSON Web Tokens (JWT) and bcrypt
@@ -27,7 +27,7 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 
 <div align="center">
     <img src="images/homepage.png" alt="Homepage">
-    <p>The homepage</p>
+    <p>The dashboard showing the virtual machines</p>
 </div>
 
 <div align="center">
@@ -178,6 +178,8 @@ MAIL_PASSWORD= # your_password
 MAIL_DEFAULT_SENDER= # your_email
 MAIL_MAX_EMAILS= # max_emails (int)
 MAIL_ASCII_ATTACHMENTS= # True or False
+FRONT_END_ADDRESS= # localhost
+BACK_END_ADDRESS= # localhost
 ```
 
 7. Put your virtual machine images in the `iso` directory, and create an `index.json` file in the `iso` directory with the following structure:

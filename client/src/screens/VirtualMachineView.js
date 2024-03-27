@@ -89,27 +89,32 @@ function VirtualMachineView() {
     }, [virtualMachineId, inactivityTimeout, deleteVM]);
 
     // Connect to the VM
-    useEffect(() => {
-        if (wsport) { // If the websocket port is not 0 then connect to the VM
-            const rfb = new RFB(document.getElementById('app'), 'ws://' + strippedBaseUrl + ':' + wsport, {});
-            rfb.scaleViewport = true;
-            rfb.resizeSession = true;
-            rfb.focusOnClick = true;
+    const connectToVM = useCallback(() => {
+        const rfb = new RFB(document.getElementById('app'), 'wss://' + strippedBaseUrl + ':' + wsport, {});
+        rfb.scaleViewport = true;
+        rfb.resizeSession = true;
+        rfb.focusOnClick = true;
 
-            // If the VM is connected, log a message to the console to indicate that the VM is connected
-            rfb.addEventListener("connect", () => {
-                console.log("Successfully connected to the VM");
-                // Once the VM is connected, listen for the disconnect event so that the VM can be shut down
-                rfb.addEventListener("disconnect", () => {
-                    console.log("Disconnected from the VM");
-                    deleteVM();
-                });
+        // If the VM is connected, log a message to the console to indicate that the VM is connected
+        rfb.addEventListener("connect", () => {
+            console.log("Successfully connected to the VM");
+            // Once the VM is connected, listen for the disconnect event so that the VM can be shut down
+            rfb.addEventListener("disconnect", () => {
+                console.log("Disconnected from the VM");
+                deleteVM();
             });
-        }
-    }, [wsport, virtualMachineId, deleteVM, strippedBaseUrl]);
+        });
+    }, [wsport, strippedBaseUrl, deleteVM]);
 
+    // Connect to the VM after 500ms
+    useEffect(() => {
+        setTimeout(() => {
+            connectToVM();
+        }, 250);
+    }, [connectToVM]);
+
+    // Render the virtual machine view
     return (
-        // display
         <div id="virtual-machine-view">
             <div id="app" style={{ height: '100vh', width: '100vw', overflow: 'hidden', position: 'absolute', top: 0, left: 0 }} />
             <Card style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'transparent', border: 'none' }}>
