@@ -180,6 +180,8 @@ MAIL_MAX_EMAILS= # max_emails (int)
 MAIL_ASCII_ATTACHMENTS= # True or False
 FRONT_END_ADDRESS= # localhost
 BACK_END_ADDRESS= # localhost
+SSL_CERTIFICATE_PATH= # path_to_ssl_certificate
+SSL_KEY_PATH= # path_to_ssl_key
 ```
 
 7. Put your virtual machine images in the `iso` directory, and create an `index.json` file in the `iso` directory with the following structure:
