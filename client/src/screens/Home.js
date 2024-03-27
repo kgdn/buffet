@@ -46,34 +46,34 @@ function Home() {
         if (user) {
             setLoggedIn(true);
             setUsername(user.username);
+
+            const getImages = async () => {
+                const response = await VirtualMachineAPI.getIsoFiles();
+                if (response.status === 200) {
+                    const linuxImages = [];
+                    const nonLinuxImages = [];
+                    response.data.forEach((image) => {
+                        if (image.linux) {
+                            linuxImages.push(image);
+                        } else {
+                            nonLinuxImages.push(image);
+                        }
+                    });
+                    setImages(linuxImages);
+                    setNonLinuxImages(nonLinuxImages);
+                }
+            };
+
+            const getVMCount = async () => {
+                const response = await VirtualMachineAPI.getRunningVMs();
+                if (response.status === 200) {
+                    setVMCount(response.data.vm_count);
+                }
+            };
+
+            getImages();
+            getVMCount();
         }
-
-        const getImages = async () => {
-            const response = await VirtualMachineAPI.getIsoFiles();
-            if (response.status === 200) {
-                const linuxImages = [];
-                const nonLinuxImages = [];
-                response.data.forEach((image) => {
-                    if (image.linux) {
-                        linuxImages.push(image);
-                    } else {
-                        nonLinuxImages.push(image);
-                    }
-                });
-                setImages(linuxImages);
-                setNonLinuxImages(nonLinuxImages);
-            }
-        };
-
-        const getVMCount = async () => {
-            const response = await VirtualMachineAPI.getRunningVMs();
-            if (response.status === 200) {
-                setVMCount(response.data.vm_count);
-            }
-        };
-
-        getImages();
-        getVMCount();
     }, [user]);
 
 
