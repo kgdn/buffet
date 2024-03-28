@@ -148,7 +148,7 @@ function Home() {
                         {filteredImages.map((image) => (
                             <Col key={image.name} xs={12} md={6} lg={4} className="d-flex align-items-stretch p-2">
                                 <Card style={{ height: '100%' }}>
-                                    <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain' }} />
+                                    <Card.Img variant="top" src={decodedLogo(image.logo)} alt={image.name + ' logo'} className="p-3" style={{ height: '200px', objectFit: 'contain' }} />
                                     <Card.Body>
                                         {/* If the operating system is beginner-friendly, show a star icon at the end of the name. On mouse over, show an overlay with the beginner-friendly text. */}
                                         {image.beginner_friendly ? (
@@ -195,7 +195,7 @@ function Home() {
                                 {filteredNonLinuxImages.map((image) => (
                                     <Col key={image.name} xs={12} md={6} lg={4} className="d-flex align-items-stretch p-2">
                                         <Card style={{ height: '100%' }}>
-                                            <Card.Img variant="top" src={decodedLogo(image.logo)} className="p-3" style={{ height: '200px', objectFit: 'contain' }} />
+                                            <Card.Img variant="top" src={decodedLogo(image.logo)} alt={image.name + ' logo'} className="p-3" style={{ height: '200px', objectFit: 'contain' }} />
                                             <Card.Body>
                                                 {image.beginner_friendly ? (
                                                     <Card.Title>{image.name} {image.version} <OverlayTrigger placement="right" overlay={<Tooltip id="tooltip-beginner-friendly">Beginner-friendly</Tooltip>}><i className="bi bi-star-fill text-warning"></i></OverlayTrigger></Card.Title>
