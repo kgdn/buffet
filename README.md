@@ -17,11 +17,12 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 ## Features
 
 - Create, start, stop, and delete QEMU/KVM virtual machines
-- Connect to virtual machines using noVNC and websockify
-- Manage virtual machine images, logos, and distributions using a JSON file
+- Securely access virtual machines using noVNC over WSS
+- Define custom operating systems and distributions using JSON
 - Administer users, virtual machines and logs from the admin panel
 - Secure user authentication and authorisation using JSON Web Tokens (JWT) and bcrypt
 - Lightweight and easy to install on any GNU/Linux server
+- Fully responsive design that works on desktops, tablets, and smartphones
 
 ## Screenshots
 
@@ -214,5 +215,5 @@ flask -A app run
 
 10. Run the production server:
 ```bash
-gunicorn --bind 0.0.0.0:8000 --workers 4 app:app
+gunicorn --bind 0.0.0.0:8000 --workers 4 --certfile=/path/to/ssl/certificate --keyfile=/path/to/ssl/key app:app
 ```
