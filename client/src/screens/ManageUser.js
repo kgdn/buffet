@@ -23,7 +23,7 @@ import AccountsAPI from '../api/AccountsAPI';
 import validator from 'validator';
 import passwordValidator from 'password-validator';
 import Footer from '../components/Footer';
-import { AuthContext } from '../AuthContext';
+import { AuthContext } from '../contexts/AuthContext';
 
 function ManageUser() {
     const { user, logout } = useContext(AuthContext);

@@ -17,7 +17,7 @@
 */
 
 import React, { createContext, useState, useEffect } from 'react';
-import AccountsAPI from './api/AccountsAPI';
+import AccountsAPI from '../api/AccountsAPI';
 
 export const AuthContext = createContext();
 

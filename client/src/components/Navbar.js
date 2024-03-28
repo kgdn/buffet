@@ -20,7 +20,7 @@ import React, { useContext } from 'react';
 import { Container, Navbar, Nav, NavDropdown } from 'react-bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import logo from '../assets/logo.svg';
-import { AuthContext } from '../AuthContext';
+import { AuthContext } from '../contexts/AuthContext';
 
 function NavbarComponent() {
 

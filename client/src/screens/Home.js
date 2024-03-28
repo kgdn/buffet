@@ -19,7 +19,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Card, Button, Container, Row, Col, Form, Modal, Alert, Carousel, ButtonGroup, ProgressBar, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import NavbarComponent from '../components/Navbar';
-import { AuthContext } from '../AuthContext';
+import { AuthContext } from '../contexts/AuthContext';
 import VirtualMachineAPI from '../api/VirtualMachineAPI';
 import Footer from '../components/Footer';
 import fedora from '../assets/carousel/fedora.png'

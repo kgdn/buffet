@@ -19,7 +19,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Navigate, useLocation } from 'react-router-dom';
-import { AuthContext } from '../AuthContext';
+import { AuthContext } from '../contexts/AuthContext';
 
 function ProtectedRoute({ element }) {
     const { user } = useContext(AuthContext);

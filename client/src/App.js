@@ -25,7 +25,7 @@ import Home from './screens/Home';
 import Admin from './screens/Admin';
 import VirtualMachineView from './screens/VirtualMachineView';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
   const prefersDarkMode = useMediaQuery(
