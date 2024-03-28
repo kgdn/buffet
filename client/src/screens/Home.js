@@ -233,7 +233,7 @@ function Home() {
                         </Col>
                     </Row>
                     <Row>
-                        <Col id="desktop-carousel" className="text-center">
+                        <Col xs={12} md={6} className="text-center" id="desktop-carousel">
                             <Carousel style={{ boxShadow: '0px 0px 10px 0px rgba(0,0,0,0.75)', borderRadius: '10px', overflow: 'hidden', margin: '10px' }}>
                                 <Carousel.Item>
                                     <img
@@ -272,7 +272,7 @@ function Home() {
                             <h4>Including Fedora, Ubuntu and openSUSE, and more!</h4>
                             <p>All screenshots were taken from virtual machines running on Buffet.</p>
                         </Col>
-                        <Col id="what-is-buffet">
+                        <Col xs={12} md={6} id="what-is-buffet">
                             <p>Buffet is a web-based virtual machine manager that allows you to try various GNU/Linux distributions, all from within your browser.</p>
                             <p>Simply choose an operating system from the list, and Buffet will create a virtual machine for you. You can then connect to the virtual machine via a web browser, and use it as if it were installed on your computer.</p>
                             <p>When you are finished with the virtual machine, you can delete it, and Buffet will remove all traces of it from the server. This means that you can try as many operating systems as you like, without having to worry about the complexities of the installation process, or the security implications of running a virtual machine on your computer.</p>
@@ -282,7 +282,7 @@ function Home() {
                             </ButtonGroup>
                         </Col>
                     </Row>
-                    <Col id="how-it-works">
+                    <Col id="how-it-works" style={{ paddingTop: '1rem' }}>
                         <h1 className="text-center">How does Buffet work?</h1>
                         <p>Buffet uses <a href="https://www.qemu.org/">QEMU</a>/<a href="https://linux-kvm.org/page/Main_Page">KVM</a> to run its virtual machines. The virtual machines are run on a server, and you connect to them via a web browser through <a href="https://novnc.com/">noVNC</a>. This means that you can run virtual machines on any device with a web browser, including mobile phones and tablets.</p>
                         <p>The website you are currently viewing is the front-end of Buffet, written in <a href="https://reactjs.org/">React</a>. The back-end is written in <a href="https://www.python.org/">Python</a> using the <a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a> framework. The source code for Buffet is available on <a href="https://github.com/kgdn/buffet">GitHub</a>.</p>
