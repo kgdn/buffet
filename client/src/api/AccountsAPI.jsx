@@ -22,8 +22,8 @@ import Cookies from 'universal-cookie';
 
 const cookies = new Cookies(null, { path: '/' });
 
-const API_BASE_URL = process.env.REACT_APP_BASE_URL;
-const API_BASE_PORT = process.env.REACT_APP_BASE_PORT;
+const API_BASE_URL = import.meta.env.VITE_BASE_URL;
+const API_BASE_PORT = import.meta.env.VITE_BASE_PORT;
 
 export default class AccountsAPI {
     // Log the user in

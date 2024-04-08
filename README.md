@@ -76,8 +76,8 @@ npm install
 ```bash
 BROWSER= # none
 GENERATE_SOURCEMAP= # true or false
-REACT_APP_BASE_URL= # url of api (e.g. https://localhost)
-REACT_APP_BASE_PORT= # port of api (e.g. 8000)
+VITE_BASE_URL= # url of api (e.g. https://localhost)
+VITE_BASE_PORT= # port of api (e.g. 8000)
 ```
 
 5. Start the development server (optional):

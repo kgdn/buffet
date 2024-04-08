@@ -29,7 +29,7 @@ function VirtualMachineView() {
     const [version, setVersion] = useState('');
     const [desktop, setDesktop] = useState('');
     const inactivityTimeout = 500000;
-    const API_BASE_URL = process.env.REACT_APP_BASE_URL;
+    const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
     // strip http from the base url
     const strippedBaseUrl = API_BASE_URL.replace(/(^\w+:|^)\/\//, '');

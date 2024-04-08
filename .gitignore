@@ -1,3 +1,5 @@
+.venv/
+
 server/iso/
 server/__pycache__/
 server/instance/
