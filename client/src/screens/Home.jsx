@@ -309,7 +309,7 @@ function Home() {
                         </Button>
                         {/* If the error message is anything but "Users may only have one virtual machine at a time. Please shut down your current virtual machine before creating a new one.", do not show a button to view the user's VMs */}
                         {errorMessage === "Users may only have one virtual machine at a time. Please shut down your current virtual machine before creating a new one." ? (
-                            <Button variant="primary" href="/vm/">
+                            <Button variant="primary" href="/vm">
                                 View VMs
                             </Button>
                         ) : (
