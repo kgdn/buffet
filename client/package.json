@@ -18,8 +18,6 @@
     "react": "^18.2.0",
     "react-bootstrap": "^2.9.2",
     "react-dom": "^18.2.0",
-    "react-jwt": "^1.2.0",
-    "react-redux": "^9.0.4",
     "react-responsive": "^9.0.2",
     "react-router-dom": "^6.21.1",
     "universal-cookie": "^7.0.1",
@@ -46,6 +44,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "eslint": "^8.56.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-react-app": "^7.0.1",
