@@ -30,13 +30,8 @@
   "scripts": {
     "start": "VITE_COMMIT_HASH=`git rev-parse --short HEAD` VITE_VERSION=`node -p \"require('./package.json').version\"` vite",
     "build": "VITE_COMMIT_HASH=`git rev-parse --short HEAD` VITE_VERSION=`node -p \"require('./package.json').version\"` vite build",
-    "serve": "VITE_COMMIT_HASH=`git rev-parse --short HEAD` VITE_VERSION=`node -p \"require('./package.json').version\"` vite preview"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "serve": "VITE_COMMIT_HASH=`git rev-parse --short HEAD` VITE_VERSION=`node -p \"require('./package.json').version\"` vite preview",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx src"
   },
   "browserslist": {
     "production": [
@@ -53,6 +48,8 @@
   "devDependencies": {
     "eslint": "^8.56.0",
     "eslint-config-google": "^0.14.0",
-    "eslint-plugin-react": "^7.33.2"
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-react": "^7.33.2",
+    "vite-plugin-eslint": "^1.8.1"
   }
 }
