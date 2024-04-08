@@ -1,5 +1,5 @@
 /*
-* LoginRegis.js - Login and registration screen for the application.
+* LoginRegis.jsx - Login and registration screen for the application.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify

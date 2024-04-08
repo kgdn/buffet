@@ -1,5 +1,5 @@
 /*
-* VirtualMachineView.js - Virtual machine view for the application utilising noVNC.
+* VirtualMachineView.jsx - Virtual machine view for the application utilising noVNC.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify

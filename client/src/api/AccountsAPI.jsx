@@ -1,5 +1,5 @@
 /*
-* AccountsAPI.js - API functions for user accounts.
+* AccountsAPI.jsx - API functions for user accounts.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify

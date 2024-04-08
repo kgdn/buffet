@@ -1,5 +1,5 @@
 /*
-* Home.js - Home screen and dashboard for the application.
+* Home.jsx - Home screen and dashboard for the application.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify

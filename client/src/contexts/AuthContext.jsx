@@ -1,5 +1,5 @@
 /*
-* AuthContext.js - Global authentication context for the application.
+* AuthContext.jsx - Global authentication context for the application.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify

@@ -1,5 +1,5 @@
 /*
-* AdminAPI.js - API functions for the admin panel.
+* AdminAPI.jsx - API functions for the admin panel.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify
