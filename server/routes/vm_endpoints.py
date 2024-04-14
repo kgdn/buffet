@@ -14,17 +14,18 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import os
-import cef
-import json
 import base64
+import json
+import os
 import subprocess
 from datetime import datetime
-from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, User, VirtualMachine
-from helper_functions import HelperFunctions
+
+import cef
 import dotenv
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from helper_functions import HelperFunctions
+from models import User, VirtualMachine, db
 
 vm_endpoints = Blueprint('vm', __name__)
 
@@ -113,7 +114,7 @@ def create_vm():
             '-cdrom', 'iso/' + iso, # The ISO to boot from, specified in the request
             '-vga', 'virtio', # Use the virtio graphics card
             '-netdev', 'user,id=net0', # Create a user network device with the id 'net0'
-            '-device', 'e1000,netdev=net0', # Create an e1000 network device with the id 'net0'
+            '-device', 'virtio-net,netdev=net0', # Use the virtio network card
             '-object', 'filter-dump,id=f1,netdev=net0,file=logs/'
             + str(datetime.now().date()) + '/' + str(user.id) + '/'
             + str(datetime.now().strftime('%H:%M:%S') + '-' + str(iso) + '.pcap'), # Create a filter-dump object to log network traffic
