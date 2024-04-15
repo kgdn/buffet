@@ -16,13 +16,13 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 
 ## Features
 
-- Create, start, stop, and delete QEMU/KVM virtual machines
+- Create, start, and delete QEMU/KVM virtual machines
 - Securely access virtual machines using noVNC and websockify
 - Define custom operating systems and distributions using JSON
 - Administer users, virtual machines and logs from the admin panel
 - Secure user authentication and authorisation using JSON Web Tokens (JWT) and bcrypt
 - Lightweight and easy to install on any GNU/Linux server
-- Fully responsive design that works on desktops, tablets, and smartphones
+- Fully responsive front-end that works on desktops, tablets, and smartphones
 
 ## Screenshots
 
