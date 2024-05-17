@@ -15,11 +15,15 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import random
 from datetime import datetime
+
 
 class HelperFunctions:
     @staticmethod
     def create_cef_logs_folders():
+        """Creates the logs/ directory if it doesn't exist and creates a new directory for the current date.
+        """
         date_str = str(datetime.now().date())
         if not os.path.exists('logs/' + date_str + '/'):
             os.makedirs('logs/' + date_str + '/')

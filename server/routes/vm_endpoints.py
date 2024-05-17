@@ -14,20 +14,33 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import asyncio
 import base64
 import json
 import os
+import random
 import subprocess
 from datetime import datetime
 
 import cef
-import dotenv
+from dotenv import load_dotenv
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from helper_functions import HelperFunctions
 from models import User, VirtualMachine, db
+from qemu.qmp import QMPClient
+
+load_dotenv()
 
 vm_endpoints = Blueprint('vm', __name__)
+
+def create_random_vnc_password():
+    """Generates a random password for VNC connections. Note that this password is not hashed or salted.
+
+    Returns:
+        str: Random VNC password
+    """
+    return ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()', k=16))
 
 @vm_endpoints.route('/api/vm/iso/', methods=['GET'])
 @jwt_required()
@@ -53,7 +66,7 @@ def index_vm():
 
 @vm_endpoints.route('/api/vm/create/', methods=['POST'])
 @jwt_required()
-def create_vm():
+async def create_vm():
     """Create a virtual machine
 
     Returns:
@@ -96,7 +109,6 @@ def create_vm():
             os.makedirs('logs/' + str(datetime.now().date()) + '/' + str(user.id))
             
         # Start websockify to enable VNC over WebSocket
-        dotenv.load_dotenv()
         front_end_address = os.getenv('FRONT_END_ADDRESS')
         back_end_address = os.getenv('BACK_END_ADDRESS')
         cert_path = os.getenv('SSL_CERTIFICATE_PATH')
@@ -118,8 +130,21 @@ def create_vm():
             '-object', 'filter-dump,id=f1,netdev=net0,file=logs/'
             + str(datetime.now().date()) + '/' + str(user.id) + '/'
             + str(datetime.now().strftime('%H:%M:%S') + '-' + str(iso) + '.pcap'), # Create a filter-dump object to log network traffic
-            '-vnc', ':' + str(port_int) + ',to=5'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            '-vnc', ':' + str(port_int) + ',to=5,password=on',
+            '-qmp', 'unix:/tmp/qmp-' + str(user.id) + '.sock,server,wait=off',
+            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process_id = process.pid
+        
+        # Wait for the virtual machine to start
+        await asyncio.sleep(0.1)
+        
+        # Set the QMP client
+        qmp = QMPClient('virtual-machine-' + str(user.id))
+        await qmp.connect('/tmp/qmp-' + str(user.id) + '.sock')
+        
+        # Set the VNC password
+        password = create_random_vnc_password()
+        await qmp.execute('set_password', {'protocol': 'vnc', 'password': password})
         
         # Start websockify to enable VNC over WebSocket
         websockify_process = subprocess.Popen([
@@ -136,7 +161,7 @@ def create_vm():
         return jsonify({'message': 'Critical error creating virtual machine. Details: ' + str(e)}), 500
 
     # Create the virtual machine in the database
-    new_vm = VirtualMachine(port=port, wsport=wsport, iso=iso, websockify_process_id=websockify_process_id, process_id=process_id, user_id=user.id, log_file=str(datetime.now().strftime('%H:%M:%S') + '-' + str(iso) + '.pcap'))
+    new_vm = VirtualMachine(port=port, wsport=wsport, iso=iso, websockify_process_id=websockify_process_id, process_id=process_id, user_id=user.id, log_file=str(datetime.now().strftime('%H:%M:%S') + '-' + str(iso) + '.pcap'), vnc_password=password)
     db.session.add(new_vm)
     db.session.commit()
 
@@ -147,9 +172,9 @@ def create_vm():
 
     return jsonify({
         'id': new_vm.id,
-        'wsport': new_vm.wsport,
-        'iso': new_vm.iso,
-        'user_id': new_vm.user_id
+        'wsport': wsport,
+        'iso': iso,
+        'user_id': user.id
     }), 201
 
 @vm_endpoints.route('/api/vm/delete/', methods=['DELETE'])
@@ -240,7 +265,8 @@ def get_user_vm():
         'user_id': vm.user_id,
         'name': name,
         'version': version,
-        'desktop': desktop
+        'desktop': desktop,
+        'vnc_password': vm.vnc_password
     }), 201
 
 @vm_endpoints.route('/api/vm/', methods=['GET'])

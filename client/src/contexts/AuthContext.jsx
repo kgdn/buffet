@@ -35,8 +35,8 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         AccountsAPI.logout().then((response) => {
             if (response.status === 200) {
-                setUser(null);
                 window.location.href = '/';
+                setUser(null);
             }
         });
     };

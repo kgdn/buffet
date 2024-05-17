@@ -28,6 +28,7 @@ function VirtualMachineView() {
     const [name, setName] = useState('');
     const [version, setVersion] = useState('');
     const [desktop, setDesktop] = useState('');
+    const [password, setPassword] = useState('');
     const inactivityTimeout = 500000;
     const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -42,6 +43,7 @@ function VirtualMachineView() {
             setName(response.data.name);
             setDesktop(response.data.desktop);
             setVersion(response.data.version);
+            setPassword(response.data.vnc_password);
         };
         getPort();
     }, []);
@@ -95,6 +97,11 @@ function VirtualMachineView() {
         rfb.resizeSession = true;
         rfb.focusOnClick = true;
 
+        // Get VNC credentials
+        rfb.addEventListener("credentialsrequired", (e) => {
+            rfb.sendCredentials({ password: password });
+        });
+
         // If the VM is connected, log a message to the console to indicate that the VM is connected
         rfb.addEventListener("connect", () => {
             console.log("Successfully connected to the VM");
@@ -104,13 +111,13 @@ function VirtualMachineView() {
                 deleteVM();
             });
         });
-    }, [wsport, strippedBaseUrl, deleteVM]);
+    }, [wsport, strippedBaseUrl, deleteVM, password]);
 
-    // Connect to the VM after 500ms
+    // Connect to the VM after 125ms to allow the DOM to render
     useEffect(() => {
         setTimeout(() => {
             connectToVM();
-        }, 250);
+        }, 125);
     }, [connectToVM]);
 
     // Render the virtual machine view

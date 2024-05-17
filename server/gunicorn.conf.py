@@ -13,7 +13,26 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+import os
 
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+bind = os.getenv(
+    "GUNICORN_BIND_ADDRESS"
+)  # Set the bind address. This can be overridden using --bind.
+certfile = os.getenv(
+    "SSL_CERTIFICATE_PATH"
+)  # Set the certificate file. This is required for HTTPS.
+keyfile = os.getenv("SSL_KEY_PATH")  # Set the key file. This is required for HTTPS.
+workers = (
+    os.cpu_count() * 2 + 1
+)  # Auto-calculate the number of workers. This can be overridden using --workers.
+threads = (
+    os.cpu_count() * 2 + 1
+)  # Auto-calculate the number of threads. This can be overridden using --threads.
+worker_class = os.getenv(
+    "GUNICORN_WORKER_CLASS"
+)  # Set the worker class. This can be overridden using --worker-class.
