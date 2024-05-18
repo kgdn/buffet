@@ -16,16 +16,16 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 
 ## Features
 
-- Create, start, and delete QEMU/KVM virtual machines
 - Access virtual machines securely using noVNC, websockify with SSL/TLS support, and randomly generated, one time VNC passwords
-- Define custom operating systems and distributions using JSON
 - Administer users, virtual machines and logs from the admin panel
-- Secure user authentication and authorisation using JSON Web Tokens (JWT) and bcrypt
+- Create, start, and delete QEMU/KVM virtual machines
+- Define custom operating systems and distributions using JSON
 - Email-based account verification
-- Lightweight, easy-to-setup back-end using Flask and SQLAlchemy
-- Supports any SQL database supported by SQLAlchemy, such as SQLite, PostgreSQL, MySQL, and MariaDB
-- Runs on GNU/Linux servers with QEMU and KVM support
 - Fully responsive front-end that works on desktops, tablets, and smartphones
+- Lightweight, easy-to-setup back-end using Flask and SQLAlchemy
+- Runs on GNU/Linux servers with QEMU and KVM support
+- Secure user authentication and authorisation using JSON Web Tokens (JWT), bcrypt and two-factor authentication
+- Supports any SQL database supported by SQLAlchemy, such as SQLite, PostgreSQL, MySQL, and MariaDB
 
 ## Screenshots
 
