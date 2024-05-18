@@ -21,7 +21,7 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 - Define custom operating systems and distributions using JSON
 - Administer users, virtual machines and logs from the admin panel
 - Secure user authentication and authorisation using JSON Web Tokens (JWT) and bcrypt
-- Email-based password reset functionality
+- Email-based account verification
 - Lightweight, easy-to-setup back-end using Flask and SQLAlchemy
 - Supports any SQL database supported by SQLAlchemy, such as SQLite, PostgreSQL, MySQL, and MariaDB
 - Runs on GNU/Linux servers with QEMU and KVM support
