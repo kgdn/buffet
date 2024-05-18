@@ -235,3 +235,60 @@ flask -A app run
 ```bash
 gunicorn app:app
 ```
+
+## Third-party Libraries and Dependencies
+
+Buffet uses the following third-party libraries and dependencies:
+
+### Fonts
+
+1. [Open Sans](https://fonts.google.com/specimen/Open+Sans) (Apache License 2.0)
+
+### Icons
+
+1. [Bootstrap Icons](https://icons.getbootstrap.com/) (MIT License)
+
+### UI Components
+
+1. [Bootstrap](https://getbootstrap.com/) (MIT License)
+
+### Front-end Dependencies
+
+1. [@novnc/novnc](https://www.npmjs.com/package/@novnc/novnc) (MPL-2.0 License)
+2. [@testing-library/jest-dom](https://www.npmjs.com/package/@testing-library/jest-dom) (MIT License)
+3. [@testing-library/react](https://www.npmjs.com/package/@testing-library/react) (MIT License)
+4. [@testing-library/user-event](https://www.npmjs.com/package/@testing-library/user-event) (MIT License)
+5. [@types/jest](https://www.npmjs.com/package/@types/jest) (MIT License)
+6. [@vitejs/plugin-react](https://www.npmjs.com/package/@vitejs/plugin-react) (MIT License)
+7. [axios](https://www.npmjs.com/package/axios) (MIT License)
+8. [bootstrap](https://www.npmjs.com/package/bootstrap) (MIT License)
+9. [bootstrap-icons](https://www.npmjs.com/package/bootstrap-icons) (MIT License)
+10. [password-validator](https://www.npmjs.com/package/password-validator) (MIT License)
+11. [prop-types](https://www.npmjs.com/package/prop-types) (MIT License)
+12. [react](https://www.npmjs.com/package/react) (MIT License)
+13. [react-bootstrap](https://www.npmjs.com/package/react-bootstrap) (MIT License)
+14. [react-dom](https://www.npmjs.com/package/react-dom) (MIT License)
+15. [react-responsive](https://www.npmjs.com/package/react-responsive) (MIT License)
+16. [react-router-dom](https://www.npmjs.com/package/react-router-dom) (MIT License)
+17. [universal-cookie](https://www.npmjs.com/package/universal-cookie) (MIT License)
+18. [validator](https://www.npmjs.com/package/validator) (MIT License)
+19. [vite](https://www.npmjs.com/package/vite) (MIT License)
+20. [web-vitals](https://www.npmjs.com/package/web-vitals) (Apache-2.0 License)
+
+
+
+### Back-end Dependencies
+1. [cef](https://pypi.org/project/cef/) (Mozilla Public License 2.0)
+2. [Flask](https://flask.palletsprojects.com/) (BSD-3 License)
+3. [Flask-Bcrypt](https://flask-bcrypt.readthedocs.io/en/latest/) (MIT License)
+4. [Flask-Cors](https://flask-cors.readthedocs.io/en/latest/) (MIT License)
+5. [Flask-JWT-Extended](https://flask-jwt-extended.readthedocs.io/en/stable/) (MIT License)
+6. [Flask-Limiter](https://flask-limiter.readthedocs.io/en/stable/) (MIT License)
+7. [Flask-Mail](https://pythonhosted.org/Flask-Mail/) (BSD License)
+8. [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/) (MIT License)
+9. [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/3.x/) (MIT License)
+10. [Gunicorn](https://gunicorn.org/) (MIT License)
+11. [KVM](https://www.linux-kvm.org/) (GPLv2, extended by the Linux kernel)
+12. [QEMU](https://www.qemu.org/) (GPLv2)
+13. [SQLAlchemy](https://www.sqlalchemy.org/) (MIT License)
+14. [websockify](https://github.com/novnc/websockify) (LGPLv3)

@@ -23,6 +23,8 @@ load_dotenv()
 
 
 class ApplicationConfig:
+    """Contains the configuration for the server. Modify the values in the .env file to change the configuration.
+    """
     SECRET_KEY = os.environ.get("SECRET_KEY")  # Secret key
 
     SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")  # Database URI

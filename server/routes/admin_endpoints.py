@@ -22,7 +22,7 @@ from datetime import datetime
 import cef
 from flask import Blueprint, jsonify, request
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import get_jwt_identity, jwt_required, unset_jwt_cookies
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from helper_functions import HelperFunctions
 from models import BannedUser, UnverifiedUser, User, VirtualMachine, db
 
