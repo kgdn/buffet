@@ -17,11 +17,14 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 ## Features
 
 - Create, start, and delete QEMU/KVM virtual machines
-- Securely access virtual machines using noVNC and websockify
+- Access virtual machines securely using noVNC, websockify with SSL/TLS support, and randomly generated, one time VNC passwords
 - Define custom operating systems and distributions using JSON
 - Administer users, virtual machines and logs from the admin panel
 - Secure user authentication and authorisation using JSON Web Tokens (JWT) and bcrypt
-- Lightweight and easy to install on any GNU/Linux server
+- Email-based password reset functionality
+- Lightweight, easy-to-setup back-end using Flask and SQLAlchemy
+- Supports any SQL database supported by SQLAlchemy, such as SQLite, PostgreSQL, MySQL, and MariaDB
+- Runs on GNU/Linux servers with QEMU and KVM support
 - Fully responsive front-end that works on desktops, tablets, and smartphones
 
 ## Screenshots
@@ -78,6 +81,7 @@ BROWSER= # none
 GENERATE_SOURCEMAP= # true or false
 VITE_BASE_URL= # url of api (e.g. https://localhost)
 VITE_BASE_PORT= # port of api (e.g. 8000)
+VITE_MAX_VM_COUNT= # max no. of virtual machines available at any given time
 ```
 
 5. Start the development server (optional):
@@ -128,6 +132,17 @@ If you do not see any output, you may need to load the KVM kernel module manuall
 ```bash
 sudo modprobe kvm
 ```
+
+#### Database Setup
+
+Buffet uses SQLAlchemy to interact with the database. A database is required to store user information and virtual machine information. You can use any SQL database supported by SQLAlchemy, such as SQLite, PostgreSQL, MySQL, and MariaDB.
+
+- To use SQLite, you can set the `SQLALCHEMY_DATABASE_URI` variable in the `.env` file to `sqlite:///db.sqlite3`. This requires no additional setup.
+
+- To use PostgreSQL, you can set the `SQLALCHEMY_DATABASE_URI` variable in the `.env` file to `postgresql://username:password@localhost/dbname`. This assumes that you have a PostgreSQL database running on your server. You may need to install the `psycopg2` package using pip. **This is the recommended database for production use.**
+  
+- To use MySQL/MariaDB, you can set the `SQLALCHEMY_DATABASE_URI` variable in the `.env` file to `mysql://username:password@localhost/dbname`. This assumes that you have a MySQL database running on your server. You may need to install the `mysql-connector-python` package using pip.
+
  
 #### Instructions
 
@@ -161,7 +176,7 @@ pip install -r requirements.txt
 
 **`.env`**
 ```bash
-SECRET_KEY= # your_secret
+SECRET_KEY= # your secret
 SQLALCHEMY_DATABASE_URI= # your_database_uri
 SQLALCHEMY_TRACK_MODIFICATIONS= # True or False
 SQLALCHEMY_ECHO= # True or False
@@ -174,15 +189,18 @@ JWT_REFRESH_TOKEN_EXPIRES= # refresh_token_expires (int)
 CORS_HEADERS= # Content-Type
 MAIL_SERVER= # SMTP server
 MAIL_PORT= # SMTP port
-MAIL_USERNAME= # your_email
-MAIL_PASSWORD= # your_password
-MAIL_DEFAULT_SENDER= # your_email
+MAIL_USERNAME= # your email
+MAIL_PASSWORD= # your password
+MAIL_DEFAULT_SENDER= # your email
 MAIL_MAX_EMAILS= # max_emails (int)
 MAIL_ASCII_ATTACHMENTS= # True or False
-FRONT_END_ADDRESS= # localhost
-BACK_END_ADDRESS= # localhost
+FRONT_END_ADDRESS= # localhost, 127.0.0.1, etc.
+BACK_END_ADDRESS= # localhost, 127.0.0.1, etc.
 SSL_CERTIFICATE_PATH= # path_to_ssl_certificate
 SSL_KEY_PATH= # path_to_ssl_key
+GUNICORN_BIND_ADDRESS= # bind address, i.e. 0.0.0.0:8000
+GUNICORN_WORKER_CLASS= # worker class, i.e. gevent
+MAX_VM_COUNT= # max no. of virtual machines available at any given time
 ```
 
 7. Put your virtual machine images in the `iso` directory, and create an `index.json` file in the `iso` directory with the following structure:
@@ -213,7 +231,7 @@ mv archlinux.png iso/logos
 flask -A app run
 ```
 
-10. Run the production server:
+10. Run the production server (recommended):
 ```bash
-gunicorn --bind 0.0.0.0:8000 --workers 4 --certfile=/path/to/ssl/certificate --keyfile=/path/to/ssl/key app:app
+gunicorn app:app
 ```

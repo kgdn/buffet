@@ -89,14 +89,14 @@ async def create_vm():
 
     # Get the next available port
     port_int = 0
-    while port_int <= 4:
+    while port_int <= int(os.getenv('MAX_VM_COUNT')) - 1:
         if not VirtualMachine.query.filter_by(port=port_int + 5900).first():
             break
         port_int += 1
 
     # If there are no available ports, throw an error
-    if port_int > 4:
-        return jsonify({'message': 'Due to the limited resources on the server, there are no machines available. Please try again later.'}), 500
+    if port_int > int(os.getenv('MAX_VM_COUNT')) - 1:
+        return jsonify({'message': 'No available ports. Please try again later.'}), 500
 
     wsport = port_int + 5700
     port = port_int + 5900

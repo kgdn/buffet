@@ -1,5 +1,5 @@
 /*
-* VirtualMachineView.jsx - Virtual machine view for the application utilising noVNC.
+* VirtualMachineView.jsx - Virtual machine view for the application using noVNC.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify
@@ -22,118 +22,106 @@ import { Button, ButtonGroup, Card, Modal } from "react-bootstrap";
 import VirtualMachineAPI from "../api/VirtualMachineAPI";
 
 function VirtualMachineView() {
-    const [wsport, setWebsocketPort] = useState(0);
-    const [virtualMachineId, setVirtualMachineId] = useState(0);
+    const [vmDetails, setVmDetails] = useState({ wsport: 0, id: 0, name: '', version: '', desktop: '', password: '' });
     const [showModal, setShowModal] = useState(true);
-    const [name, setName] = useState('');
-    const [version, setVersion] = useState('');
-    const [desktop, setDesktop] = useState('');
-    const [password, setPassword] = useState('');
     const inactivityTimeout = 500000;
-    const API_BASE_URL = import.meta.env.VITE_BASE_URL;
-
-    // strip http from the base url
-    const strippedBaseUrl = API_BASE_URL.replace(/(^\w+:|^)\/\//, '');
+    const API_BASE_URL = import.meta.env.VITE_BASE_URL.replace(/(^\w+:|^)\/\//, '');
 
     useEffect(() => {
-        const getPort = async () => {
-            const response = await VirtualMachineAPI.getVirtualMachineByUser();
-            setWebsocketPort(response.data.wsport);
-            setVirtualMachineId(response.data.id);
-            setName(response.data.name);
-            setDesktop(response.data.desktop);
-            setVersion(response.data.version);
-            setPassword(response.data.vnc_password);
+        const fetchVMDetails = async () => {
+            const { data } = await VirtualMachineAPI.getVirtualMachineByUser();
+            setVmDetails({
+                wsport: data.wsport,
+                id: data.id,
+                name: data.name,
+                version: data.version,
+                desktop: data.desktop,
+                password: data.vnc_password
+            });
         };
-        getPort();
+        fetchVMDetails();
     }, []);
 
     useEffect(() => {
-        document.title = `${name} ${version} ${desktop} - Buffet`;
-    }, [name, version, desktop]);
+        document.title = `${vmDetails.name} ${vmDetails.version} ${vmDetails.desktop} - Buffet`;
+
+        let timeout = setTimeout(deleteVM, inactivityTimeout);
+
+        const resetTimeout = () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(deleteVM, inactivityTimeout);
+        };
+
+        const debouncedReset = debounce(resetTimeout, 500);
+
+        window.addEventListener('mousemove', debouncedReset);
+        window.addEventListener('keypress', debouncedReset);
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            clearTimeout(timeout);
+            window.removeEventListener('mousemove', debouncedReset);
+            window.removeEventListener('keypress', debouncedReset);
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [vmDetails]);
 
     const deleteVM = useCallback(() => {
-        VirtualMachineAPI.deleteVirtualMachine(virtualMachineId).then(() => {
+        VirtualMachineAPI.deleteVirtualMachine(vmDetails.id).then(() => {
             window.location.href = '/';
         });
-    }, [virtualMachineId]);
+    }, [vmDetails.id]);
 
-    const fullscreen = () => {
-        const elem = document.getElementById('app');
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen();
-        } else if (elem.mozRequestFullScreen) { /* Firefox */
-            elem.mozRequestFullScreen();
-        } else if (elem.webkitRequestFullscreen) { /* Safari */
-            elem.webkitRequestFullscreen();
-        } else if (elem.msRequestFullscreen) { /* IE 11 */
-            elem.msRequestFullscreen();
+    const handleKeyDown = (event) => {
+        if (event.key === 'F11') {
+            event.preventDefault();
+            handleFullscreen();
         }
-    }
+    };
 
-    // If the user is inactive for 5 minutes, redirect to the home page and shut down the VM
-    useEffect(() => {
-        let timeout = setTimeout(() => {
-            deleteVM();
-        }, inactivityTimeout);
-        window.addEventListener('mousemove', () => {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                deleteVM();
-            }, inactivityTimeout);
-        });
-        window.addEventListener('keypress', () => {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                deleteVM();
-            }, inactivityTimeout);
-        });
-    }, [virtualMachineId, inactivityTimeout, deleteVM]);
+    const handleFullscreen = () => {
+        const elem = document.getElementById('app');
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            elem.requestFullscreen();
+        }
+    };
 
-    // Connect to the VM
     const connectToVM = useCallback(() => {
-        const rfb = new RFB(document.getElementById('app'), 'wss://' + strippedBaseUrl + ':' + wsport, {});
+        const rfb = new RFB(document.getElementById('app'), `wss://${API_BASE_URL}:${vmDetails.wsport}`, {
+            credentials: { password: vmDetails.password }
+        });
         rfb.scaleViewport = true;
         rfb.resizeSession = true;
         rfb.focusOnClick = true;
 
-        // Get VNC credentials
-        rfb.addEventListener("credentialsrequired", (e) => {
-            rfb.sendCredentials({ password: password });
-        });
-
-        // If the VM is connected, log a message to the console to indicate that the VM is connected
         rfb.addEventListener("connect", () => {
             console.log("Successfully connected to the VM");
-            // Once the VM is connected, listen for the disconnect event so that the VM can be shut down
             rfb.addEventListener("disconnect", () => {
                 console.log("Disconnected from the VM");
                 deleteVM();
             });
         });
-    }, [wsport, strippedBaseUrl, deleteVM, password]);
+    }, [vmDetails.wsport, API_BASE_URL, deleteVM, vmDetails.password]);
 
-    // Connect to the VM after 125ms to allow the DOM to render
     useEffect(() => {
-        setTimeout(() => {
-            connectToVM();
-        }, 125);
+        setTimeout(connectToVM, 200);
     }, [connectToVM]);
 
-    // Render the virtual machine view
     return (
         <div id="virtual-machine-view">
             <div id="app" style={{ height: '100vh', width: '100vw', overflow: 'hidden', position: 'absolute', top: 0, left: 0 }} />
             <Card style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'transparent', border: 'none' }}>
                 <Card.Body>
                     <ButtonGroup>
-                        <Button variant="warning" onClick={() => setShowModal(true)}>Info</Button>
-                        <Button variant="primary" onClick={() => fullscreen()}>Full Screen</Button>
-                        <Button variant="danger" onClick={() => deleteVM()}>Shutdown</Button>
+                        <Button variant="info" onClick={() => setShowModal(true)}>Information</Button>
+                        <Button variant="primary" onClick={handleFullscreen}>Fullscreen</Button>
+                        <Button variant="danger" onClick={deleteVM}>Shutdown</Button>
                     </ButtonGroup>
                 </Card.Body>
             </Card>
-            <Modal show={showModal} onHide={() => setShowModal(false)} >
+            <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>For Your Information</Modal.Title>
                 </Modal.Header>
@@ -150,8 +138,16 @@ function VirtualMachineView() {
                     </ButtonGroup>
                 </Modal.Footer>
             </Modal>
-        </div >
+        </div>
     );
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
 }
 
 export default VirtualMachineView;

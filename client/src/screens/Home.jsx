@@ -39,6 +39,7 @@ function Home() {
     const [vmCount, setVMCount] = useState(0);
     const [complexIso, setComplexIso] = useState('');
     const [complexityModal, showComplexityModal] = useState(false);
+    const MAX_VM_COUNT = import.meta.env.VITE_MAX_VM_COUNT;
 
     useEffect(() => {
         document.title = 'Buffet';
@@ -124,15 +125,15 @@ function Home() {
                     <Row>
                         <Col id="vm-count" className="text-center" style={{ paddingTop: '1rem' }}>
                             <Alert variant="info" role="alert">
-                                <p>There are currently {vmCount} virtual machines running. The maximum number of virtual machines that can be run at once is 5.</p>
+                                <p>There are currently {vmCount} virtual machines running. The maximum number of virtual machines that can be run at once is {MAX_VM_COUNT}.</p>
                                 {vmCount === 0 ? (
-                                    <ProgressBar variant="success" now={vmCount} max={5} />
-                                ) : vmCount > 2 && vmCount < 5 ? (
-                                    <ProgressBar variant="warning" now={vmCount} max={5} />
-                                ) : vmCount === 5 ? (
-                                    <ProgressBar variant="danger" now={vmCount} max={5} />
+                                    <ProgressBar striped animated label variant="success" now={vmCount} max={MAX_VM_COUNT} />
+                                ) : vmCount < MAX_VM_COUNT / 2 ? (
+                                    <ProgressBar striped animated label variant="info" now={vmCount} max={MAX_VM_COUNT} />
+                                ) : vmCount === MAX_VM_COUNT ? (
+                                    <ProgressBar striped animated label variant="danger" now={vmCount} max={MAX_VM_COUNT} />
                                 ) : (
-                                    <ProgressBar variant="info" now={vmCount} max={5} />
+                                    <ProgressBar striped animated label variant="warning" now={vmCount} max={MAX_VM_COUNT} />
                                 )}
                             </Alert>
                         </Col>

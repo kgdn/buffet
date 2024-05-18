@@ -14,16 +14,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import os
 import json
-import cef
-from datetime import datetime
-from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity, unset_jwt_cookies
-from flask_bcrypt import Bcrypt
-from models import db, User, VirtualMachine, BannedUser, UnverifiedUser
-from helper_functions import HelperFunctions
+import os
 import subprocess
+from datetime import datetime
+
+import cef
+from flask import Blueprint, jsonify, request
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import get_jwt_identity, jwt_required, unset_jwt_cookies
+from helper_functions import HelperFunctions
+from models import BannedUser, UnverifiedUser, User, VirtualMachine, db
 
 admin_endpoints = Blueprint('admin', __name__)
 Bcrypt = Bcrypt()
