@@ -33,6 +33,9 @@ function LoginRegis() {
     const [message, setMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [token, setToken] = useState('');
+    const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
+    const [twoFactorMessage, setTwoFactorMessage] = useState(''); // [2FA
+    const [twoFactorCode, setTwoFactorCode] = useState('');
 
     useEffect(() => {
         document.title = 'Buffet - Login/Register';
@@ -46,8 +49,13 @@ function LoginRegis() {
         AccountsAPI.login(loginUsername, loginPassword).then((response) => {
             // If account is unverified, show modal to verify email
             if (response.message === 'Please verify your account before logging in') {
-                setMessage(response.message);
                 setShowModal(true);
+            }
+            if (response.message === 'Please provide the 2FA code') {
+                setShowTwoFactorModal(true);
+            }
+            if (response.message === 'Invalid 2FA code') {
+                setTwoFactorMessage(response.message);
             }
             if (response.status === 200) {
                 window.location.href = '/';
@@ -99,7 +107,7 @@ function LoginRegis() {
 
     const VerifyButton = () => {
         if (token.trim() === '') {
-            setMessage('Token cannot be empty.');
+            setTwoFactorMessage('Verification code cannot be empty.');
             return;
         }
         const username = registerUsername || loginUsername;
@@ -110,12 +118,24 @@ function LoginRegis() {
                     if (response.status === 200) {
                         window.location.href = '/';
                     } else {
-                        setMessage(response.message);
+                        setTwoFactorMessage(response.message);
                     }
                 });
             }
             if (response.status === 401) {
-                setMessage(response.message);
+                setTwoFactorMessage(response.message);
+            }
+        });
+    }
+
+    const TwoFactorButton = () => {
+        if (twoFactorCode.trim() === '') {
+            setMessage('Two-factor code cannot be empty.');
+            return;
+        }
+        AccountsAPI.login(loginUsername, loginPassword, twoFactorCode).then((response) => {
+            if (response.status === 200) {
+                window.location.href = '/';
             }
         });
     }
@@ -206,6 +226,30 @@ function LoginRegis() {
                                 <Button type="submit">Verify</Button>
                             </Col>
                         </Form.Group>
+                    </Form>
+                </Modal.Body>
+            </Modal>
+
+            <Modal show={showTwoFactorModal} onHide={() => showTwoFactorModal(false)} backdrop="static" keyboard={false}>
+                <Modal.Header>
+                    <Modal.Title>Two-factor authentication</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Enter the two-factor authentication code from your authenticator app.</p>
+                    <Form onSubmit={(e) => { e.preventDefault(); TwoFactorButton(); }}>
+                        <Form.Group as={Row} controlId="formTwoFactorCode" className="mb-2">
+                            <Col>
+                                <Form.Control type="text" placeholder="Two-factor code" onChange={(e) => setTwoFactorCode(e.target.value)} />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row}>
+                            <Col>
+                                <Button type="submit">Verify</Button>
+                            </Col>
+                        </Form.Group>
+                        <Alert variant="primary" style={{ display: twoFactorMessage === '' ? 'none' : 'block', marginTop: '1rem' }}>
+                            {twoFactorMessage}
+                        </Alert>
                     </Form>
                 </Modal.Body>
             </Modal>

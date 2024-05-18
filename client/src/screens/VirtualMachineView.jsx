@@ -42,6 +42,28 @@ function VirtualMachineView() {
         fetchVMDetails();
     }, []);
 
+    const deleteVM = useCallback(() => {
+        VirtualMachineAPI.deleteVirtualMachine(vmDetails.id).then(() => {
+            window.location.href = '/';
+        });
+    }, [vmDetails.id]);
+
+    const handleKeyDown = useCallback((event) => {
+        if (event.key === 'F11') {
+            event.preventDefault();
+            handleFullscreen();
+        }
+    }, []);
+
+    const handleFullscreen = () => {
+        const elem = document.getElementById('app');
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            elem.requestFullscreen();
+        }
+    };
+
     useEffect(() => {
         document.title = `${vmDetails.name} ${vmDetails.version} ${vmDetails.desktop} - Buffet`;
 
@@ -64,29 +86,8 @@ function VirtualMachineView() {
             window.removeEventListener('keypress', debouncedReset);
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [vmDetails]);
+    }, [deleteVM, handleKeyDown, vmDetails.desktop, vmDetails.name, vmDetails.version]);
 
-    const deleteVM = useCallback(() => {
-        VirtualMachineAPI.deleteVirtualMachine(vmDetails.id).then(() => {
-            window.location.href = '/';
-        });
-    }, [vmDetails.id]);
-
-    const handleKeyDown = (event) => {
-        if (event.key === 'F11') {
-            event.preventDefault();
-            handleFullscreen();
-        }
-    };
-
-    const handleFullscreen = () => {
-        const elem = document.getElementById('app');
-        if (document.fullscreenElement) {
-            document.exitFullscreen();
-        } else {
-            elem.requestFullscreen();
-        }
-    };
 
     const connectToVM = useCallback(() => {
         const rfb = new RFB(document.getElementById('app'), `wss://${API_BASE_URL}:${vmDetails.wsport}`, {
@@ -97,17 +98,18 @@ function VirtualMachineView() {
         rfb.focusOnClick = true;
 
         rfb.addEventListener("connect", () => {
-            console.log("Successfully connected to the VM");
             rfb.addEventListener("disconnect", () => {
-                console.log("Disconnected from the VM");
                 deleteVM();
             });
         });
     }, [vmDetails.wsport, API_BASE_URL, deleteVM, vmDetails.password]);
 
     useEffect(() => {
-        setTimeout(connectToVM, 200);
-    }, [connectToVM]);
+        if (vmDetails.wsport !== 0) {
+            const timeout = setTimeout(connectToVM, 200);
+            return () => clearTimeout(timeout);
+        }
+    }, [connectToVM, vmDetails.wsport]);
 
     return (
         <div id="virtual-machine-view">
@@ -139,9 +141,11 @@ function VirtualMachineView() {
                 </Modal.Footer>
             </Modal>
         </div>
-    );
+    )
 }
 
+
+// Debounce function to prevent multiple API calls
 function debounce(func, wait) {
     let timeout;
     return function (...args) {

@@ -14,11 +14,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import base64
 import os
 import subprocess
 from datetime import datetime, timedelta, timezone
 
 import cef
+import pyotp
+import qrcode
 from flask import Blueprint, jsonify, request
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import (
@@ -71,7 +74,8 @@ def get_user_info():
         'id': user.id,
         'username': user.username,
         'email': user.email,
-        'role': user.role
+        'role': user.role,
+        'two_factor_enabled': user.two_factor_enabled,
     }), 200
 
 
@@ -231,6 +235,18 @@ def login():
         return jsonify({'message': 'Invalid username or password'}), 401
     if not Bcrypt.check_password_hash(user.password, password):
         return jsonify({'message': 'Invalid password or username'}), 401
+    
+    # Check if the user has 2FA enabled
+    if user.two_factor_enabled:
+        # Get the 2FA code from the request
+        code = data.get('code')
+        if not code:
+            return jsonify({'message': 'Please provide the 2FA code'}), 400
+        
+        # Verify the 2FA code
+        if not pyotp.TOTP(user.two_factor_secret).verify(code):
+            return jsonify({'message': 'Invalid 2FA code'}), 401
+    
     # Get user's login time and set in DateTime format for database
     login_time = datetime.now(timezone.utc)
     user.login_time = login_time
@@ -449,3 +465,117 @@ def change_email():
     cef.log_cef('User with ID: ' + str(user.id) + ' changed email to ' + email, 3, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
 
     return jsonify({'message': 'Email changed'}), 200
+
+# Two-factor authentication endpoints
+@user_endpoints.route('/api/user/2fa/', methods=['POST'])
+@jwt_required()
+def setup_2fa():
+    """Setup two-factor authentication for the user
+
+    Returns:
+        json: Message
+    """
+
+    # Get the user from the authorization token
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+
+    # Generate a secret key
+    secret = pyotp.random_base32()
+
+    # Save the secret key to the database, and require the user to verify it
+    user.two_factor_secret = secret
+    user.two_factor_enabled = False
+    
+    # Save the user
+    db.session.commit()
+    
+    # Generate a QR code for the user to scan
+    uri = pyotp.totp.TOTP(secret).provisioning_uri(name=user.username, issuer_name='Buffet')
+    img = qrcode.make(uri)
+    img.save('qrcode-' + user.username + '.png')
+    
+    # Log the user's 2FA setup
+    HelperFunctions.create_cef_logs_folders()
+    
+    cef.log_cef('User with ID: ' + str(user.id) + ' set up 2FA', 3, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+    
+    # Return the QR code to the user to scan in base64 format
+    with open('qrcode-' + user.username + '.png', 'rb') as f:
+        img_base64 = base64.b64encode(f.read()).decode('utf-8')
+    os.remove('qrcode-' + user.username + '.png')
+        
+    return jsonify({'message': '2FA setup', 'qr_code': img_base64}), 200
+
+@user_endpoints.route('/api/user/2fa/verify/', methods=['POST'])
+@jwt_required()
+def verify_2fa():
+    """Verify the user's two-factor authentication
+
+    Returns:
+        json: Message
+    """
+
+    # Get the user from the authorization token
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+
+    # Get the token from the request
+    data = request.get_json()
+    if not data or 'token' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    token = data['token']
+
+    # Verify the token
+    if pyotp.TOTP(user.two_factor_secret).verify(token):
+        user.two_factor_enabled = True
+        db.session.commit()
+        
+        # Log the user's 2FA verification
+        HelperFunctions.create_cef_logs_folders()
+        
+        cef.log_cef('User with ID: ' + str(user.id) + ' verified 2FA', 3, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+        
+        return jsonify({'message': '2FA verified'}), 200
+
+    return jsonify({'message': 'Invalid token'}), 401
+
+@user_endpoints.route('/api/user/2fa/disable/', methods=['POST'])
+@jwt_required()
+def disable_2fa():
+    """Disable the user's two-factor authentication
+
+    Returns:
+        json: Message
+    """
+
+    # Get the user from the authorization token
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if not user:
+        return jsonify({'message': 'Invalid user'}), 401
+
+    # Get the password from the request
+    data = request.get_json()
+    if not data or 'password' not in data:
+        return jsonify({'message': 'Invalid data format'}), 400
+
+    password = data['password']
+    
+    # Check if the password is correct
+    if not Bcrypt.check_password_hash(user.password, password):
+        return jsonify({'message': 'Invalid password'}), 401
+
+    # Disable 2FA and clear the secret key
+    user.two_factor_enabled = False
+    user.two_factor_secret = None
+    db.session.commit()
+
+    # Log the user's 2FA disable
+    HelperFunctions.create_cef_logs_folders()
+
+    cef.log_cef('User with ID: ' + str(user.id) + ' disabled 2FA', 3, request.environ, config={'cef.product': 'Buffet', 'cef.vendor': 'kgdn', 'cef.version': '0', 'cef.device_version': '0.1', 'cef.file': 'logs/' + str(datetime.now().date()) + '/buffet.log'}, username=user.username)
+
+    return jsonify({'message': '2FA disabled'}), 200

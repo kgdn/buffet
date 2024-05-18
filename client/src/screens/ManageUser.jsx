@@ -18,7 +18,7 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import NavbarComponent from '../components/Navbar';
-import { Modal, Form, Button, ButtonGroup, Container, Row, Col, Alert } from 'react-bootstrap';
+import { Modal, Form, Button, ButtonGroup, Container, Row, Col, Alert, Image } from 'react-bootstrap';
 import AccountsAPI from '../api/AccountsAPI';
 import validator from 'validator';
 import passwordValidator from 'password-validator';
@@ -32,12 +32,18 @@ function ManageUser() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [role, setRole] = useState('');
+    const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
     const [currentPassword, setCurrentPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [pageMessage, setMessage] = useState('');
     const [deleteMessage, setStopMessage] = useState('');
-    const [showStopModal, setShowStopModal] = useState(false);
+    const [twoFactorMessage, setTwoFactorMessage] = useState('');
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
+    const [qrCode, setQrCode] = useState('');
+    const [twoFactorCode, setTwoFactorCode] = useState('');
+    const [showDisableTwoFactorModal, setShowDisableTwoFactorModal] = useState(false);
 
     useEffect(() => {
         document.title = 'Buffet - Manage User';
@@ -51,7 +57,6 @@ function ManageUser() {
 
         AccountsAPI.changeUsername(username, currentPassword).then((response) => {
             if (response.status === 200) {
-                setMessage(response.message);
                 window.location.reload();
             } else {
                 setMessage(response.message);
@@ -83,7 +88,6 @@ function ManageUser() {
 
         AccountsAPI.changePassword(oldPassword, newPassword).then((response) => {
             if (response.status === 200) {
-                setMessage(response.message);
                 window.location.reload();
             } else {
                 setMessage(response.message);
@@ -104,7 +108,6 @@ function ManageUser() {
 
         AccountsAPI.changeEmail(email, currentPassword).then((response) => {
             if (response.status === 200) {
-                setMessage(response.message);
                 window.location.reload();
             } else {
                 setMessage(response.message);
@@ -131,11 +134,65 @@ function ManageUser() {
         logout();
     };
 
+    const decodeBase64 = (input) => {
+        return `data:image/png;base64,${input}`;
+    };
+
+    const EnableTwoFactorButton = async () => {
+        try {
+            AccountsAPI.enableTwoFactorAuth().then((response) => {
+                if (response.status === 200) {
+                    setQrCode(response.data.qr_code);
+                    setShowTwoFactorModal(true);
+                } else {
+                    setTwoFactorMessage(response.message);
+                }
+            });
+        } catch (error) {
+            setTwoFactorMessage(error.message);
+        }
+    };
+
+    const VerifyTwoFactorButton = async () => {
+        try {
+            AccountsAPI.verifyTwoFactorAuth(twoFactorCode).then((response) => {
+                if (response.status === 200) {
+                    window.location.reload();
+                } else {
+                    setTwoFactorMessage(response.message);
+                }
+            });
+        } catch (error) {
+            setTwoFactorMessage(error.message);
+        }
+    };
+
+    const DisableTwoFactorButton = async () => {
+        // trim the password
+        if (currentPassword.trim() === '') {
+            setTwoFactorMessage('Password cannot be empty.');
+            return;
+        }
+
+        try {
+            AccountsAPI.disableTwoFactorAuth(currentPassword).then((response) => {
+                if (response.status === 200) {
+                    window.location.reload();
+                } else {
+                    setTwoFactorMessage(response.message);
+                }
+            });
+        } catch (error) {
+            setTwoFactorMessage(error.message);
+        }
+    };
+
     useEffect(() => {
         if (user) {
             setCurrentEmail(user.email);
             setCurrentUserName(user.username);
             setRole(user.role);
+            setTwoFactorEnabled(user.two_factor_enabled);
         }
     }, [user]);
 
@@ -184,10 +241,20 @@ function ManageUser() {
                             <Form.Group className="mb-3">
                                 <Form.Control type="password" placeholder="New Password" onChange={(event) => setNewPassword(event.target.value)} />
                             </Form.Group>
-                            <Button className="me-2" variant="primary" type="submit">
-                                Change Password
-                            </Button>
-                            {/* display button on the right */}
+                            <ButtonGroup className="mb-3">
+                                <Button variant="primary" type="submit">
+                                    Change Password
+                                </Button>
+                                {twoFactorEnabled ? (
+                                    <Button variant="danger" onClick={() => setShowDisableTwoFactorModal(true)}>
+                                        Disable 2FA
+                                    </Button>
+                                ) : (
+                                    <Button variant="success" onClick={EnableTwoFactorButton}>
+                                        Enable 2FA
+                                    </Button>
+                                )}
+                            </ButtonGroup>
                             <ButtonGroup className="mb-3 float-end">
                                 <Button variant="warning" onClick={LogoutButton}>
                                     Log Out
@@ -195,7 +262,7 @@ function ManageUser() {
                                 {role === 'admin' ? (
                                     <></>
                                 ) : (
-                                    <Button variant="danger" onClick={() => setShowStopModal(true)}>
+                                    <Button variant="danger" onClick={() => setShowDeleteModal(true)}>
                                         Delete Account
                                     </Button>
                                 )}
@@ -216,7 +283,8 @@ function ManageUser() {
                 </Row>
             </Container>
 
-            <Modal show={showStopModal} onHide={() => setShowStopModal(false)}>
+            {/* Delete account modal */}
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Account Deletion</Modal.Title>
                 </Modal.Header>
@@ -235,13 +303,66 @@ function ManageUser() {
                     <Button variant="danger" onClick={DeleteAccountButton}>
                         Confirm
                     </Button>
-                    <Button variant="secondary" onClick={() => setShowStopModal(false)}>
+                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                        Cancel
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Two-factor authentication modals */}
+            <Modal show={showTwoFactorModal} onHide={() => setShowTwoFactorModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Enable Two-Factor Authentication</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Scan the QR code below with your two-factor authentication app to enable two-factor authentication.</p>
+                    <Image src={decodeBase64(qrCode)} alt="QR Code" rounded fluid className='mb-3 mt-3' />
+                    <Form.Control type="text" placeholder="Two-factor authentication code" onChange={(event) => setTwoFactorCode(event.target.value)} />
+                    {twoFactorMessage === '' ? (
+                        <></>
+                    ) : (
+                        <Alert variant="primary" role="alert">
+                            {twoFactorMessage}
+                        </Alert>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={VerifyTwoFactorButton}>
+                        Confirm
+                    </Button>
+                    <Button variant="secondary" onClick={() => setShowTwoFactorModal(false)}>
+                        Cancel
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Disable two-factor authentication modal */}
+            <Modal show={showDisableTwoFactorModal} onHide={() => setShowDisableTwoFactorModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Disable Two-Factor Authentication</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Are you sure you want to disable two-factor authentication?</p>
+                    {twoFactorMessage === '' ? (
+                        <></>
+                    ) : (
+                        <Alert variant="primary" role="alert">
+                            {twoFactorMessage}
+                        </Alert>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Form.Control type="password" placeholder="Password" onChange={(event) => setCurrentPassword(event.target.value)} />
+                    <Button variant="danger" onClick={DisableTwoFactorButton}>
+                        Confirm
+                    </Button>
+                    <Button variant="secondary" onClick={() => setShowDisableTwoFactorModal(false)}>
                         Cancel
                     </Button>
                 </Modal.Footer>
             </Modal>
             <Footer />
-        </div>
+        </div >
     );
 }
 

@@ -33,10 +33,20 @@ def generate_uuid():
 
 
 def generate_unique_code():
+    """Generates a random 6-character alphanumeric code and returns it as a string.
+
+    Returns:
+        str: A random 6-character alphanumeric code as a string.
+    """
     return "".join(random.choices(string.ascii_letters + string.digits, k=6))
 
 
 class UnverifiedUser(db.Model):
+    """Contains the database model for an unverified user.
+
+    Args:
+        db (SQLAlchemy): The SQLAlchemy object.
+    """
     id = db.Column(db.String(32), primary_key=True, default=generate_uuid)
     username = db.Column(db.String(80), nullable=False, unique=True)
     email = db.Column(db.String(80), nullable=False)
@@ -46,6 +56,11 @@ class UnverifiedUser(db.Model):
 
 
 class User(db.Model):
+    """Contains the database model for a user.
+
+    Args:
+        db (SQLAlchemy): The SQLAlchemy object.
+    """
     id = db.Column(db.String(32), primary_key=True, default=generate_uuid)
     username = db.Column(db.String(80), nullable=False, unique=True)
     email = db.Column(db.String(80), nullable=False)
@@ -53,9 +68,16 @@ class User(db.Model):
     login_time = db.Column(db.DateTime, nullable=True)
     ip = db.Column(db.String(80), nullable=True)
     role = db.Column(db.String(80), nullable=False)
+    two_factor_enabled = db.Column(db.Boolean, nullable=False, default=False)
+    two_factor_secret = db.Column(db.String(80), nullable=True)
 
 
 class BannedUser(db.Model):
+    """Contains the database model for a banned user. You can move data from the User table to this table when a user is banned.
+
+    Args:
+        db (SQLAlchemy): The SQLAlchemy object.
+    """
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String(32), db.ForeignKey("user.id"), nullable=False)
     username = db.Column(db.String(80), nullable=False, unique=True)
@@ -66,10 +88,17 @@ class BannedUser(db.Model):
     login_time = db.Column(db.DateTime, nullable=True)
     ip = db.Column(db.String(80), nullable=True)
     role = db.Column(db.String(80), nullable=False)
+    two_factor_enabled = db.Column(db.Boolean, nullable=False, default=False)
+    two_factor_secret = db.Column(db.String(80), nullable=True)
     ban_reason = db.Column(db.String(80), nullable=True)
 
 
 class VirtualMachine(db.Model):
+    """Contains the database model for a virtual machine.
+
+    Args:
+        db (SQLAlchemy): The SQLAlchemy object.
+    """
     id = db.Column(db.Integer, primary_key=True)
     port = db.Column(db.Integer, nullable=False)
     wsport = db.Column(db.Integer, nullable=False)

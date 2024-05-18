@@ -27,11 +27,12 @@ const API_BASE_PORT = import.meta.env.VITE_BASE_PORT;
 
 export default class AccountsAPI {
     // Log the user in
-    static async login(username, password) {
+    static async login(username, password, code) {
         try {
             const response = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/user/login/`, {
                 username: username,
-                password: password
+                password: password,
+                code: code
             });
             return { status: response.status, message: response.message }
         } catch (error) {
@@ -162,6 +163,54 @@ export default class AccountsAPI {
             });
             return { status: response.status, message: response.message }
         } catch (error) {
+            return { status: error.response.status, message: error.response.data.message };
+        }
+    }
+
+    // Allow the user to enable two-factor authentication
+    static async enableTwoFactorAuth() {
+        try {
+            const response = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/user/2fa/`, {
+                withCredentials: true,
+                headers: {
+                    'X-CSRF-TOKEN': cookies.get('csrf_access_token')
+                }
+            });
+            return { status: response.status, message: response.message, data: response.data }
+        } catch (error) {
+            return { status: error.response.status, message: error.response.data.message };
+        }
+    }
+
+    // Verify the user's two-factor authentication code to enable it
+    static async verifyTwoFactorAuth(token) {
+        try {
+            const response = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/user/2fa/verify/`, {
+                token: token,
+                withCredentials: true,
+                headers: {
+                    'X-CSRF-TOKEN': cookies.get('csrf_access_token')
+                }
+            });
+            return { status: response.status, message: response.message, data: response.data }
+        } catch (error) {
+            return { status: error.response.status, message: error.response.data.message };
+        }
+    }
+
+    // Disable two-factor authentication
+    static async disableTwoFactorAuth(password) {
+        try {
+            const response = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/user/2fa/disable/`, {
+                password: password,
+                withCredentials: true,
+                headers: {
+                    'X-CSRF-TOKEN': cookies.get('csrf_access_token')
+                }
+            });
+            return { status: response.status, message: response.message }
+        }
+        catch (error) {
             return { status: error.response.status, message: error.response.data.message };
         }
     }
