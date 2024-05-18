@@ -1,5 +1,5 @@
 /*
-* VirtualMachineAPI.jsx - API functions for virtual machines.
+* VirtualMachineAPI.ts - API functions for virtual machines.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import Cookies from 'universal-cookie';
 
 const cookies = new Cookies(null, { path: '/' });
@@ -27,69 +27,71 @@ axios.defaults.headers.common['X-CSRF-TOKEN'] = cookies.get('csrf_access_token')
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 const API_BASE_PORT = import.meta.env.VITE_BASE_PORT;
 
+interface ApiResponse<T = any> {
+    status: number;
+    message: string;
+    data?: T;
+}
+
 export default class VirtualMachineAPI {
     // Get all virtual machines from the database
-    static async getIsoFiles() {
+    static async getIsoFiles(): Promise<ApiResponse> {
         try {
-            const response = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/iso/`, {
+            const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/iso/`, {
                 withCredentials: true,
             });
-            return { status: response.status, message: response.message, data: response.data };
-        } catch (error) {
+            return { status: response.status, message: response.data.message, data: response.data };
+        } catch (error: any) {
             return { status: error.response.status, message: error.response.data.message };
         }
     }
 
     // Use iso as a parameter to get a specific virtual machine
-    static async createVirtualMachine(iso) {
+    static async createVirtualMachine(iso: string): Promise<ApiResponse> {
         try {
-            const response = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/create/`, {
-                iso: iso
+            const response: AxiosResponse = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/create/`, {
+                iso
             });
-            return { status: response.status, message: response.message, data: response.data };
-        }
-        catch (error) {
+            return { status: response.status, message: response.data.message, data: response.data };
+        } catch (error: any) {
             return { status: error.response.status, message: error.response.data.message };
         }
     }
 
     // Use vm_id as a parameter to delete a specific virtual machine
-    static async deleteVirtualMachine(vm_id) {
+    static async deleteVirtualMachine(vm_id: string): Promise<ApiResponse> {
         try {
-            const response = await axios.delete(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/delete/`, {
+            const response: AxiosResponse = await axios.delete(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/delete/`, {
                 data: {
-                    vm_id: vm_id
+                    vm_id
                 }
             });
-            return { status: response.status, message: response.message, data: response.data };
-        }
-        catch (error) {
+            return { status: response.status, message: response.data.message, data: response.data };
+        } catch (error: any) {
             return { status: error.response.status, message: error.response.data.message };
         }
     }
 
     // Use user_id as a parameter to get a specific virtual machine
-    static async getVirtualMachineByUser(user_id) {
+    static async getVirtualMachineByUser(user_id: string): Promise<ApiResponse> {
         try {
-            const response = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/user/`, {
+            const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/user/`, {
                 params: {
-                    user_id: user_id
+                    user_id
                 }
             });
-            return { status: response.status, message: response.message, data: response.data };
-        }
-        catch (error) {
+            return { status: response.status, message: response.data.message, data: response.data };
+        } catch (error: any) {
             return { status: error.response.status, message: error.response.data.message };
         }
     }
 
     // Get number of running virtual machines
-    static async getRunningVMs() {
+    static async getRunningVMs(): Promise<ApiResponse> {
         try {
-            const response = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/count/`);
-            return { status: response.status, message: response.message, data: response.data };
-        }
-        catch (error) {
+            const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/count/`);
+            return { status: response.status, message: response.data.message, data: response.data };
+        } catch (error: any) {
             return { status: error.response.status, message: error.response.data.message };
         }
     }

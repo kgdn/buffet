@@ -26,7 +26,7 @@ import fedora from '../assets/carousel/fedora.png'
 import ubuntu from '../assets/carousel/ubuntu.png'
 import opensuse from '../assets/carousel/opensuse.png'
 
-function Home() {
+const Home: React.FC = () => {
     const { user } = useContext(AuthContext);
     const [loggedIn, setLoggedIn] = useState(false);
     const [iso, setImages] = useState([]);

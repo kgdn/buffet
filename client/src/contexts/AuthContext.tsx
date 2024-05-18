@@ -1,5 +1,5 @@
 /*
-* AuthContext.jsx - Global authentication context for the application.
+* AuthContext.tsx - Global authentication context for the application.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify
@@ -16,13 +16,30 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import AccountsAPI from '../api/AccountsAPI';
 
-export const AuthContext = createContext();
+interface User {
+    id: string;
+    username: string;
+    email: string;
+    role: string;
+    two_factor_enabled: boolean;
+}
 
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+interface AuthContextType {
+    user: User | null;
+    logout: () => void;
+}
+
+export const AuthContext = createContext<AuthContextType>({ user: null, logout: () => { } });
+
+interface AuthProviderProps {
+    children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }: AuthProviderProps) => {
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
         AccountsAPI.getUserDetails().then((response) => {

@@ -25,7 +25,7 @@ import passwordValidator from 'password-validator';
 import Footer from '../components/Footer';
 import { AuthContext } from '../contexts/AuthContext';
 
-function ManageUser() {
+const VirtualMachineView: React.FC = () => {
     const { user, logout } = useContext(AuthContext);
     const [getEmail, setCurrentEmail] = useState('');
     const [getUserName, setCurrentUserName] = useState('');
@@ -366,4 +366,4 @@ function ManageUser() {
     );
 }
 
-export default ManageUser;
+export default VirtualMachineView;

@@ -24,7 +24,7 @@ import validator from 'validator';
 import passwordValidator from 'password-validator';
 import Footer from '../components/Footer';
 
-function LoginRegis() {
+const LoginRegis: React.FC = () => {
     const [loginUsername, setLoginUsername] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [registerUsername, setRegisterUsername] = useState('');

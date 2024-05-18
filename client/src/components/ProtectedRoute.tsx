@@ -1,5 +1,5 @@
 /*
-* ProtectedRoute.jsx - Route protection component for the application.
+* ProtectedRoute.tsx - Route protection component for the application.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify
@@ -17,11 +17,14 @@
 */
 
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
 import { Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 
-function ProtectedRoute({ element }) {
+interface ProtectedRouteProps {
+    element: React.ReactNode;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }: ProtectedRouteProps) => {
     const { user } = useContext(AuthContext);
     const location = useLocation();
 
@@ -33,11 +36,7 @@ function ProtectedRoute({ element }) {
         return <Navigate to="/" />;
     }
 
-    return element;
-}
-
-ProtectedRoute.propTypes = {
-    element: PropTypes.element.isRequired,
+    return <>{element}</>;
 };
 
 export default ProtectedRoute;

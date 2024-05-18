@@ -1,5 +1,5 @@
 /*
-* Footer.jsx - Footer component for the application.
+* Footer.tsx - Footer component for the application.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 import React from 'react';
 import { Container, Row, Col, Image } from 'react-bootstrap';
 
-function Footer() {
+const Footer: React.FC = () => {
     return (
         <div className='footer'>
             <Container>
@@ -37,8 +37,8 @@ function Footer() {
                         <p>Logos courtesy of <a href='https://commons.wikimedia.org/wiki/Main_Page'>Wikimedia Commons</a>. Respective owners retain all rights, unless otherwise stated.</p>
                     </Col>
                 </Row>
-            </Container >
-        </div >
+            </Container>
+        </div>
     );
 }
 

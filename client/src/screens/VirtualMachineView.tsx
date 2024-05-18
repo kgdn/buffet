@@ -1,5 +1,5 @@
 /*
-* VirtualMachineView.jsx - Virtual machine view for the application using noVNC.
+* VirtualMachineView.tsx - Virtual machine view for the application using noVNC.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify
@@ -21,8 +21,17 @@ import RFB from "@novnc/novnc/core/rfb";
 import { Button, ButtonGroup, Card, Modal } from "react-bootstrap";
 import VirtualMachineAPI from "../api/VirtualMachineAPI";
 
-function VirtualMachineView() {
-    const [vmDetails, setVmDetails] = useState({ wsport: 0, id: 0, name: '', version: '', desktop: '', password: '' });
+interface VmDetails {
+    wsport: number;
+    id: number;
+    name: string;
+    version: string;
+    desktop: string;
+    password: string;
+}
+
+const VirtualMachineView: React.FC = () => {
+    const [vmDetails, setVmDetails] = useState<VmDetails>({ wsport: 0, id: 0, name: '', version: '', desktop: '', password: '' });
     const [showModal, setShowModal] = useState(true);
     const inactivityTimeout = 500000;
     const API_BASE_URL = import.meta.env.VITE_BASE_URL.replace(/(^\w+:|^)\/\//, '');
@@ -48,7 +57,7 @@ function VirtualMachineView() {
         });
     }, [vmDetails.id]);
 
-    const handleKeyDown = useCallback((event) => {
+    const handleKeyDown = useCallback((event: KeyboardEvent) => {
         if (event.key === 'F11') {
             event.preventDefault();
             handleFullscreen();
@@ -56,7 +65,7 @@ function VirtualMachineView() {
     }, []);
 
     const handleFullscreen = () => {
-        const elem = document.getElementById('app');
+        const elem = document.getElementById('app')!;
         if (document.fullscreenElement) {
             document.exitFullscreen();
         } else {
@@ -88,9 +97,8 @@ function VirtualMachineView() {
         };
     }, [deleteVM, handleKeyDown, vmDetails.desktop, vmDetails.name, vmDetails.version]);
 
-
     const connectToVM = useCallback(() => {
-        const rfb = new RFB(document.getElementById('app'), `wss://${API_BASE_URL}:${vmDetails.wsport}`, {
+        const rfb = new RFB(document.getElementById('app')!, `wss://${API_BASE_URL}:${vmDetails.wsport}`, {
             credentials: { password: vmDetails.password }
         });
         rfb.scaleViewport = true;
@@ -144,11 +152,10 @@ function VirtualMachineView() {
     )
 }
 
-
 // Debounce function to prevent multiple API calls
-function debounce(func, wait) {
-    let timeout;
-    return function (...args) {
+function debounce(func: (...args: any[]) => void, wait: number) {
+    let timeout: ReturnType<typeof setTimeout>;
+    return function (...args: any[]) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), wait);
     };

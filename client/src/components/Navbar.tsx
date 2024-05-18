@@ -1,5 +1,5 @@
 /*
-* Navbar.jsx - Navbar component for the application.
+* Navbar.tsx - Navbar component for the application.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import logo from '../assets/logo.svg';
 import { AuthContext } from '../contexts/AuthContext';
 
-function NavbarComponent() {
+const NavbarComponent: React.FC = () => {
 
     const { user, logout } = useContext(AuthContext);
 

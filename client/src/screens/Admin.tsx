@@ -22,7 +22,7 @@ import validator from 'validator';
 import { Alert, Container, Col, Row, Button, Form, ButtonGroup, Modal, Tab, Table, Tabs, Card } from 'react-bootstrap';
 import Footer from '../components/Footer';
 
-function Admin() {
+const Admin: React.FC = () => {
 	/* 
 	 * I have to admit, this is not the most elegant solution, but it works. I have to use multiple states for each modal, 
 	 * because if I use one state for all modals, the modals will not work as expected. A better solution for state management would 
