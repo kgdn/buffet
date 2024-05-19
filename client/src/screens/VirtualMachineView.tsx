@@ -18,8 +18,9 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import RFB from "@novnc/novnc/core/rfb";
-import { Button, ButtonGroup, Card, Modal } from "react-bootstrap";
+import { Button, ButtonGroup, Modal, Tooltip, OverlayTrigger } from "react-bootstrap";
 import VirtualMachineAPI from "../api/VirtualMachineAPI";
+import Draggable from "react-draggable";
 
 interface VmDetails {
     wsport: number;
@@ -28,11 +29,13 @@ interface VmDetails {
     version: string;
     desktop: string;
     password: string;
+    homepage: string;
 }
 
 const VirtualMachineView: React.FC = () => {
-    const [vmDetails, setVmDetails] = useState<VmDetails>({ wsport: 0, id: 0, name: '', version: '', desktop: '', password: '' });
+    const [vmDetails, setVmDetails] = useState<VmDetails>({ wsport: 0, id: 0, name: '', version: '', desktop: '', password: '', homepage: '' });
     const [showModal, setShowModal] = useState(true);
+    const [position, setPosition] = useState({ x: 0, y: 0 });
     const API_BASE_URL = import.meta.env.VITE_BASE_URL.replace(/(^\w+:|^)\/\//, '');
 
     /**
@@ -49,7 +52,8 @@ const VirtualMachineView: React.FC = () => {
                 name: data.name,
                 version: data.version,
                 desktop: data.desktop,
-                password: data.vnc_password
+                password: data.vnc_password,
+                homepage: data.homepage
             });
         };
         fetchVMDetails();
@@ -138,25 +142,81 @@ const VirtualMachineView: React.FC = () => {
         }
     }, [connectToVM, vmDetails.wsport]);
 
+    const handleDrag = (e: any, data: any) => {
+        setPosition({ x: data.x, y: data.y });
+    };
+
+    const getTooltipPlacement = () => {
+        if (position.y < 100) {
+            return "bottom";
+        } else if (position.y > window.innerHeight - 100) {
+            return "top";
+        } else if (position.x < window.innerWidth / 2) {
+            return "right";
+        } else {
+            return "left";
+        }
+    };
+
     return (
         <div id="virtual-machine-view">
-
-            {/* noVNC viewer */}
             <div id="app" style={{ height: '100vh', width: '100vw', overflow: 'hidden', position: 'absolute', top: 0, left: 0 }} />
 
-            {/* Card for information */}
-            <Card style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'transparent', border: 'none' }}>
-                <Card.Body>
-                    <ButtonGroup>
+            <Draggable bounds="#app" onDrag={handleDrag}>
+                <ButtonGroup style={{ position: 'absolute', top: 0, right: 0, zIndex: 100, border: '1px solid rgba(211, 211, 211, 0.5)', borderRadius: '5px', margin: '10px' }}>
+                    <OverlayTrigger
+                        placement={getTooltipPlacement()}
+                        overlay={
+                            <Tooltip id="tooltip-home">
+                                Click here to learn more about {vmDetails.name}.
+                            </Tooltip>
+                        }
+                    >
+                        <Button variant="light" href={vmDetails.homepage} target="_blank" rel="noreferrer">{vmDetails.name} {vmDetails.version} {vmDetails.desktop}</Button>
+                    </OverlayTrigger>
+                    <OverlayTrigger
+                        placement={getTooltipPlacement()}
+                        overlay={
+                            <Tooltip id="tooltip-home">
+                                Click here to return to the home page.
+                            </Tooltip>
+                        }
+                    >
                         <Button variant="primary" href="/">Home</Button>
+                    </OverlayTrigger>
+                    <OverlayTrigger
+                        placement={getTooltipPlacement()}
+                        overlay={
+                            <Tooltip id="tooltip-information">
+                                Click here to view information about Buffet.
+                            </Tooltip>
+                        }
+                    >
                         <Button variant="info" onClick={() => setShowModal(true)}>Information</Button>
-                        <Button variant="success" onClick={handleFullscreen}>Fullscreen</Button>
+                    </OverlayTrigger>
+                    <OverlayTrigger
+                        placement={getTooltipPlacement()}
+                        overlay={
+                            <Tooltip id="tooltip-fullscreen">
+                                Click here to toggle fullscreen mode.
+                            </Tooltip>
+                        }
+                    >
+                        <Button variant="warning" onClick={handleFullscreen}>Fullscreen</Button>
+                    </OverlayTrigger>
+                    <OverlayTrigger
+                        placement={getTooltipPlacement()}
+                        overlay={
+                            <Tooltip id="tooltip-shutdown">
+                                Click here to shut down the virtual machine.
+                            </Tooltip>
+                        }
+                    >
                         <Button variant="danger" onClick={deleteVM}>Shutdown</Button>
-                    </ButtonGroup>
-                </Card.Body>
-            </Card>
+                    </OverlayTrigger>
+                </ButtonGroup>
+            </Draggable>
 
-            {/* Modal for information */}
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>For Your Information</Modal.Title>
@@ -175,7 +235,7 @@ const VirtualMachineView: React.FC = () => {
                 </Modal.Footer>
             </Modal>
         </div>
-    )
+    );
 };
 
 export default VirtualMachineView;

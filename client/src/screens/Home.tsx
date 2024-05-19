@@ -36,6 +36,7 @@ interface Image {
     logo: string;
     homepage: string;
     beginner_friendly: boolean;
+    desktop_homepage: string;
 }
 
 interface VmDetails {
@@ -137,7 +138,8 @@ const Home: React.FC = () => {
         image.version.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
         image.iso.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
         image.desktop.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
-        image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(linuxSearchQuery.toLowerCase())
+        image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(linuxSearchQuery.toLowerCase()) ||
+        image.desktop_homepage.toLowerCase().includes(linuxSearchQuery.toLowerCase())
     );
 
     const filteredNonLinuxImages = nonLinuxImages.filter((image) =>
@@ -145,7 +147,8 @@ const Home: React.FC = () => {
         image.version.toLowerCase().includes(nonLinuxSearchQuery.toLowerCase()) ||
         image.iso.toLowerCase().includes(nonLinuxSearchQuery.toLowerCase()) ||
         image.desktop.toLowerCase().includes(nonLinuxSearchQuery.toLowerCase()) ||
-        image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(nonLinuxSearchQuery.toLowerCase())
+        image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(nonLinuxSearchQuery.toLowerCase()) ||
+        image.desktop_homepage.toLowerCase().includes(nonLinuxSearchQuery.toLowerCase())
     );
 
     const decodedLogo = (logo: string) => {
@@ -239,6 +242,11 @@ const Home: React.FC = () => {
                                     <Card.Footer>
                                         <ButtonGroup className="d-flex">
                                             <Button variant="secondary" href={image.homepage} target="_blank" rel="noopener noreferrer">Learn More</Button>
+                                            {image.desktop_homepage ? (
+                                                <Button variant="info" href={image.desktop_homepage} target="_blank" rel="noopener noreferrer">Desktop Info</Button>
+                                            ) : (
+                                                <></>
+                                            )}
                                             {/* If the operating system is not beginner-friendly, show a warning modal */}
                                             {image.beginner_friendly ? (
                                                 <Button variant="primary" onClick={() => createVMButton(image.iso)}>Create VM</Button>
@@ -285,6 +293,11 @@ const Home: React.FC = () => {
                                             <Card.Footer>
                                                 <ButtonGroup className="d-flex">
                                                     <Button variant="secondary" href={image.homepage} target="_blank" rel="noopener noreferrer">Learn More</Button>
+                                                    {image.desktop_homepage ? (
+                                                        <Button variant="info" href={image.desktop_homepage} target="_blank" rel="noopener noreferrer">Desktop Info</Button>
+                                                    ) : (
+                                                        <></>
+                                                    )}
                                                     {image.beginner_friendly ? (
                                                         <Button variant="primary" onClick={() => createVMButton(image.iso)}>Create VM</Button>
                                                     ) : (

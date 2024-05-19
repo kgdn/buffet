@@ -49,37 +49,6 @@ def create_random_vnc_password():
     )
 
 
-# {
-#         "iso": [
-#             "fedora-workstation.iso",
-#             "fedora-kde.iso"
-#         ],
-#         "desktop": [
-#             "GNOME",
-#             "KDE Plasma"
-#         ],
-#         "name": "Fedora",
-#         "version": [
-#             "35",
-#             "36"
-#         ],
-#         "description": "A community-driven GNU/Linux distribution sponsored by Red Hat, with a focus on innovation and free software.",
-#         "linux": true,
-#         "logo": "fedora.png",
-#         "homepage": "https://getfedora.org",
-#         "beginner_friendly": true
-#     },
-#     {
-#         "iso": "nixos.iso",
-#         "desktop": "GNOME",
-#         "name": "NixOS",
-#         "version": "23.11",
-#         "description": "GNU/Linux distribution known for its unique package manager and configuration system, Nix.",
-#         "linux": true,
-#         "logo": "nixos.png",
-#         "homepage": "https://nixos.org",
-#         "beginner_friendly": false
-#     },
 @vm_endpoints.route("/api/vm/iso/", methods=["GET"])
 @jwt_required()
 def index_vm():
@@ -408,6 +377,7 @@ def get_user_vm():
                 "version": version,
                 "desktop": desktop,
                 "vnc_password": vm.vnc_password,
+                "homepage": iso["homepage"],
             }
         ),
         201,
