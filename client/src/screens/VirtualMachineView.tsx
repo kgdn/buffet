@@ -52,7 +52,7 @@ const VirtualMachineView: React.FC = () => {
     }, []);
 
     const deleteVM = useCallback(() => {
-        VirtualMachineAPI.deleteVirtualMachine(vmDetails.id).then(() => {
+        VirtualMachineAPI.deleteVirtualMachine(String(vmDetails.id)).then(() => {
             window.location.href = '/';
         });
     }, [vmDetails.id]);
@@ -99,7 +99,7 @@ const VirtualMachineView: React.FC = () => {
 
     const connectToVM = useCallback(() => {
         const rfb = new RFB(document.getElementById('app')!, `wss://${API_BASE_URL}:${vmDetails.wsport}`, {
-            credentials: { password: vmDetails.password }
+            credentials: { username: '', password: vmDetails.password, target: '' }
         });
         rfb.scaleViewport = true;
         rfb.resizeSession = true;
@@ -156,8 +156,11 @@ const VirtualMachineView: React.FC = () => {
 function debounce(func: (...args: any[]) => void, wait: number) {
     let timeout: ReturnType<typeof setTimeout>;
     return function (...args: any[]) {
+        const later = () => {
+            func(...args);
+        };
         clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
+        timeout = setTimeout(later, wait);
     };
 }
 

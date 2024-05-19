@@ -73,13 +73,9 @@ export default class VirtualMachineAPI {
     }
 
     // Use user_id as a parameter to get a specific virtual machine
-    static async getVirtualMachineByUser(user_id: string): Promise<ApiResponse> {
+    static async getVirtualMachineByUser(): Promise<ApiResponse> {
         try {
-            const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/user/`, {
-                params: {
-                    user_id
-                }
-            });
+            const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/user/`);
             return { status: response.status, message: response.data.message, data: response.data };
         } catch (error: any) {
             return { status: error.response.status, message: error.response.data.message };

@@ -22,6 +22,34 @@ import validator from 'validator';
 import { Alert, Container, Col, Row, Button, Form, ButtonGroup, Modal, Tab, Table, Tabs, Card } from 'react-bootstrap';
 import Footer from '../components/Footer';
 
+interface User {
+	id: number;
+	username: string;
+	email: string;
+	role: string;
+	login_time: string;
+	ip: string;
+}
+
+interface VM {
+	id: number;
+	user_id: number;
+	name: string;
+	version: string;
+	desktop: string;
+	iso: string;
+	port: number;
+	wsport: number;
+}
+
+interface Log {
+	date: string;
+	action: string;
+	message: string;
+	severity: string;
+	user: string;
+}
+
 const Admin: React.FC = () => {
 	/* 
 	 * I have to admit, this is not the most elegant solution, but it works. I have to use multiple states for each modal, 
@@ -29,8 +57,8 @@ const Admin: React.FC = () => {
 	 * be to use a state management library like Redux. I did not use Redux because I wasn't aware of it when I started this project, 
 	 * and I didn't want to refactor the entire project to use Redux. 
 	 */
-	const [users, setUsers] = useState([]);
-	const [vms, setVMs] = useState([]);
+	const [users, setUsers] = useState<User[]>([]);
+	const [vms, setVMs] = useState<VM[]>([]);
 	const [newUsername, setNewUsername] = useState('');
 	const [newEmail, setNewEmail] = useState('');
 	const [userSearchQuery, setSearchQuery] = useState('');
@@ -113,27 +141,27 @@ const Admin: React.FC = () => {
 		})
 	}, []);
 
-	const isUserBanned = (userId) => {
-		return bannedUsers.some((bannedUser) => bannedUser.id === userId);
+	const isUserBanned = (userId: string): boolean => {
+		return (bannedUsers as { user_id: string }[]).some(user => user.user_id === userId);
 	};
 
 	const filteredUsers = users.filter(user => {
-		return user.username.toLowerCase().includes(userSearchQuery.toLowerCase()) && !isUserBanned(user.id);
+		return user.username.toLowerCase().includes(userSearchQuery.toLowerCase()) && !isUserBanned(String(user.id));
 	});
 
 	const filteredVMs = vms.filter(vm => {
 		return vm.iso.toLowerCase().includes(vmSearchQuery.toLowerCase());
 	});
 
-	const filteredBannedUsers = bannedUsers.filter(user => {
+	const filteredBannedUsers = (bannedUsers as { username: string }[]).filter(user => {
 		return user.username.toLowerCase().includes(bannedUserSearchQuery.toLowerCase());
 	});
 
-	const filteredUnverifiedUsers = unverifiedUsers.filter(user => {
+	const filteredUnverifiedUsers = (unverifiedUsers as { username: string }[]).filter(user => {
 		return user.username.toLowerCase().includes(unverifiedUserSearchQuery.toLowerCase());
 	});
 
-	const changeUsername = (id) => {
+	const changeUsername = (id: string) => {
 		if (newUsername.trim() === '') {
 			setUsernameMessage('Username cannot be empty');
 			return;
@@ -155,7 +183,7 @@ const Admin: React.FC = () => {
 			.catch(error => console.error(error));
 	}
 
-	const changeEmail = (id) => {
+	const changeEmail = (id: string) => {
 		if (newEmail.trim() === '') {
 			setEmailMessage('Email cannot be empty');
 			return;
@@ -178,7 +206,7 @@ const Admin: React.FC = () => {
 			.catch(error => console.error(error));
 	}
 
-	const deleteUser = (id) => {
+	const deleteUser = (id: string) => {
 		AdminAPI.deleteUser(id)
 			.then(response => {
 				if (response.status === 200) {
@@ -191,7 +219,7 @@ const Admin: React.FC = () => {
 			.catch(error => console.error(error));
 	}
 
-	const banUser = (id) => {
+	const banUser = (id: string) => {
 		AdminAPI.banUser(id, banReason)
 			.then(response => {
 				if (response.status === 200) {
@@ -204,7 +232,7 @@ const Admin: React.FC = () => {
 			.catch(error => console.error(error));
 	}
 
-	const unbanUser = (id) => {
+	const unbanUser = (id: string) => {
 		AdminAPI.unbanUser(id)
 			.then(response => {
 				if (response.status === 200) {
@@ -217,7 +245,7 @@ const Admin: React.FC = () => {
 			.catch(error => console.error(error));
 	}
 
-	const deleteVM = (id) => {
+	const deleteVM = (id: string) => {
 		AdminAPI.deleteVM(id)
 			.then(response => {
 				if (response.status === 200) {
@@ -230,7 +258,7 @@ const Admin: React.FC = () => {
 			.catch(error => console.error(error));
 	}
 
-	const verifyUser = (id) => {
+	const verifyUser = (id: string) => {
 		AdminAPI.verifyUser(id)
 			.then(response => {
 				if (response.status === 200) {
@@ -243,7 +271,7 @@ const Admin: React.FC = () => {
 			.catch(error => console.error(error));
 	}
 
-	const deleteUnverifiedUser = (id) => {
+	const deleteUnverifiedUser = (id: string) => {
 		AdminAPI.deleteUser(id)
 			.then(response => {
 				if (response.status === 200) {
@@ -256,7 +284,7 @@ const Admin: React.FC = () => {
 			.catch(error => console.error(error));
 	}
 
-	const parseCefLog = (log) => {
+	const parseCefLog = (log: string): Log => {
 		// Parse the date, action, message, severity and user from the log - remove dell-inspiron and CEF:0 from date
 		const date = log.split('|')[0].split(' ').slice(0, 3).join(' ');
 		const action = log.split('|')[4];
@@ -291,24 +319,24 @@ const Admin: React.FC = () => {
 							<Row>
 								{/* Make all cards the same size regardless of content */}
 								{filteredUsers.map((user) => (
-									<Col key={user.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
+									<Col key={(user as { username: string }).username} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
 										<Card style={{ height: '100%' }}>
 											<Card.Body>
-												<Card.Title>{user.username}</Card.Title>
-												<Card.Text>Email: {user.email}</Card.Text>
-												<Card.Text>Role: {user.role}</Card.Text>
-												<Card.Text>ID: {user.id}</Card.Text>
+												<Card.Title>{(user as { username: string }).username}</Card.Title>
+												<Card.Text>Email: {(user as { email: string }).email}</Card.Text>
+												<Card.Text>Role: {(user as { role: string }).role}</Card.Text>
+												<Card.Text>User ID: {(user as { id: number }).id}</Card.Text>
 												{/* Format the date to a readable format, do not show if the user has never logged in */}
-												{user.login_time !== null &&
-													<Card.Text>Last Login: {new Date(user.login_time).toLocaleString()} from {user.ip}</Card.Text>
-												}
+												{(user as { login_time: string }).login_time !== null && (
+													<Card.Text>Last Login: {new Date((user as { login_time: string }).login_time).toLocaleString()} from {(user as { ip: string }).ip}</Card.Text>
+												)}
 											</Card.Body>
 											<Card.Footer>
 												<Row style={{ paddingBottom: '1rem' }}>
 													<Col>
 														<ButtonGroup>
-															<Button variant="primary" onClick={() => { setSelectedUser(user.id); setNewUsername(user.username); setShowUsernameModal(true); }}>Change Username</Button>
-															<Button variant="primary" onClick={() => { setSelectedUser(user.id); setNewEmail(user.email); setShowEmailModal(true); }}>Change Email</Button>
+															<Button variant="primary" onClick={() => { setSelectedUser(user.id.toString()); setNewUsername(user.username); setShowUsernameModal(true); }}>Change Username</Button>
+															<Button variant="primary" onClick={() => { setSelectedUser(user.id.toString()); setNewEmail(user.email); setShowEmailModal(true); }}>Change Email</Button>
 														</ButtonGroup>
 													</Col>
 												</Row>
@@ -317,19 +345,19 @@ const Admin: React.FC = () => {
 														<ButtonGroup>
 															{/* If the user is not an admin, allow the admin to delete the user */}
 															{user.role !== 'admin' ?
-																<Button variant="danger" onClick={() => { setSelectedUser(user.id); setShowBanModal(true); }}>Ban user</Button>
+																<Button variant="danger" onClick={() => { setSelectedUser(user.id.toString()); setShowBanModal(true); }}>Ban user</Button>
 																:
 																<Button variant="secondary" disabled>Cannot ban admin</Button>
 															}
 															{/* If the user is not an admin, allow the admin to delete the user */}
 															{user.role !== 'admin' ?
-																<Button variant="danger" onClick={() => { setSelectedUser(user.id); setShowDeleteUserModal(true); }}>Delete user</Button>
+																<Button variant="danger" onClick={() => { setSelectedUser(user.id.toString()); setShowDeleteUserModal(true); }}>Delete user</Button>
 																:
 																<Button variant="secondary" disabled>Cannot delete admin</Button>
 															}
 															{/* If the user_id matches the user_id of the VM, show the delete VM button */}
 															{vms.filter(vm => vm.user_id === user.id).length > 0 &&
-																<Button variant="danger" onClick={() => { setSelectedVM(vms.filter(vm => vm.user_id === user.id)[0].id); setShowStopVMModal(true); }}>Stop VM</Button>
+																<Button variant="danger" onClick={() => { setSelectedVM(vms.filter(vm => vm.user_id === user.id)[0].id.toString()); setShowStopVMModal(true); }}>Stop VM</Button>
 															}
 														</ButtonGroup>
 													</Col>
@@ -378,7 +406,7 @@ const Admin: React.FC = () => {
 												<Button
 													variant="danger"
 													onClick={() => {
-														setSelectedVM(vm.id);
+														setSelectedVM(vm.id.toString());
 														setShowStopVMModal(true);
 													}}
 												>
@@ -408,21 +436,19 @@ const Admin: React.FC = () => {
 							</Row>
 							<Row>
 								{filteredBannedUsers.map((user) => (
-									<Col key={user.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
+									<Col key={(user as { username: string }).username} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
 										<Card style={{ height: '100%' }}>
 											<Card.Body>
-												<Card.Title>{user.username}</Card.Title>
-												<Card.Text>Email: {user.email}</Card.Text>
-												<Card.Text>Role: {user.role}</Card.Text>
-												<Card.Text>User ID: {user.user_id}</Card.Text>
-												{user.login_time !== null &&
-													<Card.Text>Last Login: {new Date(user.login_time).toLocaleString()} from {user.ip}</Card.Text>
-												}
-												<Card.Text>Reason: {user.ban_reason}</Card.Text>
+												<Card.Title>{(user as { username: string }).username}</Card.Title>
+												<Card.Text>Email: {(user as unknown as { email: string }).email}</Card.Text>
+												<Card.Text>Role: {(user as unknown as { role: string }).role}</Card.Text>
+												<Card.Text>User ID: {(user as unknown as { user_id: string }).user_id}</Card.Text>
+												{/* Format the date to a readable format, do not show if the user has never logged in */}
+												{(user as unknown as { login_time: string }).login_time !== null && (
+													<Card.Text>Last Login: {new Date((user as unknown as { login_time: string }).login_time).toLocaleString()} from {(user as unknown as { ip: string }).ip}</Card.Text>
+												)}
 											</Card.Body>
-											<Card.Footer>
-												<Button variant="danger" onClick={() => { setSelectedUser(user.id); setShowUnbanModal(true); }}>Unban user</Button>
-											</Card.Footer>
+											<Button variant="danger" onClick={() => { setSelectedUser((user as { user_id?: string }).user_id || ''); setShowUnbanModal(true); }}>Unban user</Button>
 										</Card>
 									</Col>
 								))}
@@ -446,17 +472,22 @@ const Admin: React.FC = () => {
 							</Row>
 							<Row>
 								{filteredUnverifiedUsers.map((user) => (
-									<Col key={user.name} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
+									<Col key={(user as { username: string }).username} xs={12} md={6} lg={4} style={{ paddingBottom: '1rem' }}>
 										<Card style={{ height: '100%' }}>
 											<Card.Body>
-												<Card.Title>{user.username}</Card.Title>
-												<Card.Text>Email: {user.email}</Card.Text>
-												<Card.Text>User ID: {user.id}</Card.Text>
+												<Card.Title>{(user as { username: string }).username}</Card.Title>
+												<Card.Text>Email: {(user as unknown as { email: string }).email}</Card.Text>
+												<Card.Text>Role: {(user as unknown as { role: string }).role}</Card.Text>
+												<Card.Text>User ID: {(user as unknown as { id: number }).id}</Card.Text>
+												{/* Format the date to a readable format, do not show if the user has never logged in */}
+												{(user as unknown as { login_time: string }).login_time !== null && (
+													<Card.Text>Last Login: {new Date((user as unknown as { login_time: string }).login_time).toLocaleString()} from {(user as unknown as { ip: string }).ip}</Card.Text>
+												)}
 											</Card.Body>
 											<Card.Footer>
 												<ButtonGroup>
-													<Button variant="primary" onClick={() => { setSelectedUser(user.id); setShowVerifyModal(true); }}>Verify user</Button>
-													<Button variant="danger" onClick={() => { setSelectedUser(user.id); setShowDeleteUnverifiedModal(true); }}>Delete user</Button>
+													<Button variant="primary" onClick={() => { setSelectedUser((user as unknown as { user_id: string }).user_id); setShowVerifyModal(true); }}>Verify user</Button>
+													<Button variant="danger" onClick={() => { setSelectedUser((user as unknown as { user_id: string }).user_id); setShowDeleteUnverifiedModal(true); }}>Delete user</Button>
 												</ButtonGroup>
 											</Card.Footer>
 										</Card>
@@ -471,7 +502,7 @@ const Admin: React.FC = () => {
 							<Row>
 								<Col>
 									{Object.keys(logs)
-										.sort((a, b) => new Date(b) - new Date(a))
+										.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
 										.map((date) => {
 											return (
 												<Fragment key={date}>
@@ -489,7 +520,7 @@ const Admin: React.FC = () => {
 														</thead>
 														<tbody>
 															{/* sort by newest logs first */}
-															{logs[date].map((log, index) => {
+															{logs[date].map((log: string, index: number) => {
 																const parsedLog = parseCefLog(log);
 																return (
 																	<tr key={index}>

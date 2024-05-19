@@ -47,6 +47,7 @@ class UnverifiedUser(db.Model):
     Args:
         db (SQLAlchemy): The SQLAlchemy object.
     """
+
     id = db.Column(db.String(32), primary_key=True, default=generate_uuid)
     username = db.Column(db.String(80), nullable=False, unique=True)
     email = db.Column(db.String(80), nullable=False)
@@ -61,6 +62,7 @@ class User(db.Model):
     Args:
         db (SQLAlchemy): The SQLAlchemy object.
     """
+
     id = db.Column(db.String(32), primary_key=True, default=generate_uuid)
     username = db.Column(db.String(80), nullable=False, unique=True)
     email = db.Column(db.String(80), nullable=False)
@@ -78,6 +80,7 @@ class BannedUser(db.Model):
     Args:
         db (SQLAlchemy): The SQLAlchemy object.
     """
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String(32), db.ForeignKey("user.id"), nullable=False)
     username = db.Column(db.String(80), nullable=False, unique=True)
@@ -99,6 +102,7 @@ class VirtualMachine(db.Model):
     Args:
         db (SQLAlchemy): The SQLAlchemy object.
     """
+
     id = db.Column(db.Integer, primary_key=True)
     port = db.Column(db.Integer, nullable=False)
     wsport = db.Column(db.Integer, nullable=False)

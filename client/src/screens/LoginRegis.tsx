@@ -46,7 +46,7 @@ const LoginRegis: React.FC = () => {
             setMessage('Username and password cannot be empty.');
             return;
         }
-        AccountsAPI.login(loginUsername, loginPassword).then((response) => {
+        AccountsAPI.login(loginUsername, loginPassword, token).then((response) => {
             // If account is unverified, show modal to verify email
             if (response.message === 'Please verify your account before logging in') {
                 setShowModal(true);
@@ -114,7 +114,7 @@ const LoginRegis: React.FC = () => {
         const password = registerPassword || loginPassword;
         AccountsAPI.verifyRegistration(username, token).then((response) => {
             if (response.status === 200) {
-                AccountsAPI.login(username, password).then((response) => {
+                AccountsAPI.login(username, password, '').then((response) => {
                     if (response.status === 200) {
                         window.location.href = '/';
                     } else {
@@ -148,6 +148,9 @@ const LoginRegis: React.FC = () => {
                     <Col>
                         <h1>Login</h1>
                         <p>Already have an account? Login.</p>
+                        <Alert variant="danger" style={{ display: message === '' ? 'none' : 'block', marginTop: '1rem' }}>
+                            {message}
+                        </Alert>
                         <Form onSubmit={(e) => { e.preventDefault(); LoginButton(); }}>
                             <Form.Group as={Row} controlId="formLoginUsername" className="mb-2">
                                 <Col>
@@ -202,9 +205,6 @@ const LoginRegis: React.FC = () => {
                                 </Col>
                             </Form.Group>
                         </Form>
-                        <Alert variant="primary" style={{ display: message === '' ? 'none' : 'block', marginTop: '1rem' }}>
-                            {message}
-                        </Alert>
                     </Col>
                 </Row>
             </Container>
@@ -230,7 +230,7 @@ const LoginRegis: React.FC = () => {
                 </Modal.Body>
             </Modal>
 
-            <Modal show={showTwoFactorModal} onHide={() => showTwoFactorModal(false)} backdrop="static" keyboard={false}>
+            <Modal show={showTwoFactorModal} onHide={() => setShowTwoFactorModal(false)} backdrop="static" keyboard={false}>
                 <Modal.Header>
                     <Modal.Title>Two-factor authentication</Modal.Title>
                 </Modal.Header>

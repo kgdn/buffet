@@ -26,11 +26,22 @@ import fedora from '../assets/carousel/fedora.png'
 import ubuntu from '../assets/carousel/ubuntu.png'
 import opensuse from '../assets/carousel/opensuse.png'
 
+interface Image {
+    name: string;
+    version: string;
+    iso: string;
+    desktop: string;
+    description: string;
+    logo: string;
+    homepage: string;
+    beginner_friendly: boolean;
+}
+
 const Home: React.FC = () => {
     const { user } = useContext(AuthContext);
     const [loggedIn, setLoggedIn] = useState(false);
-    const [iso, setImages] = useState([]);
-    const [nonLinuxImages, setNonLinuxImages] = useState([]);
+    const [iso, setImages] = useState<Image[]>([]);
+    const [nonLinuxImages, setNonLinuxImages] = useState<Image[]>([]);
     const [linuxSearchQuery, setSearchQuery] = useState('');
     const [nonLinuxSearchQuery, setNonLinuxSearchQuery] = useState('');
     const [errorModal, showErrorModal] = useState(false);
@@ -51,9 +62,9 @@ const Home: React.FC = () => {
             const getImages = async () => {
                 const response = await VirtualMachineAPI.getIsoFiles();
                 if (response.status === 200) {
-                    const linuxImages = [];
-                    const nonLinuxImages = [];
-                    response.data.forEach((image) => {
+                    const linuxImages: any[] | ((prevState: Image[]) => Image[]) = [];
+                    const nonLinuxImages: any[] | ((prevState: Image[]) => Image[]) = [];
+                    response.data.forEach((image: { linux: any; }) => {
                         if (image.linux) {
                             linuxImages.push(image);
                         } else {
@@ -78,7 +89,7 @@ const Home: React.FC = () => {
     }, [user]);
 
 
-    const createVMButton = (iso) => {
+    const createVMButton = (iso: string) => {
         const createVM = async () => {
             const response = await VirtualMachineAPI.createVirtualMachine(iso);
             if (response.status === 201) {
@@ -107,7 +118,7 @@ const Home: React.FC = () => {
         image.name.toLowerCase().concat(' ', image.version.toLowerCase()).includes(nonLinuxSearchQuery.toLowerCase())
     );
 
-    const decodedLogo = (logo) => {
+    const decodedLogo = (logo: string) => {
         return `data:image/png;base64,${logo}`;
     }
 
@@ -174,7 +185,7 @@ const Home: React.FC = () => {
                                     </Card.Footer>
                                 </Card>
                             </Col>
-                        )).sort((a, b) => a.key.localeCompare(b.key))}
+                        )).sort((a, b) => (a.key && b.key) ? a.key.localeCompare(b.key) : 0)}
                     </Row>
                     {/* If virtual machines with non-Linux operating systems are added, display them here, else do not display this section */}
                     {nonLinuxImages.length > 0 ? (
@@ -218,7 +229,7 @@ const Home: React.FC = () => {
                                             </Card.Footer>
                                         </Card>
                                     </Col>
-                                )).sort((a, b) => a.key.localeCompare(b.key))}
+                                )).sort((a, b) => (a.key && b.key) ? a.key.localeCompare(b.key) : 0)}
                             </Row>
                         </>
                     ) : (

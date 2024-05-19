@@ -134,7 +134,7 @@ const VirtualMachineView: React.FC = () => {
         logout();
     };
 
-    const decodeBase64 = (input) => {
+    const decodeBase64 = (input: string) => {
         return `data:image/png;base64,${input}`;
     };
 
@@ -148,8 +148,8 @@ const VirtualMachineView: React.FC = () => {
                     setTwoFactorMessage(response.message);
                 }
             });
-        } catch (error) {
-            setTwoFactorMessage(error.message);
+        } catch (error: any) {
+            setTwoFactorMessage(error.response.data.message);
         }
     };
 
@@ -162,8 +162,8 @@ const VirtualMachineView: React.FC = () => {
                     setTwoFactorMessage(response.message);
                 }
             });
-        } catch (error) {
-            setTwoFactorMessage(error.message);
+        } catch (error: any) {
+            setTwoFactorMessage(error.response.data.message);
         }
     };
 
@@ -182,8 +182,8 @@ const VirtualMachineView: React.FC = () => {
                     setTwoFactorMessage(response.message);
                 }
             });
-        } catch (error) {
-            setTwoFactorMessage(error.message);
+        } catch (error: any) {
+            setTwoFactorMessage(error.response.data.message);
         }
     };
 
@@ -211,6 +211,17 @@ const VirtualMachineView: React.FC = () => {
                                 <li>Passwords must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces.</li>
                             </ul>
                         </Alert>
+                        <Row>
+                            <Col>
+                                {pageMessage === '' ? (
+                                    <></>
+                                ) : (
+                                    <Alert variant="danger" role="alert">
+                                        {pageMessage}
+                                    </Alert>
+                                )}
+                            </Col>
+                        </Row>
                         <Form>
                             <Form.Group className="mb-3">
                                 <Form.Control type="text" placeholder={getUserName} onChange={(event) => setUsername(event.target.value)} />
@@ -268,17 +279,6 @@ const VirtualMachineView: React.FC = () => {
                                 )}
                             </ButtonGroup>
                         </Form>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        {pageMessage === '' ? (
-                            <></>
-                        ) : (
-                            <Alert variant="primary" role="alert">
-                                {pageMessage}
-                            </Alert>
-                        )}
                     </Col>
                 </Row>
             </Container>
