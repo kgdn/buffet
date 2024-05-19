@@ -130,7 +130,7 @@ const Home: React.FC = () => {
                     <Row>
                         <Col id="welcome" className="text-center" style={{ paddingTop: '1rem' }}>
                             <h1>Welcome back, {username}!</h1>
-                            <p>Choose an operating system to get started.</p>
+                            <p>Select a distribution from the list below to create a virtual machine.</p>
                         </Col>
                     </Row>
                     <Row>

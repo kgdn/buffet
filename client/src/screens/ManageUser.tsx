@@ -37,13 +37,16 @@ const VirtualMachineView: React.FC = () => {
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [pageMessage, setMessage] = useState('');
-    const [deleteMessage, setStopMessage] = useState('');
+    const [deleteMessage, setDeleteMessage] = useState('');
     const [twoFactorMessage, setTwoFactorMessage] = useState('');
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
     const [qrCode, setQrCode] = useState('');
     const [twoFactorCode, setTwoFactorCode] = useState('');
     const [showDisableTwoFactorModal, setShowDisableTwoFactorModal] = useState(false);
+    const [showDeleteRequiresTwoFactorModal, setShowDeleteRequiresTwoFactorModal] = useState(false);
+    const [requiresTwoFactorCode, setRequiresTwoFactorCode] = useState('');
+    const schema = new passwordValidator();
 
     useEffect(() => {
         document.title = 'Buffet - Manage User';
@@ -69,8 +72,6 @@ const VirtualMachineView: React.FC = () => {
             setMessage('Old password and new password cannot be empty.');
             return;
         }
-
-        const schema = new passwordValidator();
 
         // Minimum length 8, maximum length 100, must have uppercase, must have lowercase, must have 2 digits, must not have spaces
         schema.is().min(8).is().max(100).has().uppercase().has().lowercase().has().digits(2).has().not().spaces().has().symbols();
@@ -121,11 +122,15 @@ const VirtualMachineView: React.FC = () => {
             return;
         }
 
-        AccountsAPI.deleteAccount(currentPassword).then((response) => {
+        AccountsAPI.deleteAccount(currentPassword, requiresTwoFactorCode).then((response) => {
             if (response.status === 200) {
                 window.location.href = '/';
+            }
+            if (response.message === 'Please provide the 2FA code') {
+                setShowDeleteModal(false);
+                setShowDeleteRequiresTwoFactorModal(true);
             } else {
-                setStopMessage(response.message);
+                setDeleteMessage(response.message);
             }
         });
     };
@@ -230,7 +235,7 @@ const VirtualMachineView: React.FC = () => {
                                 <Form.Control type="text" placeholder={getEmail} onChange={(event) => setEmail(event.target.value)} />
                             </Form.Group>
                             <Form.Group className="mb-3">
-                                <Form.Control type="password" placeholder="Password" onChange={(event) => setCurrentPassword(event.target.value)} />
+                                <Form.Control type="password" placeholder="Password (required for changes)" onChange={(event) => setCurrentPassword(event.target.value)} />
                             </Form.Group>
                             <ButtonGroup className="mb-3">
                                 <Button variant="primary" onClick={ChangeUsernameButton}>
@@ -289,7 +294,8 @@ const VirtualMachineView: React.FC = () => {
                     <Modal.Title>Confirm Account Deletion</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                    <p>Are you sure you want to delete your account?</p>
+                    <p className="text-danger">This action cannot be undone.</p>
                     {deleteMessage === '' ? (
                         <></>
                     ) : (
@@ -297,16 +303,15 @@ const VirtualMachineView: React.FC = () => {
                             {deleteMessage}
                         </Alert>
                     )}
+                    <Form onSubmit={(e) => { e.preventDefault(); DeleteAccountButton(); }}>
+                        <Form.Group as={Row} controlId="formPassword" className="mb-2">
+                            <Col>
+                                <Form.Control type="password" placeholder="Password" onChange={(e) => setCurrentPassword(e.target.value)} />
+                            </Col>
+                        </Form.Group>
+                        <Button type="submit">Confirm</Button>
+                    </Form>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Form.Control type="password" placeholder="Password" onChange={(event) => setCurrentPassword(event.target.value)} />
-                    <Button variant="danger" onClick={DeleteAccountButton}>
-                        Confirm
-                    </Button>
-                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-                        Cancel
-                    </Button>
-                </Modal.Footer>
             </Modal>
 
             {/* Two-factor authentication modals */}
@@ -317,7 +322,6 @@ const VirtualMachineView: React.FC = () => {
                 <Modal.Body>
                     <p>Scan the QR code below with your two-factor authentication app to enable two-factor authentication.</p>
                     <Image src={decodeBase64(qrCode)} alt="QR Code" rounded fluid className='mb-3 mt-3' />
-                    <Form.Control type="text" placeholder="Two-factor authentication code" onChange={(event) => setTwoFactorCode(event.target.value)} />
                     {twoFactorMessage === '' ? (
                         <></>
                     ) : (
@@ -325,15 +329,15 @@ const VirtualMachineView: React.FC = () => {
                             {twoFactorMessage}
                         </Alert>
                     )}
+                    <Form onSubmit={(e) => { e.preventDefault(); VerifyTwoFactorButton(); }}>
+                        <Form.Group as={Row} controlId="formTwoFactorCode" className="mb-2">
+                            <Col>
+                                <Form.Control type="text" placeholder="Two-factor code" onChange={(e) => setTwoFactorCode(e.target.value)} />
+                            </Col>
+                        </Form.Group>
+                        <Button type="submit">Verify</Button>
+                    </Form>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="primary" onClick={VerifyTwoFactorButton}>
-                        Confirm
-                    </Button>
-                    <Button variant="secondary" onClick={() => setShowTwoFactorModal(false)}>
-                        Cancel
-                    </Button>
-                </Modal.Footer>
             </Modal>
 
             {/* Disable two-factor authentication modal */}
@@ -350,16 +354,45 @@ const VirtualMachineView: React.FC = () => {
                             {twoFactorMessage}
                         </Alert>
                     )}
+                    <Form onSubmit={(e) => { e.preventDefault(); DisableTwoFactorButton(); }}>
+                        <Form.Group as={Row} controlId="formPassword" className="mb-2">
+                            <Col>
+                                <Form.Control type="password" placeholder="Password" onChange={(e) => setCurrentPassword(e.target.value)} />
+                            </Col>
+                        </Form.Group>
+                        <Button type="submit">Confirm</Button>
+                    </Form>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Form.Control type="password" placeholder="Password" onChange={(event) => setCurrentPassword(event.target.value)} />
-                    <Button variant="danger" onClick={DisableTwoFactorButton}>
-                        Confirm
-                    </Button>
-                    <Button variant="secondary" onClick={() => setShowDisableTwoFactorModal(false)}>
-                        Cancel
-                    </Button>
-                </Modal.Footer>
+            </Modal>
+
+            {/* Delete account requires two-factor authentication modal */}
+            <Modal show={showDeleteRequiresTwoFactorModal} onHide={() => setShowDeleteRequiresTwoFactorModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Two-factor authentication</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Enter the two-factor authentication code from your authenticator app.</p>
+                    <p className="text-danger">Deleting your account requires two-factor authentication. Please enter the code below.</p>
+                    {deleteMessage === '' ? (
+                        <></>
+                    ) : (
+                        <Alert variant="primary" role="alert">
+                            {deleteMessage}
+                        </Alert>
+                    )}
+                    <Form onSubmit={(e) => { e.preventDefault(); DeleteAccountButton(); }}>
+                        <Form.Group as={Row} controlId="formTwoFactorCode" className="mb-2">
+                            <Col>
+                                <Form.Control type="text" placeholder="Two-factor code" onChange={(e) => setRequiresTwoFactorCode(e.target.value)} />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row}>
+                            <Col>
+                                <Button type="submit">Verify</Button>
+                            </Col>
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
             </Modal>
             <Footer />
         </div >

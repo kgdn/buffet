@@ -33,9 +33,13 @@ interface VmDetails {
 const VirtualMachineView: React.FC = () => {
     const [vmDetails, setVmDetails] = useState<VmDetails>({ wsport: 0, id: 0, name: '', version: '', desktop: '', password: '' });
     const [showModal, setShowModal] = useState(true);
-    const inactivityTimeout = 500000;
     const API_BASE_URL = import.meta.env.VITE_BASE_URL.replace(/(^\w+:|^)\/\//, '');
 
+    /**
+     * Fetches the virtual machine details from the database
+     * @param {void} - No parameters
+     * @returns {void} - No return value
+     */
     useEffect(() => {
         const fetchVMDetails = async () => {
             const { data } = await VirtualMachineAPI.getVirtualMachineByUser();
@@ -51,12 +55,36 @@ const VirtualMachineView: React.FC = () => {
         fetchVMDetails();
     }, []);
 
+
+    /**
+     * Sets the document title to the virtual machine name, version, and desktop, and handles keydown events
+     * @param {void} - No parameters
+     * @returns {void} - No return value
+     */
+    useEffect(() => {
+        document.title = `${vmDetails.name} ${vmDetails.version} ${vmDetails.desktop} - Buffet`;
+
+        window.addEventListener('keydown', handleKeyDown);
+    });
+
+
+    /**
+     * Deletes the virtual machine from the database and redirects the user to the home page
+     * @param {number} id - The ID of the virtual machine to delete
+     * @returns {void} - No return value
+     */
     const deleteVM = useCallback(() => {
         VirtualMachineAPI.deleteVirtualMachine(String(vmDetails.id)).then(() => {
             window.location.href = '/';
         });
     }, [vmDetails.id]);
 
+    /**
+    * Handles the keydown event. If the key is F11, it toggles fullscreen mode.
+    * @callback handleKeyDown
+    * @param {KeyboardEvent} event - The keydown event
+    * @returns {void} - No return value
+    */
     const handleKeyDown = useCallback((event: KeyboardEvent) => {
         if (event.key === 'F11') {
             event.preventDefault();
@@ -64,6 +92,11 @@ const VirtualMachineView: React.FC = () => {
         }
     }, []);
 
+    /**
+    * Toggles fullscreen mode. If the document is currently in fullscreen mode, it exits fullscreen mode. Otherwise, it enters fullscreen mode.
+    * @function handleFullscreen
+    * @returns {void} - No return value
+    */
     const handleFullscreen = () => {
         const elem = document.getElementById('app')!;
         if (document.fullscreenElement) {
@@ -73,30 +106,11 @@ const VirtualMachineView: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        document.title = `${vmDetails.name} ${vmDetails.version} ${vmDetails.desktop} - Buffet`;
-
-        let timeout = setTimeout(deleteVM, inactivityTimeout);
-
-        const resetTimeout = () => {
-            clearTimeout(timeout);
-            timeout = setTimeout(deleteVM, inactivityTimeout);
-        };
-
-        const debouncedReset = debounce(resetTimeout, 500);
-
-        window.addEventListener('mousemove', debouncedReset);
-        window.addEventListener('keypress', debouncedReset);
-        window.addEventListener('keydown', handleKeyDown);
-
-        return () => {
-            clearTimeout(timeout);
-            window.removeEventListener('mousemove', debouncedReset);
-            window.removeEventListener('keypress', debouncedReset);
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [deleteVM, handleKeyDown, vmDetails.desktop, vmDetails.name, vmDetails.version]);
-
+    /**
+     * Connects to the virtual machine using noVNC
+     * @param {void} - No parameters
+     * @returns {void} - No return value
+     */
     const connectToVM = useCallback(() => {
         const rfb = new RFB(document.getElementById('app')!, `wss://${API_BASE_URL}:${vmDetails.wsport}`, {
             credentials: { username: '', password: vmDetails.password, target: '' }
@@ -105,13 +119,18 @@ const VirtualMachineView: React.FC = () => {
         rfb.resizeSession = true;
         rfb.focusOnClick = true;
 
+        // When the connection is established, focus on the virtual machine
         rfb.addEventListener("connect", () => {
+            rfb.focus();
             rfb.addEventListener("disconnect", () => {
                 deleteVM();
             });
         });
-    }, [vmDetails.wsport, API_BASE_URL, deleteVM, vmDetails.password]);
+    }, [API_BASE_URL, deleteVM, vmDetails.password, vmDetails.wsport]);
 
+    /**
+     * Connect to the virtual machine when the wsport is set
+     */
     useEffect(() => {
         if (vmDetails.wsport !== 0) {
             const timeout = setTimeout(connectToVM, 200);
@@ -121,7 +140,11 @@ const VirtualMachineView: React.FC = () => {
 
     return (
         <div id="virtual-machine-view">
+
+            {/* noVNC viewer */}
             <div id="app" style={{ height: '100vh', width: '100vw', overflow: 'hidden', position: 'absolute', top: 0, left: 0 }} />
+
+            {/* Card for information */}
             <Card style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'transparent', border: 'none' }}>
                 <Card.Body>
                     <ButtonGroup>
@@ -131,6 +154,8 @@ const VirtualMachineView: React.FC = () => {
                     </ButtonGroup>
                 </Card.Body>
             </Card>
+
+            {/* Modal for information */}
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>For Your Information</Modal.Title>
@@ -150,18 +175,6 @@ const VirtualMachineView: React.FC = () => {
             </Modal>
         </div>
     )
-}
-
-// Debounce function to prevent multiple API calls
-function debounce(func: (...args: any[]) => void, wait: number) {
-    let timeout: ReturnType<typeof setTimeout>;
-    return function (...args: any[]) {
-        const later = () => {
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
+};
 
 export default VirtualMachineView;

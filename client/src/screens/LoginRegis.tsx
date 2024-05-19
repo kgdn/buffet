@@ -18,7 +18,7 @@
 
 import React, { useEffect, useState } from 'react';
 import NavbarComponent from '../components/Navbar';
-import { Form, Button, Row, Col, Container, Alert, Modal } from 'react-bootstrap';
+import { Form, Button, Row, Col, Container, Alert, Modal, ButtonGroup } from 'react-bootstrap';
 import AccountsAPI from '../api/AccountsAPI';
 import validator from 'validator';
 import passwordValidator from 'password-validator';
@@ -34,8 +34,9 @@ const LoginRegis: React.FC = () => {
     const [showModal, setShowModal] = useState(false);
     const [token, setToken] = useState('');
     const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
-    const [twoFactorMessage, setTwoFactorMessage] = useState(''); // [2FA
+    const [twoFactorMessage, setTwoFactorMessage] = useState(''); // Error message for 2FA
     const [twoFactorCode, setTwoFactorCode] = useState('');
+    const schema = new passwordValidator();
 
     useEffect(() => {
         document.title = 'Buffet - Login/Register';
@@ -51,21 +52,22 @@ const LoginRegis: React.FC = () => {
             if (response.message === 'Please verify your account before logging in') {
                 setShowModal(true);
             }
+            // If account requires 2FA, show modal to enter 2FA code
             if (response.message === 'Please provide the 2FA code') {
                 setShowTwoFactorModal(true);
             }
+            // If 2FA code is invalid, show error message
             if (response.message === 'Invalid 2FA code') {
                 setTwoFactorMessage(response.message);
             }
-            if (response.status === 200) {
+            // If login is successful, redirect to home page
+            else if (response.status === 200) {
                 window.location.href = '/';
-            }
-            if (response.status === 401) { // Unauthorized
+            } else { // If login is unsuccessful, show error message
                 setMessage(response.message);
             }
-            if (response.status === 403) { // Forbidden/Banned
-                setMessage(response.message);
-            }
+        }).catch((error) => {
+            setTwoFactorMessage('An error occurred while logging in. Please try again. Error: ' + error);
         });
     };
 
@@ -85,8 +87,6 @@ const LoginRegis: React.FC = () => {
             return;
         }
 
-        const schema = new passwordValidator();
-
         // Minimum length 8, maximum length 100, must have uppercase, must have lowercase, must have 2 digits, must not have spaces
         schema.is().min(8).is().max(100).has().uppercase().has().lowercase().has().digits(2).has().not().spaces().has().symbols();
 
@@ -95,9 +95,9 @@ const LoginRegis: React.FC = () => {
             return;
         }
 
+        // Register the user
         AccountsAPI.register(registerUsername, registerEmail, registerPassword).then((response) => {
             if (response.status === 201) {
-                setMessage(response.message);
                 setShowModal(true);
             } else {
                 setMessage(response.message);
@@ -221,13 +221,14 @@ const LoginRegis: React.FC = () => {
                                 <Form.Control type="text" placeholder="Verification code" onChange={(e) => setToken(e.target.value)} />
                             </Col>
                         </Form.Group>
-                        <Form.Group as={Row}>
-                            <Col>
-                                <Button type="submit">Verify</Button>
-                            </Col>
-                        </Form.Group>
                     </Form>
                 </Modal.Body>
+                <Modal.Footer>
+                    <ButtonGroup>
+                        <Button variant="primary" onClick={VerifyButton}>Verify</Button>
+                        <Button variant="danger" onClick={() => setShowModal(false)}>Cancel</Button>
+                    </ButtonGroup>
+                </Modal.Footer>
             </Modal>
 
             <Modal show={showTwoFactorModal} onHide={() => setShowTwoFactorModal(false)} backdrop="static" keyboard={false}>
@@ -236,22 +237,23 @@ const LoginRegis: React.FC = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <p>Enter the two-factor authentication code from your authenticator app.</p>
+                    {twoFactorMessage === '' ? '' : <Alert variant="danger">{twoFactorMessage}</Alert>}
+                    <p>If you have not set up two-factor authentication, please contact the system administrator.</p>
                     <Form onSubmit={(e) => { e.preventDefault(); TwoFactorButton(); }}>
                         <Form.Group as={Row} controlId="formTwoFactorCode" className="mb-2">
                             <Col>
                                 <Form.Control type="text" placeholder="Two-factor code" onChange={(e) => setTwoFactorCode(e.target.value)} />
                             </Col>
                         </Form.Group>
-                        <Form.Group as={Row}>
-                            <Col>
-                                <Button type="submit">Verify</Button>
-                            </Col>
-                        </Form.Group>
-                        <Alert variant="primary" style={{ display: twoFactorMessage === '' ? 'none' : 'block', marginTop: '1rem' }}>
-                            {twoFactorMessage}
-                        </Alert>
                     </Form>
                 </Modal.Body>
+                <Modal.Footer>
+                    <ButtonGroup>
+                        <Button variant="primary" onClick={TwoFactorButton}>Submit</Button>
+                        <Button variant="danger" onClick={() => setShowTwoFactorModal(false)}>Cancel</Button>
+                    </ButtonGroup>
+                </Modal.Footer>
+
             </Modal>
         </div >
     );

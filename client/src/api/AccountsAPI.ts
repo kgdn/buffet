@@ -85,10 +85,10 @@ export default class AccountsAPI {
     }
 
     // Delete the currently logged in user
-    static async deleteAccount(password: string): Promise<ApiResponse> {
+    static async deleteAccount(password: string, code: string): Promise<ApiResponse> {
         try {
             const response: AxiosResponse = await axios.delete(`${API_BASE_URL}:${API_BASE_PORT}/api/user/delete/`, {
-                data: { password },
+                data: { password, code },
                 withCredentials: true,
                 headers: {
                     'X-CSRF-TOKEN': cookies.get('csrf_access_token')

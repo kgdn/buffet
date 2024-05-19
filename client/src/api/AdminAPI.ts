@@ -171,9 +171,7 @@ export default class AdminAPI {
     static async deleteUnverifiedUser(user_id: string): Promise<ApiResponse> {
         try {
             const response: AxiosResponse = await axios.delete(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/unverified/delete/`, {
-                data: {
-                    user_id
-                }
+                data: { user_id }
             });
             return { status: response.status, message: response.data.message };
         } catch (error: any) {
