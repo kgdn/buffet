@@ -309,9 +309,13 @@ const VirtualMachineView: React.FC = () => {
                                 <Form.Control type="password" placeholder="Password" onChange={(e) => setCurrentPassword(e.target.value)} />
                             </Col>
                         </Form.Group>
-                        <Button type="submit">Confirm</Button>
                     </Form>
                 </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="danger" onClick={DeleteAccountButton}>
+                        Delete Account
+                    </Button>
+                </Modal.Footer>
             </Modal>
 
             {/* Two-factor authentication modals */}
@@ -335,9 +339,13 @@ const VirtualMachineView: React.FC = () => {
                                 <Form.Control type="text" placeholder="Two-factor code" onChange={(e) => setTwoFactorCode(e.target.value)} />
                             </Col>
                         </Form.Group>
-                        <Button type="submit">Verify</Button>
                     </Form>
                 </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={VerifyTwoFactorButton}>
+                        Verify
+                    </Button>
+                </Modal.Footer>
             </Modal>
 
             {/* Disable two-factor authentication modal */}
@@ -360,9 +368,13 @@ const VirtualMachineView: React.FC = () => {
                                 <Form.Control type="password" placeholder="Password" onChange={(e) => setCurrentPassword(e.target.value)} />
                             </Col>
                         </Form.Group>
-                        <Button type="submit">Confirm</Button>
                     </Form>
                 </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="danger" onClick={DisableTwoFactorButton}>
+                        Disable Two-Factor Authentication
+                    </Button>
+                </Modal.Footer>
             </Modal>
 
             {/* Delete account requires two-factor authentication modal */}
@@ -386,13 +398,13 @@ const VirtualMachineView: React.FC = () => {
                                 <Form.Control type="text" placeholder="Two-factor code" onChange={(e) => setRequiresTwoFactorCode(e.target.value)} />
                             </Col>
                         </Form.Group>
-                        <Form.Group as={Row}>
-                            <Col>
-                                <Button type="submit">Verify</Button>
-                            </Col>
-                        </Form.Group>
                     </Form>
                 </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="danger" onClick={DeleteAccountButton}>
+                        Delete Account
+                    </Button>
+                </Modal.Footer>
             </Modal>
             <Footer />
         </div >
