@@ -148,8 +148,9 @@ const VirtualMachineView: React.FC = () => {
             <Card style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'transparent', border: 'none' }}>
                 <Card.Body>
                     <ButtonGroup>
+                        <Button variant="primary" href="/">Home</Button>
                         <Button variant="info" onClick={() => setShowModal(true)}>Information</Button>
-                        <Button variant="primary" onClick={handleFullscreen}>Fullscreen</Button>
+                        <Button variant="success" onClick={handleFullscreen}>Fullscreen</Button>
                         <Button variant="danger" onClick={deleteVM}>Shutdown</Button>
                     </ButtonGroup>
                 </Card.Body>

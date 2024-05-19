@@ -16,11 +16,12 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { Card, Button, Container, Row, Col, Form, Modal, Alert, Carousel, ButtonGroup, ProgressBar, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import NavbarComponent from '../components/Navbar';
 import { AuthContext } from '../contexts/AuthContext';
 import VirtualMachineAPI from '../api/VirtualMachineAPI';
+import RFB from "@novnc/novnc/core/rfb";
 import Footer from '../components/Footer';
 import fedora from '../assets/carousel/fedora.png'
 import ubuntu from '../assets/carousel/ubuntu.png'
@@ -37,6 +38,15 @@ interface Image {
     beginner_friendly: boolean;
 }
 
+interface VmDetails {
+    wsport: number;
+    id: number;
+    name: string;
+    version: string;
+    desktop: string;
+    password: string;
+}
+
 const Home: React.FC = () => {
     const { user } = useContext(AuthContext);
     const [loggedIn, setLoggedIn] = useState(false);
@@ -50,6 +60,8 @@ const Home: React.FC = () => {
     const [vmCount, setVMCount] = useState(0);
     const [complexIso, setComplexIso] = useState('');
     const [complexityModal, showComplexityModal] = useState(false);
+    const [vmDetails, setVmDetails] = useState<VmDetails>({ wsport: 0, id: 0, name: '', version: '', desktop: '', password: '' });
+    const API_BASE_URL = import.meta.env.VITE_BASE_URL.replace(/(^\w+:|^)\/\//, '');
     const MAX_VM_COUNT = import.meta.env.VITE_MAX_VM_COUNT;
 
     useEffect(() => {
@@ -83,11 +95,23 @@ const Home: React.FC = () => {
                 }
             };
 
+            const fetchVMDetails = async () => {
+                const { data } = await VirtualMachineAPI.getVirtualMachineByUser();
+                setVmDetails({
+                    wsport: data.wsport,
+                    id: data.id,
+                    name: data.name,
+                    version: data.version,
+                    desktop: data.desktop,
+                    password: data.vnc_password
+                });
+            };
+
             getImages();
             getVMCount();
+            fetchVMDetails();
         }
     }, [user]);
-
 
     const createVMButton = (iso: string) => {
         const createVM = async () => {
@@ -101,6 +125,12 @@ const Home: React.FC = () => {
         };
         createVM();
     };
+
+    const deleteVMButton = useCallback(() => {
+        VirtualMachineAPI.deleteVirtualMachine(String(vmDetails.id)).then(() => {
+            window.location.href = '/';
+        });
+    }, [vmDetails.id]);
 
     const filteredImages = iso.filter((image) =>
         image.name.toLowerCase().includes(linuxSearchQuery.toLowerCase()) ||
@@ -122,19 +152,35 @@ const Home: React.FC = () => {
         return `data:image/png;base64,${logo}`;
     }
 
+    const connectToVM = useCallback(() => {
+        const rfb = new RFB(document.getElementById('app')!, `wss://${API_BASE_URL}:${vmDetails.wsport}`, {
+            credentials: { username: '', password: vmDetails.password, target: '' }
+        });
+        rfb.viewOnly = true;
+        rfb.scaleViewport = true;
+        rfb.resizeSession = true;
+    }, [vmDetails.password, vmDetails.wsport]);
+
+    useEffect(() => {
+        // If the user has a VM running, connect to it
+        if (vmDetails.id !== 0) {
+            connectToVM();
+        }
+    }, [vmDetails.id, connectToVM]);
+
     return (
-        <div id="home">
+        <div id="home" >
             <NavbarComponent />
             {loggedIn ? (
                 <Container>
                     <Row>
-                        <Col id="welcome" className="text-center" style={{ paddingTop: '1rem' }}>
+                        <Col id="welcome" className="text-center mt-3">
                             <h1>Welcome back, {username}!</h1>
                             <p>Select a distribution from the list below to create a virtual machine.</p>
                         </Col>
                     </Row>
                     <Row>
-                        <Col id="vm-count" className="text-center" style={{ paddingTop: '1rem' }}>
+                        <Col id="vm-count" className="text-center mt-3">
                             <Alert variant="info" role="alert">
                                 <p>There are currently {vmCount} virtual machines running. The maximum number of virtual machines that can be run at once is {MAX_VM_COUNT}.</p>
                                 {vmCount === 0 ? (
@@ -149,6 +195,25 @@ const Home: React.FC = () => {
                             </Alert>
                         </Col>
                     </Row>
+                    {/* If user already has a VM running, show a view of the VM */}
+                    {vmDetails.id !== 0 ? (
+                        <Row>
+                            <Col id="current-vm" className="text-center mt-3">
+                                <Alert variant="info" role="alert">
+                                    <h1>Your current virtual machine</h1>
+                                    <p>You currently have a virtual machine running. You can connect to it below.</p>
+                                    <div id="app" style={{ width: '100%', height: '500px' }} />
+                                    <ButtonGroup className="d-flex mt-3">
+                                        <Button variant="primary" href="/vm">View VM</Button>
+                                        <Button variant="danger" onClick={deleteVMButton}>Shutdown VM</Button>
+                                    </ButtonGroup>
+                                </Alert>
+                            </Col>
+                        </Row>
+                    ) : (
+                        <></>
+                    )}
+
                     <Row>
                         <Col>
                             <Form className="form-inline">
@@ -191,7 +256,7 @@ const Home: React.FC = () => {
                     {nonLinuxImages.length > 0 ? (
                         <>
                             <Row>
-                                <Col id="non-linux" className="text-center" style={{ paddingTop: '1rem' }}>
+                                <Col id="non-linux" className="text-center mt-3">
                                     <h1>Non-Linux Operating Systems</h1>
                                     <p>The following operating systems are not based on the Linux kernel. They were added to Buffet for testing purposes, or share a history with Linux.</p>
                                 </Col>
@@ -238,8 +303,8 @@ const Home: React.FC = () => {
                 </Container>
             ) : (
                 <Container>
-                    <Row style={{ paddingBottom: '1rem' }}>
-                        <Col id="about" className="text-center" style={{ paddingBottom: '1rem' }}>
+                    <Row className="mt-3">
+                        <Col id="about" className="text-center mt-3">
                             <h1 className="display-4 text-center">Welcome to Buffet.</h1>
                             <h3 className="text-center">The all-you-can-eat GNU/Linux buffet.</h3>
                         </Col>
@@ -294,7 +359,7 @@ const Home: React.FC = () => {
                             </ButtonGroup>
                         </Col>
                     </Row>
-                    <Col id="how-it-works" style={{ paddingTop: '1rem' }}>
+                    <Col id="how-it-works" className="mt-3">
                         <h1 className="text-center">How does Buffet work?</h1>
                         <p>Buffet uses <a href="https://www.qemu.org/">QEMU</a>/<a href="https://linux-kvm.org/page/Main_Page">KVM</a> to run its virtual machines. The virtual machines are run on a server, and you connect to them via a web browser through <a href="https://novnc.com/">noVNC</a>. This means that you can run virtual machines on any device with a web browser, including mobile phones and tablets.</p>
                         <p>The website you are currently viewing is the front-end of Buffet, written in <a href="https://reactjs.org/">React</a>. The back-end is written in <a href="https://www.python.org/">Python</a> using the <a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a> framework. The source code for Buffet is available on <a href="https://github.com/kgdn/buffet">GitHub</a>.</p>
@@ -321,9 +386,10 @@ const Home: React.FC = () => {
                         </Button>
                         {/* If the error message is anything but "Users may only have one virtual machine at a time. Please shut down your current virtual machine before creating a new one.", do not show a button to view the user's VMs */}
                         {errorMessage === "Users may only have one virtual machine at a time. Please shut down your current virtual machine before creating a new one." ? (
-                            <Button variant="primary" href="/vm">
-                                View VMs
-                            </Button>
+                            <ButtonGroup>
+                                <Button variant="primary" href="/vm">View VM</Button>
+                                <Button variant="danger" onClick={deleteVMButton}>Shutdown VM</Button>
+                            </ButtonGroup>
                         ) : (
                             <></>
                         )}
@@ -331,7 +397,7 @@ const Home: React.FC = () => {
                 </Modal.Footer>
             </Modal>
             {/* Show modal warning the user if the ISO they've chosen is not beginner-friendly */}
-            <Modal show={complexityModal} onHide={() => showComplexityModal(false)}>
+            < Modal show={complexityModal} onHide={() => showComplexityModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Warning</Modal.Title>
                 </Modal.Header>
@@ -350,9 +416,9 @@ const Home: React.FC = () => {
                         </Button>
                     </ButtonGroup>
                 </Modal.Footer>
-            </Modal>
+            </Modal >
             <Footer />
-        </div>
+        </div >
     );
 }
 
