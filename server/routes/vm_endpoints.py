@@ -364,6 +364,8 @@ def get_user_vm():
                 name = iso["name"]
                 version = iso["version"]
                 desktop = iso["desktop"]
+                homepage = iso["homepage"]
+                desktop_homepage = iso.get("desktop_homepage", None)
                 break
 
     return (
@@ -377,7 +379,8 @@ def get_user_vm():
                 "version": version,
                 "desktop": desktop,
                 "vnc_password": vm.vnc_password,
-                "homepage": iso["homepage"],
+                "homepage": homepage,
+                "desktop_homepage": desktop_homepage,
             }
         ),
         201,
