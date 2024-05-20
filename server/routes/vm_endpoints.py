@@ -285,7 +285,7 @@ def delete_vm():
         subprocess.Popen(
             ["kill", str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
-    except:
+    except Exception as e:
         return jsonify({"message": "Error deleting virtual machine"}), 500
 
     # Stop the virtual machine from the database

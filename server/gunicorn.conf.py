@@ -36,3 +36,9 @@ threads = (
 worker_class = os.getenv(
     "GUNICORN_WORKER_CLASS"
 )  # Set the worker class. This can be overridden using --worker-class.
+loglevel = os.getenv(
+    "GUNICORN_LOG_LEVEL"
+)  # Set the log level. This can be overridden using --log-level.
+accesslog = os.getenv(
+    "GUNICORN_ACCESS_LOG"
+)  # Set the access log file. This can be overridden using --access-logfile.

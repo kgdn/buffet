@@ -13,8 +13,9 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import atexit
 import os
+import subprocess
 
 from config import ApplicationConfig
 from flask import Flask
@@ -24,7 +25,7 @@ from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
 from flask_mail import Mail
 from flask_migrate import Migrate
-from models import db
+from models import VirtualMachine, db
 from routes.admin_endpoints import admin_endpoints
 from routes.user_endpoints import user_endpoints
 from routes.vm_endpoints import vm_endpoints
@@ -73,11 +74,36 @@ if not os.path.exists("iso/logos"):
 
 # Create iso/index.json if it doesn't exist
 if not os.path.exists("iso/index.json"):
-    open("iso/index.json", "a", encoding="utf-8").close()
+    with open("iso/index.json", "a", encoding="utf-8") as f:
+        f.write("[]")
 
 # Create logs/ directory if it doesn't exist
 if not os.path.exists("logs"):
     os.makedirs("logs")
+
+
+# On exit, clean up any leftover virtual machines
+def clean_up():
+    """Cleans up any leftover virtual machines on exit."""
+    with app.app_context():
+        vms = VirtualMachine.query.all()
+        for vm in vms:
+            subprocess.Popen(
+                ["kill", str(vm.websockify_process_id)],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            subprocess.Popen(
+                ["kill", str(vm.process_id)],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+            db.session.delete(vm)
+            db.session.commit()
+
+
+atexit.register(clean_up)
 
 if __name__ == "__main__":
     app.run()

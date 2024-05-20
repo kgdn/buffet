@@ -19,15 +19,14 @@ from datetime import datetime
 
 
 class HelperFunctions:
-    """Contains helper functions for the server.
-    """
+    """Contains helper functions for the server."""
+
     @staticmethod
     def create_cef_logs_folders():
-        """Creates the logs/ directory if it doesn't exist and creates a new directory for the current date.
-        """
+        """Creates the logs/ directory if it doesn't exist and creates a new directory for the current date."""
         date_str = str(datetime.now().date())
-        if not os.path.exists('logs/' + date_str + '/'):
-            os.makedirs('logs/' + date_str + '/')
-        if not os.path.exists('logs/' + date_str + '/buffet.log'):
-            with open('logs/' + date_str + '/buffet.log', 'w', encoding='utf-8') as f:
-                f.write('')
+        if not os.path.exists("logs/" + date_str + "/"):
+            os.makedirs("logs/" + date_str + "/")
+        if not os.path.exists("logs/" + date_str + "/buffet.log"):
+            with open("logs/" + date_str + "/buffet.log", "w", encoding="utf-8") as f:
+                f.write("")

@@ -200,6 +200,8 @@ SSL_CERTIFICATE_PATH= # path_to_ssl_certificate
 SSL_KEY_PATH= # path_to_ssl_key
 GUNICORN_BIND_ADDRESS= # bind address, i.e. 0.0.0.0:8000
 GUNICORN_WORKER_CLASS= # worker class, i.e. gevent
+GUNICORN_LOG_LEVEL= # log level, i.e. debug
+GUNICORN_ACCESS_LOG= # access log, i.e. gunicorn_access.log
 MAX_VM_COUNT= # max no. of virtual machines available at any given time
 ```
 
