@@ -292,27 +292,6 @@ def delete_vm():
     db.session.delete(vm)
     db.session.commit()
 
-    # If the contents of the log file are empty, delete it
-    if (
-        os.stat(
-            "logs/"
-            + str(datetime.now().date())
-            + "/"
-            + str(user.id)
-            + "/"
-            + vm.log_file
-        ).st_size
-        == 24
-    ):  # 24 bytes is the size of the pcap header
-        os.remove(
-            "logs/"
-            + str(datetime.now().date())
-            + "/"
-            + str(user.id)
-            + "/"
-            + vm.log_file
-        )
-
     # Log the request to cef.log
     HelperFunctions.create_cef_logs_folders()
 
