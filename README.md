@@ -15,9 +15,11 @@ The back-end is written in Python using the [Flask](https://github.com/pallets/f
 
 Buffet was made over the course of 12 weeks as part of the final project for my bachelor's degree in Computer Systems at the [School of Mathematical and Computer Sciences](https://www.hw.ac.uk/schools/mathematical-computer-sciences.htm) at [Heriot-Watt University](https://www.hw.ac.uk/).
 
-> [!IMPORTANT] > **Please note that Buffet is not intended for production use, as it is still in the early stages of development.**
+> [!IMPORTANT]
+> **Please note that Buffet is not intended for production use, as it is still in the early stages of development.** 
 >
 > However, you are welcome to use it for testing and development purposes. Please report any bugs or issues you encounter on the [Issues](https://github.com/kgdn/buffet/issues) page. Feel free to contribute to the project by submitting a pull request.
+
 
 ## Features
 
