@@ -17,7 +17,7 @@
 */
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import AccountsAPI from '../api/AccountsAPI';
+import { getUserDetails, logOut } from '../api/AccountsAPI';
 
 interface User {
     id: string;
@@ -38,11 +38,16 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
+/**
+ * AuthProvider component
+ * @param {AuthProviderProps} props - The properties of the component
+ * @returns {ReactNode} - The authentication provider component
+ */
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }: AuthProviderProps) => {
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        AccountsAPI.getUserDetails().then((response) => {
+        getUserDetails().then((response) => {
             if (response.status === 200) {
                 setUser(response.data);
             }
@@ -50,7 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }: AuthProv
     }, []);
 
     const logout = () => {
-        AccountsAPI.logout().then((response) => {
+        logOut().then((response) => {
             if (response.status === 200) {
                 window.location.href = '/';
                 setUser(null);

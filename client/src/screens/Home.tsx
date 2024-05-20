@@ -20,7 +20,7 @@ import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { Card, Button, Container, Row, Col, Form, Modal, Alert, Carousel, ButtonGroup, ProgressBar, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import NavbarComponent from '../components/Navbar';
 import { AuthContext } from '../contexts/AuthContext';
-import VirtualMachineAPI from '../api/VirtualMachineAPI';
+import { getIsoFiles, createVirtualMachine, getRunningVMs, getVirtualMachineByUser, deleteVirtualMachine } from '../api/VirtualMachineAPI';
 import RFB from "@novnc/novnc/core/rfb";
 import Footer from '../components/Footer';
 import fedora from '../assets/carousel/fedora.png'
@@ -73,7 +73,7 @@ const Home: React.FC = () => {
             setUsername(user.username);
 
             const getImages = async () => {
-                const response = await VirtualMachineAPI.getIsoFiles();
+                const response = await getIsoFiles();
                 if (response.status === 200) {
                     const linuxImages: any[] | ((prevState: Image[]) => Image[]) = [];
                     const nonLinuxImages: any[] | ((prevState: Image[]) => Image[]) = [];
@@ -90,14 +90,14 @@ const Home: React.FC = () => {
             };
 
             const getVMCount = async () => {
-                const response = await VirtualMachineAPI.getRunningVMs();
+                const response = await getRunningVMs();
                 if (response.status === 200) {
                     setVMCount(response.data.vm_count);
                 }
             };
 
             const fetchVMDetails = async () => {
-                const { data } = await VirtualMachineAPI.getVirtualMachineByUser();
+                const { data } = await getVirtualMachineByUser();
                 setVmDetails({
                     wsport: data.wsport,
                     id: data.id,
@@ -116,7 +116,7 @@ const Home: React.FC = () => {
 
     const createVMButton = (iso: string) => {
         const createVM = async () => {
-            const response = await VirtualMachineAPI.createVirtualMachine(iso);
+            const response = await createVirtualMachine(iso);
             if (response.status === 201) {
                 window.location.href = '/vm';
             } else {
@@ -128,7 +128,7 @@ const Home: React.FC = () => {
     };
 
     const deleteVMButton = useCallback(() => {
-        VirtualMachineAPI.deleteVirtualMachine(String(vmDetails.id)).then(() => {
+        deleteVirtualMachine(String(vmDetails.id)).then(() => {
             window.location.href = '/';
         });
     }, [vmDetails.id]);

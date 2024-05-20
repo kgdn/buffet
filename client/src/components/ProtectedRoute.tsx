@@ -24,6 +24,11 @@ interface ProtectedRouteProps {
     element: React.ReactNode;
 }
 
+/**
+ * ProtectedRoute component
+ * @param {ProtectedRouteProps} props - The properties of the component
+ * @returns {React.ReactNode} - The protected route component
+ */
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }: ProtectedRouteProps) => {
     const { user } = useContext(AuthContext);
     const location = useLocation();

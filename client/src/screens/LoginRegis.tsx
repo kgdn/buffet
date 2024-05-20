@@ -19,7 +19,7 @@
 import React, { useEffect, useState } from 'react';
 import NavbarComponent from '../components/Navbar';
 import { Form, Button, Row, Col, Container, Alert, Modal, ButtonGroup } from 'react-bootstrap';
-import AccountsAPI from '../api/AccountsAPI';
+import { logIn, register, verifyRegistration, resendVerificationEmail } from '../api/AccountsAPI';
 import validator from 'validator';
 import passwordValidator from 'password-validator';
 import Footer from '../components/Footer';
@@ -48,7 +48,7 @@ const LoginRegis: React.FC = () => {
             setErrorMessage('Username and password cannot be empty.');
             return;
         }
-        AccountsAPI.login(loginUsername, loginPassword, token).then((response) => {
+        logIn(loginUsername, loginPassword, token).then((response) => {
             // If account is unverified, show modal to verify email
             switch (response.message) {
                 case 'Please verify your account before logging in':
@@ -98,7 +98,7 @@ const LoginRegis: React.FC = () => {
         }
 
         // Register the user
-        AccountsAPI.register(registerUsername, registerEmail, registerPassword).then((response) => {
+        register(registerUsername, registerEmail, registerPassword).then((response) => {
             if (response.status === 201) {
                 setShowModal(true);
             } else {
@@ -114,9 +114,9 @@ const LoginRegis: React.FC = () => {
         }
         const username = registerUsername || loginUsername;
         const password = registerPassword || loginPassword;
-        AccountsAPI.verifyRegistration(username, token).then((response) => {
+        verifyRegistration(username, token).then((response) => {
             if (response.status === 200) {
-                AccountsAPI.login(username, password, '').then((response) => {
+                logIn(username, password, '').then((response) => {
                     if (response.status === 200) {
                         window.location.href = '/';
                     } else {
@@ -135,7 +135,7 @@ const LoginRegis: React.FC = () => {
             setTwoFactorMessage('Two-factor code cannot be empty.');
             return;
         }
-        AccountsAPI.login(loginUsername, loginPassword, twoFactorCode).then((response) => {
+        logIn(loginUsername, loginPassword, twoFactorCode).then((response) => {
             if (response.status === 200) {
                 window.location.href = '/';
             } else {
@@ -146,7 +146,7 @@ const LoginRegis: React.FC = () => {
 
     const ResendVerificationEmailButton = () => {
         const username = registerUsername || loginUsername;
-        AccountsAPI.resendVerificationEmail(username).then((response) => {
+        resendVerificationEmail(username).then((response) => {
             setEmailMessage(response.message);
         });
     }

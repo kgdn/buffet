@@ -19,7 +19,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import RFB from "@novnc/novnc/core/rfb";
 import { Button, ButtonGroup, Modal } from "react-bootstrap";
-import VirtualMachineAPI from "../api/VirtualMachineAPI";
+import { deleteVirtualMachine, getVirtualMachineByUser } from "../api/VirtualMachineAPI";
 import Draggable from "react-draggable";
 
 interface VmDetails {
@@ -45,7 +45,7 @@ const VirtualMachineView: React.FC = () => {
      */
     useEffect(() => {
         const fetchVMDetails = async () => {
-            const { data } = await VirtualMachineAPI.getVirtualMachineByUser();
+            const { data } = await getVirtualMachineByUser();
             setVmDetails({
                 wsport: data.wsport,
                 id: data.id,
@@ -79,7 +79,7 @@ const VirtualMachineView: React.FC = () => {
      * @returns {void} - No return value
      */
     const deleteVM = useCallback(() => {
-        VirtualMachineAPI.deleteVirtualMachine(String(vmDetails.id)).then(() => {
+        deleteVirtualMachine(String(vmDetails.id)).then(() => {
             window.location.href = '/';
         });
     }, [vmDetails.id]);

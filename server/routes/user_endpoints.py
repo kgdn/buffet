@@ -219,7 +219,7 @@ def register():
             </style>
         </head>
         <body>
-            <p>Hello! You're recieving this email because you created an account on Buffet.</p>
+            <p>Hello! You're receiving this email because you created an account on Buffet.</p>
             <p>Your unique 6 character code is: {unique_code}</p>
             <p>Please enter this code on the website to verify your account.</p>
             <br>
@@ -360,7 +360,7 @@ def resend_verification_email():
             </style>
         </head>
         <body>
-            <p>Hello! You're recieving this email because you created an account on Buffet.</p>
+            <p>Hello! You're receiving this email because you created an account on Buffet.</p>
             <p>Your unique 6 character code is: {unique_code}</p>
             <p>Please enter this code on the website to verify your account.</p>
             <br>
@@ -494,7 +494,7 @@ def logout():
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-        except:
+        except subprocess.CalledProcessError:
             return jsonify({"message": "Error deleting virtual machine"}), 500
 
         db.session.delete(vm)
@@ -599,7 +599,7 @@ def delete_user():
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-        except:
+        except subprocess.CalledProcessError:
             return jsonify({"message": "Error deleting virtual machine"}), 500
 
     db.session.delete(user)

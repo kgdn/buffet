@@ -17,7 +17,7 @@
 */
 import React, { useEffect, useState, Fragment } from 'react';
 import NavbarComponent from '../components/Navbar';
-import AdminAPI from '../api/AdminAPI';
+import { getAllUsers, getAllVMs, changeUsername, changeEmail, deleteUser, banUser, unbanUser, deleteVM, getBannedUsers, getUnverifiedUsers, verifyUser, deleteUnverifiedUser, getLogs } from '../api/AdminAPI';
 import validator from 'validator';
 import { Alert, Container, Col, Row, Button, Form, ButtonGroup, Modal, Tab, Table, Tabs, Card } from 'react-bootstrap';
 import Footer from '../components/Footer';
@@ -102,7 +102,7 @@ const Admin: React.FC = () => {
 	// Get all users, VMs, banned users, unverified users, and logs
 	useEffect(() => {
 		// Get all users
-		AdminAPI.getAllUsers()
+		getAllUsers()
 			.then(response => {
 				if (response.status === 200) {
 					setUsers(response.data);
@@ -113,7 +113,7 @@ const Admin: React.FC = () => {
 			})
 			.catch(error => console.error(error));
 		// Get all VMs
-		AdminAPI.getAllVMs()
+		getAllVMs()
 			.then(response => {
 				if (response.status === 200) {
 					setVMs(response.data);
@@ -123,7 +123,7 @@ const Admin: React.FC = () => {
 				}
 			})
 		// Get all banned users
-		AdminAPI.getBannedUsers()
+		getBannedUsers()
 			.then(response => {
 				if (response.status === 200) {
 					setBannedUsers(response.data);
@@ -133,7 +133,7 @@ const Admin: React.FC = () => {
 				}
 			})
 		// Get all unverified users
-		AdminAPI.getUnverifiedUsers()
+		getUnverifiedUsers()
 			.then(response => {
 				if (response.status === 200) {
 					setUnverifiedUsers(response.data);
@@ -143,7 +143,7 @@ const Admin: React.FC = () => {
 				}
 			})
 		// Get all logs
-		AdminAPI.getLogs().then(response => {
+		getLogs().then(response => {
 			if (response.status === 200) {
 				setLogs(response.data);
 			}
@@ -176,7 +176,7 @@ const Admin: React.FC = () => {
 	});
 
 	// Change username of user with id
-	const changeUsername = (id: string) => {
+	const ChangeUsernameButton = (id: string) => {
 		// Check if the username is empty
 		if (newUsername.trim() === '') {
 			setUsernameMessage('Username cannot be empty');
@@ -190,7 +190,7 @@ const Admin: React.FC = () => {
 		}
 
 		// Change the username
-		AdminAPI.changeUsername(id, newUsername)
+		changeUsername(id, newUsername)
 			.then(response => {
 				if (response.status === 200) {
 					window.location.reload();
@@ -202,7 +202,7 @@ const Admin: React.FC = () => {
 	}
 
 	// Change email of user with id
-	const changeEmail = (id: string) => {
+	const ChangeEmailButton = (id: string) => {
 		// Check if the email is empty
 		if (newEmail.trim() === '') {
 			setEmailMessage('Email cannot be empty');
@@ -217,7 +217,7 @@ const Admin: React.FC = () => {
 
 
 		// Change the email
-		AdminAPI.changeEmail(id, newEmail)
+		changeEmail(id, newEmail)
 			.then(response => {
 				if (response.status === 200) {
 					window.location.reload();
@@ -229,8 +229,8 @@ const Admin: React.FC = () => {
 	}
 
 	// Delete user with id
-	const deleteUser = (id: string) => {
-		AdminAPI.deleteUser(id)
+	const DeleteUserButton = (id: string) => {
+		deleteUser(id)
 			.then(response => {
 				if (response.status === 200) {
 					window.location.reload();
@@ -243,8 +243,8 @@ const Admin: React.FC = () => {
 	}
 
 	// Ban user with id
-	const banUser = (id: string) => {
-		AdminAPI.banUser(id, banReason)
+	const BanUserButton = (id: string) => {
+		banUser(id, banReason)
 			.then(response => {
 				if (response.status === 200) {
 					window.location.reload();
@@ -257,8 +257,8 @@ const Admin: React.FC = () => {
 	}
 
 	// Unban user with id
-	const unbanUser = (id: string) => {
-		AdminAPI.unbanUser(id)
+	const UnbanUserButton = (id: string) => {
+		unbanUser(id)
 			.then(response => {
 				if (response.status === 200) {
 					window.location.reload();
@@ -271,8 +271,8 @@ const Admin: React.FC = () => {
 	}
 
 	// Delete VM with id
-	const deleteVM = (id: string) => {
-		AdminAPI.deleteVM(id)
+	const DeleteVMButton = (id: string) => {
+		deleteVM(id)
 			.then(response => {
 				if (response.status === 200) {
 					window.location.reload();
@@ -285,8 +285,8 @@ const Admin: React.FC = () => {
 	}
 
 	// Delete unverified user with id
-	const verifyUser = (id: string) => {
-		AdminAPI.verifyUser(id)
+	const VerifyUserButton = (id: string) => {
+		verifyUser(id)
 			.then(response => {
 				if (response.status === 200) {
 					window.location.reload();
@@ -299,8 +299,8 @@ const Admin: React.FC = () => {
 	}
 
 	// Delete unverified user with id
-	const deleteUnverifiedUser = (id: string) => {
-		AdminAPI.deleteUnverifiedUser(id)
+	const DeleteUnverifiedUserButton = (id: string) => {
+		deleteUnverifiedUser(id)
 			.then(response => {
 				if (response.status === 200) {
 					window.location.reload();
@@ -588,7 +588,7 @@ const Admin: React.FC = () => {
 						<Modal.Footer>
 							{/* If status code is 200, delete the user, else display the error */}
 							<ButtonGroup>
-								<Button variant="danger" onClick={() => { deleteUser(selectedUser); setShowDeleteUserModal(false); }}>Delete</Button>
+								<Button variant="danger" onClick={() => { DeleteUserButton(selectedUser); setShowDeleteUserModal(false); }}>Delete</Button>
 								<Button variant="secondary" onClick={() => setShowDeleteUserModal(false)}>Cancel</Button>
 							</ButtonGroup>
 						</Modal.Footer>
@@ -609,7 +609,7 @@ const Admin: React.FC = () => {
 						</Modal.Body>
 						<Modal.Footer>
 							<ButtonGroup>
-								<Button variant="danger" onClick={() => { deleteVM(selectedVM); setShowStopVMModal(false); }}>Stop</Button>
+								<Button variant="danger" onClick={() => { DeleteVMButton(selectedVM); setShowStopVMModal(false); }}>Stop</Button>
 								<Button variant="secondary" onClick={() => setShowStopVMModal(false)}>Cancel</Button>
 							</ButtonGroup>
 						</Modal.Footer>
@@ -621,7 +621,7 @@ const Admin: React.FC = () => {
 							<Modal.Title>Change Username</Modal.Title>
 						</Modal.Header>
 						<Modal.Body>
-							<Form onSubmit={(e) => { e.preventDefault(); changeUsername(selectedUser); setShowUsernameModal(false); }}>
+							<Form onSubmit={(e) => { e.preventDefault(); ChangeUsernameButton(selectedUser); setShowUsernameModal(false); }}>
 								<Form.Group className="mb-3">
 									<Form.Control type="text" placeholder="New Username" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} />
 								</Form.Group>
@@ -634,7 +634,7 @@ const Admin: React.FC = () => {
 						</Modal.Body>
 						<Modal.Footer>
 							<ButtonGroup>
-								<Button variant="primary" onClick={() => { changeUsername(selectedUser); setShowUsernameModal(false); }}>Change</Button>
+								<Button variant="primary" onClick={() => { ChangeUsernameButton(selectedUser); setShowUsernameModal(false); }}>Change</Button>
 								<Button variant="secondary" onClick={() => setShowUsernameModal(false)}>Cancel</Button>
 							</ButtonGroup>
 						</Modal.Footer>
@@ -646,7 +646,7 @@ const Admin: React.FC = () => {
 							<Modal.Title>Change Email</Modal.Title>
 						</Modal.Header>
 						<Modal.Body>
-							<Form onSubmit={(e) => { e.preventDefault(); changeEmail(selectedUser); setShowEmailModal(false); }}>
+							<Form onSubmit={(e) => { e.preventDefault(); ChangeEmailButton(selectedUser); setShowEmailModal(false); }}>
 								<Form.Group className="mb-3">
 									<Form.Control type="text" placeholder="New Email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
 								</Form.Group>
@@ -659,7 +659,7 @@ const Admin: React.FC = () => {
 						</Modal.Body>
 						<Modal.Footer>
 							<ButtonGroup>
-								<Button variant="primary" onClick={() => { changeEmail(selectedUser); setShowEmailModal(false); }}>Change</Button>
+								<Button variant="primary" onClick={() => { ChangeEmailButton(selectedUser); setShowEmailModal(false); }}>Change</Button>
 								<Button variant="secondary" onClick={() => setShowEmailModal(false)}>Cancel</Button>
 							</ButtonGroup>
 						</Modal.Footer>
@@ -672,7 +672,7 @@ const Admin: React.FC = () => {
 						</Modal.Header>
 						<Modal.Body>
 							<p>Please enter a reason for banning this user.</p>
-							<Form onSubmit={(e) => { e.preventDefault(); banUser(selectedUser); setShowBanModal(false); }}>
+							<Form onSubmit={(e) => { e.preventDefault(); BanUserButton(selectedUser); setShowBanModal(false); }}>
 								<Form.Group className="mb-3">
 									<Form.Control type="text" placeholder="Reason" value={banReason} onChange={(e) => setBanReason(e.target.value)} />
 								</Form.Group>
@@ -685,7 +685,7 @@ const Admin: React.FC = () => {
 						</Modal.Body>
 						<Modal.Footer>
 							<ButtonGroup>
-								<Button variant="danger" onClick={() => { banUser(selectedUser); setShowBanModal(false); }}>Ban</Button>
+								<Button variant="danger" onClick={() => { BanUserButton(selectedUser); setShowBanModal(false); }}>Ban</Button>
 								<Button variant="secondary" onClick={() => setShowBanModal(false)}>Cancel</Button>
 							</ButtonGroup>
 						</Modal.Footer>
@@ -706,7 +706,7 @@ const Admin: React.FC = () => {
 						</Modal.Body>
 						<Modal.Footer>
 							<ButtonGroup>
-								<Button variant="danger" onClick={() => { unbanUser(selectedUser); setShowUnbanModal(false); }}>Unban</Button>
+								<Button variant="danger" onClick={() => { UnbanUserButton(selectedUser); setShowUnbanModal(false); }}>Unban</Button>
 								<Button variant="secondary" onClick={() => setShowUnbanModal(false)}>Cancel</Button>
 							</ButtonGroup>
 						</Modal.Footer>
@@ -727,7 +727,7 @@ const Admin: React.FC = () => {
 						</Modal.Body>
 						<Modal.Footer>
 							<ButtonGroup>
-								<Button variant="primary" onClick={() => { verifyUser(selectedUser); setShowVerifyModal(false); }}>Verify</Button>
+								<Button variant="primary" onClick={() => { VerifyUserButton(selectedUser); setShowVerifyModal(false); }}>Verify</Button>
 								<Button variant="secondary" onClick={() => setShowVerifyModal(false)}>Cancel</Button>
 							</ButtonGroup>
 						</Modal.Footer>
@@ -748,7 +748,7 @@ const Admin: React.FC = () => {
 						</Modal.Body>
 						<Modal.Footer>
 							<ButtonGroup>
-								<Button variant="danger" onClick={() => { deleteUnverifiedUser(selectedUser); setShowDeleteUnverifiedModal(false); }}>Delete</Button>
+								<Button variant="danger" onClick={() => { DeleteUnverifiedUserButton(selectedUser); setShowDeleteUnverifiedModal(false); }}>Delete</Button>
 								<Button variant="secondary" onClick={() => setShowDeleteUnverifiedModal(false)}>Cancel</Button>
 							</ButtonGroup>
 						</Modal.Footer>

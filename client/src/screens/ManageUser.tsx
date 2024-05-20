@@ -19,7 +19,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import NavbarComponent from '../components/Navbar';
 import { Modal, Form, Button, ButtonGroup, Container, Row, Col, Alert, Image } from 'react-bootstrap';
-import AccountsAPI from '../api/AccountsAPI';
+import { changeUsername, changePassword, changeEmail, deleteAccount, enableTwoFactorAuth, verifyTwoFactorAuth, disableTwoFactorAuth } from '../api/AccountsAPI';
 import validator from 'validator';
 import passwordValidator from 'password-validator';
 import Footer from '../components/Footer';
@@ -64,7 +64,7 @@ const VirtualMachineView: React.FC = () => {
             return;
         }
 
-        AccountsAPI.changeUsername(username, currentPassword).then((response) => {
+        changeUsername(username, currentPassword).then((response) => {
             if (response.status === 200) {
                 window.location.reload();
             } else {
@@ -93,7 +93,7 @@ const VirtualMachineView: React.FC = () => {
             return;
         }
 
-        AccountsAPI.changePassword(oldPassword, newPassword).then((response) => {
+        changePassword(oldPassword, newPassword).then((response) => {
             if (response.status === 200) {
                 window.location.reload();
             } else {
@@ -113,7 +113,7 @@ const VirtualMachineView: React.FC = () => {
             return;
         }
 
-        AccountsAPI.changeEmail(email, currentPassword).then((response) => {
+        changeEmail(email, currentPassword).then((response) => {
             if (response.status === 200) {
                 window.location.reload();
             } else {
@@ -128,7 +128,7 @@ const VirtualMachineView: React.FC = () => {
             return;
         }
 
-        AccountsAPI.deleteAccount(currentPassword, requiresTwoFactorCode).then((response) => {
+        deleteAccount(currentPassword, requiresTwoFactorCode).then((response) => {
             if (response.status === 200) {
                 window.location.href = '/';
             }
@@ -151,7 +151,7 @@ const VirtualMachineView: React.FC = () => {
 
     const EnableTwoFactorButton = async () => {
         try {
-            AccountsAPI.enableTwoFactorAuth().then((response) => {
+            enableTwoFactorAuth().then((response) => {
                 if (response.status === 200) {
                     setQrCode(response.data.qr_code);
                     setShowTwoFactorModal(true);
@@ -166,7 +166,7 @@ const VirtualMachineView: React.FC = () => {
 
     const VerifyTwoFactorButton = async () => {
         try {
-            AccountsAPI.verifyTwoFactorAuth(twoFactorCode).then((response) => {
+            verifyTwoFactorAuth(twoFactorCode).then((response) => {
                 if (response.status === 200) {
                     window.location.reload();
                 } else {
@@ -186,7 +186,7 @@ const VirtualMachineView: React.FC = () => {
         }
 
         try {
-            AccountsAPI.disableTwoFactorAuth(currentPassword).then((response) => {
+            disableTwoFactorAuth(currentPassword).then((response) => {
                 if (response.status === 200) {
                     window.location.reload();
                 } else {
