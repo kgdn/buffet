@@ -201,7 +201,7 @@ async def create_vm():
         )
         websockify_process_id = websockify_process.pid
 
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
         return (
             jsonify(
                 {
@@ -285,7 +285,7 @@ def delete_vm():
         subprocess.Popen(
             ["kill", str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
-    except Exception as e:
+    except subprocess.CalledProcessError:
         return jsonify({"message": "Error deleting virtual machine"}), 500
 
     # Stop the virtual machine from the database

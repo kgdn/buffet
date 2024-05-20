@@ -63,7 +63,7 @@ const Home: React.FC = () => {
     const [complexityModal, showComplexityModal] = useState(false);
     const [vmDetails, setVmDetails] = useState<VmDetails>({ wsport: 0, id: 0, name: '', version: '', desktop: '', password: '' });
     const API_BASE_URL = import.meta.env.VITE_BASE_URL.replace(/(^\w+:|^)\/\//, '');
-    const MAX_VM_COUNT = import.meta.env.VITE_MAX_VM_COUNT;
+    const MAX_VM_COUNT = parseInt(import.meta.env.VITE_MAX_VM_COUNT, 10);
 
     useEffect(() => {
         document.title = 'Buffet';
@@ -188,7 +188,7 @@ const Home: React.FC = () => {
                                 <p>There are currently {vmCount} virtual machines running. The maximum number of virtual machines that can be run at once is {MAX_VM_COUNT}.</p>
                                 {vmCount === 0 ? (
                                     <ProgressBar striped animated label variant="success" now={vmCount} max={MAX_VM_COUNT} />
-                                ) : vmCount < MAX_VM_COUNT / 2 ? (
+                                ) : vmCount < MAX_VM_COUNT ? (
                                     <ProgressBar striped animated label variant="info" now={vmCount} max={MAX_VM_COUNT} />
                                 ) : vmCount === MAX_VM_COUNT ? (
                                     <ProgressBar striped animated label variant="danger" now={vmCount} max={MAX_VM_COUNT} />

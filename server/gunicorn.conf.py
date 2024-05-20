@@ -29,10 +29,12 @@ certfile = os.getenv(
 keyfile = os.getenv("SSL_KEY_PATH")  # Set the key file. This is required for HTTPS.
 workers = (
     os.cpu_count() * 2 + 1
-)  # Auto-calculate the number of workers. This can be overridden using --workers. This is set to 2 * the number of CPU cores + 1 for optimal performance.
+)  # Auto-calculate the number of workers. This can be overridden using --workers.
+# This is set to 2 * the number of CPU cores + 1 for optimal performance.
 threads = (
     os.cpu_count() * 2 + 1
-)  # Auto-calculate the number of threads. This can be overridden using --threads. This is set to 2 * the number of CPU cores + 1 for optimal performance.
+)  # Auto-calculate the number of threads. This can be overridden using --threads.
+# This is set to 2 * the number of CPU cores + 1 for optimal performance.
 worker_class = os.getenv(
     "GUNICORN_WORKER_CLASS"
 )  # Set the worker class. This can be overridden using --worker-class.

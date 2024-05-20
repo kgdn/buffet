@@ -7,7 +7,6 @@
   <p>A full-stack, fully-featured web-based virtual machine manager</p>
 
   [![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![GitHub issues](https://img.shields.io/github/issues/kgdn/buffet)](https://github.com/kgdn/buffet/issues) [![GitHub stars](https://img.shields.io/github/stars/kgdn/buffet)](https://github.com/kgdn/buffet/stargazers)
-
 </div>
 
 Buffet is a full-stack, fully-featured web-based virtual machine manager that aims to provide a free, open-source, lightweight, easy-to-use, and secure alternative to other web-based virtual machine managers such as [DistroSea](https://distrosea.com/) and [DistroTest](https://www.reddit.com/r/DistroHopping/comments/wqrwbw/what_happened_to_distrotestnet/).
@@ -52,7 +51,9 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 
 ## Installation
 
-This section is only for people, including systems administrators, who want to install Buffet on their own servers.
+Buffet is designed to be easy to install and use. It consists of two main components: the front-end and the back-end. The front-end is a React application that communicates with the back-end using a REST API. The back-end is a Flask application that provides the REST API for the front-end. 
+
+If you want to host your own instance of Buffet, you will need to install both the front-end and the back-end on your server. A detailed guide on how to install Buffet is provided below. A Dockerfile will be provided in the future for easier installation. Stay tuned!
 
 ### Front-end Installation
 
@@ -105,6 +106,11 @@ npm start
 npm run build
 ```
 
+1. Deploy the production version to your server using your preferred method, such as Nginx, Apache, or Caddy. 
+```bash
+npm run build && cp -r dist/* /path/to/your/webserver/
+```
+ 
 ### Back-end Installation
 
 The back-end is a Flask application that provides the REST API for the front-end. 

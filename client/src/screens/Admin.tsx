@@ -50,6 +50,10 @@ interface Log {
 	user: string;
 }
 
+interface Logs {
+	[date: string]: string[];
+}
+
 const Admin: React.FC = () => {
 	/* 
 	 * I have to admit, this is not the most elegant solution, but it works. I have to use multiple states for each modal, 
@@ -89,7 +93,7 @@ const Admin: React.FC = () => {
 	const [verifyMessage, setVerifyMessage] = useState('');
 	const [showDeleteUnverifiedModal, setShowDeleteUnverifiedModal] = useState(false);
 	const [deleteUnverifiedMessage, setDeleteUnverifiedMessage] = useState('');
-	const [logs, setLogs] = useState([]);
+	const [logs, setLogs] = useState<Logs>({});
 
 	useEffect(() => {
 		document.title = 'Buffet - Admin';

@@ -11,7 +11,7 @@
 .pnp.js
 .vscode/
 coverage
-build
+dist/
 logs/
 migrations/
 node_modules/
