@@ -33,7 +33,7 @@ interface VmDetails {
     desktop_homepage: string;
 }
 
-const VirtualMachineView: React.FC = () => {
+const VirtualMachineView: React.FC = (): React.ReactElement => {
     const [vmDetails, setVmDetails] = useState<VmDetails>({ wsport: 0, id: 0, name: '', version: '', desktop: '', password: '', homepage: '', desktop_homepage: '' });
     const [showModal, setShowModal] = useState(true);
     const API_BASE_URL = import.meta.env.VITE_BASE_URL.replace(/(^\w+:|^)\/\//, '');

@@ -1,5 +1,5 @@
 /*
-* ManageUser.jsx - Account management screen for the application.
+* ManageUser.tsx - Account management screen for the application.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@ import passwordValidator from 'password-validator';
 import Footer from '../components/Footer';
 import { AuthContext } from '../contexts/AuthContext';
 
-const VirtualMachineView: React.FC = () => {
+const VirtualMachineView: React.FC = (): React.ReactElement => {
     const { user, logout } = useContext(AuthContext);
     const [getEmail, setCurrentEmail] = useState('');
     const [getUserName, setCurrentUserName] = useState('');

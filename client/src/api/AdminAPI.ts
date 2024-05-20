@@ -25,7 +25,6 @@ axios.defaults.withCredentials = true;
 axios.defaults.headers.common['X-CSRF-TOKEN'] = cookies.get('csrf_access_token');
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
-const API_BASE_PORT = import.meta.env.VITE_BASE_PORT;
 
 interface ApiResponse<T = any> {
     status: number;
@@ -39,10 +38,13 @@ interface ApiResponse<T = any> {
  */
 export async function getAllVMs(): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/vm/all/`);
+        const response: AxiosResponse = await axios.get(`${API_BASE_URL}/api/admin/vm/all/`);
         return { status: response.status, message: response.data.message, data: response.data };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            return { status: error.response?.status ?? 500, message: error.response?.data?.message ?? 'An error occurred' };
+        }
+        return { status: 500, message: 'An unknown error occurred' };
     }
 }
 
@@ -52,7 +54,7 @@ export async function getAllVMs(): Promise<ApiResponse> {
  */
 export async function getAllUsers(): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/all/`);
+        const response: AxiosResponse = await axios.get(`${API_BASE_URL}/api/admin/user/all/`);
         return { status: response.status, message: response.data.message, data: response.data };
     } catch (error: any) {
         return { status: error.response.status, message: error.response.data.message };
@@ -66,7 +68,7 @@ export async function getAllUsers(): Promise<ApiResponse> {
  */
 export async function getAllVMsByUser(id: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/vm/`, {
+        const response: AxiosResponse = await axios.get(`${API_BASE_URL}/api/admin/user/vm/`, {
             params: {
                 user_id: id
             }
@@ -83,7 +85,7 @@ export async function getAllVMsByUser(id: string): Promise<ApiResponse> {
  */
 export async function deleteUser(id: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.delete(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/delete/`, {
+        const response: AxiosResponse = await axios.delete(`${API_BASE_URL}/api/admin/user/delete/`, {
             data: {
                 user_id: id
             }
@@ -101,7 +103,7 @@ export async function deleteUser(id: string): Promise<ApiResponse> {
  */
 export async function deleteVM(id: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.delete(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/vm/delete/`, {
+        const response: AxiosResponse = await axios.delete(`${API_BASE_URL}/api/admin/vm/delete/`, {
             data: {
                 vm_id: id
             }
@@ -120,7 +122,7 @@ export async function deleteVM(id: string): Promise<ApiResponse> {
  */
 export async function changeUsername(user_id: string, username: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/username/`, {
+        const response: AxiosResponse = await axios.put(`${API_BASE_URL}/api/admin/user/username/`, {
             user_id,
             username
         });
@@ -138,7 +140,7 @@ export async function changeUsername(user_id: string, username: string): Promise
  */
 export async function changeEmail(user_id: string, email: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/email/`, {
+        const response: AxiosResponse = await axios.put(`${API_BASE_URL}/api/admin/user/email/`, {
             user_id,
             email
         });
@@ -156,7 +158,7 @@ export async function changeEmail(user_id: string, email: string): Promise<ApiRe
  */
 export async function banUser(user_id: string, reason: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/ban/`, {
+        const response: AxiosResponse = await axios.put(`${API_BASE_URL}/api/admin/user/ban/`, {
             user_id,
             ban_reason: reason
         });
@@ -173,7 +175,7 @@ export async function banUser(user_id: string, reason: string): Promise<ApiRespo
  * */
 export async function unbanUser(user_id: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/unban/`, {
+        const response: AxiosResponse = await axios.put(`${API_BASE_URL}/api/admin/user/unban/`, {
             user_id
         });
         return { status: response.status, message: response.data.message };
@@ -188,7 +190,7 @@ export async function unbanUser(user_id: string): Promise<ApiResponse> {
  */
 export async function getBannedUsers(): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/banned/`);
+        const response: AxiosResponse = await axios.get(`${API_BASE_URL}/api/admin/user/banned/`);
         return { status: response.status, message: response.data.message, data: response.data };
     } catch (error: any) {
         return { status: error.response.status, message: error.response.data.message };
@@ -201,7 +203,7 @@ export async function getBannedUsers(): Promise<ApiResponse> {
  */
 export async function getUnverifiedUsers(): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/unverified/`);
+        const response: AxiosResponse = await axios.get(`${API_BASE_URL}/api/admin/user/unverified/`);
         return { status: response.status, message: response.data.message, data: response.data };
     } catch (error: any) {
         return { status: error.response.status, message: error.response.data.message };
@@ -215,7 +217,7 @@ export async function getUnverifiedUsers(): Promise<ApiResponse> {
  */
 export async function deleteUnverifiedUser(user_id: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.delete(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/unverified/delete/`, {
+        const response: AxiosResponse = await axios.delete(`${API_BASE_URL}/api/admin/user/unverified/delete/`, {
             data: { user_id }
         });
         return { status: response.status, message: response.data.message };
@@ -231,7 +233,7 @@ export async function deleteUnverifiedUser(user_id: string): Promise<ApiResponse
  */
 export async function verifyUser(user_id: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/user/unverified/verify/`, {
+        const response: AxiosResponse = await axios.put(`${API_BASE_URL}/api/admin/user/unverified/verify/`, {
             user_id
         });
         return { status: response.status, message: response.data.message };
@@ -246,7 +248,7 @@ export async function verifyUser(user_id: string): Promise<ApiResponse> {
  */
 export async function getLogs(): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/admin/logs/`);
+        const response: AxiosResponse = await axios.get(`${API_BASE_URL}/api/admin/logs/`);
         return { status: response.status, message: response.data.message, data: response.data };
     } catch (error: any) {
         return { status: error.response.status, message: error.response.data.message };

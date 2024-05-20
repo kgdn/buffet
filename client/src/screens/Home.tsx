@@ -1,5 +1,5 @@
 /*
-* Home.jsx - Home screen and dashboard for the application.
+* Home.tsx - Home screen and dashboard for the application.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify
@@ -33,11 +33,11 @@ interface Image {
     iso: string;
     desktop: string;
     description: string;
+    linux: boolean;
     logo: string;
     homepage: string;
     beginner_friendly: boolean;
     desktop_homepage: string;
-    linux: boolean;
 }
 
 interface VmDetails {
@@ -49,7 +49,12 @@ interface VmDetails {
     password: string;
 }
 
-const Home: React.FC = () => {
+/**
+ * Home component
+ * @param {HomeProps} props - The properties of the component
+ * @returns {ReactNode} - The home component
+ */
+const Home: React.FC = (): React.ReactElement => {
     const { user } = useContext(AuthContext);
     const [loggedIn, setLoggedIn] = useState(false);
     const [iso, setImages] = useState<Image[]>([]);
@@ -78,7 +83,7 @@ const Home: React.FC = () => {
                 if (response.status === 200) {
                     const linuxImages: Image[] = [];
                     const nonLinuxImages: Image[] = [];
-                    response.data.forEach((image: Image) => {
+                    (response.data as Image[]).forEach((image: Image) => {
                         if (image.linux) {
                             linuxImages.push(image);
                         } else {
@@ -93,7 +98,7 @@ const Home: React.FC = () => {
             const getVMCount = async () => {
                 const response = await getRunningVMs();
                 if (response.status === 200) {
-                    setVMCount(response.data.vm_count);
+                    setVMCount(response.data.count);
                 }
             };
 

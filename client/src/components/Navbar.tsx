@@ -22,7 +22,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import logo from '../assets/logo.svg';
 import { AuthContext } from '../contexts/AuthContext';
 
-const NavbarComponent: React.FC = () => {
+const NavbarComponent: React.FC = (): React.ReactElement => {
 
     const { user, logout } = useContext(AuthContext);
 

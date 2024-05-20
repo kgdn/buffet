@@ -35,17 +35,17 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 ## Screenshots and GIFs
 
 <div align="center">
-    <img src="images/light-mode.png" alt="Light Mode">
+    <img src="assets/light-mode.png" alt="Light Mode">
     <p>Buffet comes with a light theme that is easy on the eyes and looks great on any device.</p>
 </div>
 
 <div align="center">
-    <img src="images/dark-mode.png" alt="Dark Mode">
+    <img src="assets/dark-mode.png" alt="Dark Mode">
     <p>If you prefer a darker theme, Buffet has you covered with a dark mode that is easy on the eyes.</p>
 </div>
 
 <div align="center">
-    <img src="images/virtual-machine-view.gif" alt="Virtual Machine View">
+    <img src="assets/virtual-machine-view.gif" alt="Virtual Machine View">
     <p>The virtual machine view allows you to access your virtual machines using noVNC, and comes with draggable, usable navigation bars.</p>
 </div>
 
@@ -92,7 +92,6 @@ npm install
 BROWSER= # none
 GENERATE_SOURCEMAP= # true or false
 VITE_BASE_URL= # url of api (e.g. https://localhost)
-VITE_BASE_PORT= # port of api (e.g. 8000)
 VITE_MAX_VM_COUNT= # max no. of virtual machines available at any given time
 ```
 

@@ -1,5 +1,5 @@
 /*
-* LoginRegis.jsx - Login and registration screen for the application.
+* LoginRegis.tsx - Login and registration screen for the application.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ import validator from 'validator';
 import passwordValidator from 'password-validator';
 import Footer from '../components/Footer';
 
-const LoginRegis: React.FC = () => {
+const LoginRegis: React.FC = (): React.ReactElement => {
     const [loginUsername, setLoginUsername] = useState('');
     const [loginPassword, setLoginPassword] = useState('');
     const [registerUsername, setRegisterUsername] = useState('');

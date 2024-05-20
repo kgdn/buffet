@@ -47,13 +47,13 @@ interface AuthProviderProps {
  * @param {AuthProviderProps} props - The properties of the component
  * @returns {ReactNode} - The authentication provider component
  */
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }: AuthProviderProps) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }: AuthProviderProps): ReactNode => {
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
         getUserDetails().then((response) => {
             if (response.status === 200) {
-                setUser(response.data);
+                setUser(response.data as User);
             }
         });
     }, []);

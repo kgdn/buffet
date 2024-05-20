@@ -25,7 +25,6 @@ axios.defaults.withCredentials = true;
 axios.defaults.headers.common['X-CSRF-TOKEN'] = cookies.get('csrf_access_token');
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
-const API_BASE_PORT = import.meta.env.VITE_BASE_PORT;
 
 interface ApiResponse<T = any> {
     status: number;
@@ -39,7 +38,7 @@ interface ApiResponse<T = any> {
  */
 export async function getIsoFiles(): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/iso/`, {
+        const response: AxiosResponse = await axios.get(`${API_BASE_URL}/api/vm/iso/`, {
             withCredentials: true,
         });
         return { status: response.status, message: response.data.message, data: response.data };
@@ -55,7 +54,7 @@ export async function getIsoFiles(): Promise<ApiResponse> {
  */
 export async function createVirtualMachine(iso: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/create/`, {
+        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/vm/create/`, {
             iso
         });
         return { status: response.status, message: response.data.message, data: response.data };
@@ -71,7 +70,7 @@ export async function createVirtualMachine(iso: string): Promise<ApiResponse> {
  */
 export async function deleteVirtualMachine(vm_id: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.delete(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/delete/`, {
+        const response: AxiosResponse = await axios.delete(`${API_BASE_URL}/api/vm/delete/`, {
             data: {
                 vm_id
             }
@@ -88,7 +87,7 @@ export async function deleteVirtualMachine(vm_id: string): Promise<ApiResponse> 
  */
 export async function getVirtualMachineByUser(): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/user/`);
+        const response: AxiosResponse = await axios.get(`${API_BASE_URL}/api/vm/user/`);
         return { status: response.status, message: response.data.message, data: response.data };
     } catch (error: any) {
         return { status: error.response.status, message: error.response.data.message };
@@ -101,7 +100,7 @@ export async function getVirtualMachineByUser(): Promise<ApiResponse> {
  */
 export async function getRunningVMs(): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/vm/count/`);
+        const response: AxiosResponse = await axios.get(`${API_BASE_URL}/api/vm/count/`);
         return { status: response.status, message: response.data.message, data: response.data };
     } catch (error: any) {
         return { status: error.response.status, message: error.response.data.message };

@@ -22,7 +22,6 @@ import Cookies from 'universal-cookie';
 const cookies = new Cookies(null, { path: '/' });
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
-const API_BASE_PORT = import.meta.env.VITE_BASE_PORT;
 
 interface ApiResponse<T = any> {
     status: number;
@@ -39,7 +38,7 @@ interface ApiResponse<T = any> {
  */
 export async function logIn(username: string, password: string, code: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/user/login/`, {
+        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/login/`, {
             username,
             password,
             code
@@ -59,7 +58,7 @@ export async function logIn(username: string, password: string, code: string): P
  */
 export async function register(username: string, email: string, password: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/user/register/`, {
+        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/register/`, {
             username,
             email,
             password
@@ -77,7 +76,7 @@ export async function register(username: string, email: string, password: string
  */
 export async function resendVerificationEmail(username: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/user/verify/resend/`, {
+        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/verify/resend/`, {
             username
         });
         return { status: response.status, message: response.data.message };
@@ -94,7 +93,7 @@ export async function resendVerificationEmail(username: string): Promise<ApiResp
  */
 export async function verifyRegistration(username: string, unique_code: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/user/verify/`, {
+        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/verify/`, {
             username,
             unique_code
         });
@@ -110,7 +109,7 @@ export async function verifyRegistration(username: string, unique_code: string):
  */
 export async function logOut(): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/user/logout/`, {}, {
+        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/logout/`, {}, {
             withCredentials: true
         });
         return { status: response.status, message: response.data.message };
@@ -127,7 +126,7 @@ export async function logOut(): Promise<ApiResponse> {
  */
 export async function deleteAccount(password: string, code: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.delete(`${API_BASE_URL}:${API_BASE_PORT}/api/user/delete/`, {
+        const response: AxiosResponse = await axios.delete(`${API_BASE_URL}/api/user/delete/`, {
             data: { password, code },
             withCredentials: true,
             headers: {
@@ -146,7 +145,7 @@ export async function deleteAccount(password: string, code: string): Promise<Api
  */
 export async function getUserDetails(): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.get(`${API_BASE_URL}:${API_BASE_PORT}/api/user/`, {
+        const response: AxiosResponse = await axios.get(`${API_BASE_URL}/api/user/`, {
             withCredentials: true,
             headers: {
                 'X-CSRF-TOKEN': cookies.get('csrf_access_token')
@@ -166,7 +165,7 @@ export async function getUserDetails(): Promise<ApiResponse> {
  */
 export async function changeUsername(username: string, password: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/user/username/`, {
+        const response: AxiosResponse = await axios.put(`${API_BASE_URL}/api/user/username/`, {
             username,
             password
         }, {
@@ -189,7 +188,7 @@ export async function changeUsername(username: string, password: string): Promis
  */
 export async function changePassword(current_password: string, new_password: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/user/password/`, {
+        const response: AxiosResponse = await axios.put(`${API_BASE_URL}/api/user/password/`, {
             current_password,
             new_password
         }, {
@@ -212,7 +211,7 @@ export async function changePassword(current_password: string, new_password: str
  */
 export async function changeEmail(email: string, password: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.put(`${API_BASE_URL}:${API_BASE_PORT}/api/user/email/`, {
+        const response: AxiosResponse = await axios.put(`${API_BASE_URL}/api/user/email/`, {
             email,
             password
         }, {
@@ -233,7 +232,7 @@ export async function changeEmail(email: string, password: string): Promise<ApiR
  */
 export async function enableTwoFactorAuth(): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/user/2fa/`, {}, {
+        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/2fa/`, {}, {
             withCredentials: true,
             headers: {
                 'X-CSRF-TOKEN': cookies.get('csrf_access_token')
@@ -252,7 +251,7 @@ export async function enableTwoFactorAuth(): Promise<ApiResponse> {
  */
 export async function verifyTwoFactorAuth(token: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/user/2fa/verify/`, {
+        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/2fa/verify/`, {
             token
         }, {
             withCredentials: true,
@@ -273,7 +272,7 @@ export async function verifyTwoFactorAuth(token: string): Promise<ApiResponse> {
  */
 export async function disableTwoFactorAuth(password: string): Promise<ApiResponse> {
     try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/user/2fa/disable/`, {
+        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/2fa/disable/`, {
             password
         }, {
             withCredentials: true,

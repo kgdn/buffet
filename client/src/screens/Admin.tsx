@@ -1,5 +1,5 @@
 /*
-* Admin.jsx - Admin panel for the application.
+* Admin.tsx - Admin panel for the application.
 * Copyright (C) 2024, Kieran Gordon
 * 
 * This program is free software: you can redistribute it and/or modify
@@ -31,6 +31,21 @@ interface User {
 	ip: string;
 }
 
+interface UnverifiedUser {
+	id: number;
+	username: string;
+	email: string;
+}
+
+interface BannedUser {
+	user_id: string;
+	username: string;
+	email: string;
+	ban_reason: string;
+	login_time: string;
+	ip: string;
+}
+
 interface VM {
 	id: number;
 	user_id: number;
@@ -54,7 +69,7 @@ interface Logs {
 	[date: string]: string[];
 }
 
-const Admin: React.FC = () => {
+const Admin: React.FC = (): React.ReactElement => {
 	/* 
 	 * I have to admit, this is not the most elegant solution, but it works. I have to use multiple states for each modal, 
 	 * because if I use one state for all modals, the modals will not work as expected. A better solution for state management would 
@@ -80,14 +95,14 @@ const Admin: React.FC = () => {
 	const [stopVMMessage, setStopVMMessage] = useState('');
 	const [selectedUser, setSelectedUser] = useState('');
 	const [selectedVM, setSelectedVM] = useState('');
-	const [bannedUsers, setBannedUsers] = useState([]);
+	const [bannedUsers, setBannedUsers] = useState<BannedUser[]>([]);
 	const [showBanModal, setShowBanModal] = useState(false);
 	const [banReason, setBanReason] = useState('');
 	const [banMessage, setBanMessage] = useState('');
 	const [unbanMessage, setUnbanMessage] = useState('');
 	const [showUnbanModal, setShowUnbanModal] = useState(false);
 	const [bannedMessage, setBannedMessage] = useState('');
-	const [unverifiedUsers, setUnverifiedUsers] = useState([]);
+	const [unverifiedUsers, setUnverifiedUsers] = useState<UnverifiedUser[]>([]);
 	const [unverifiedMessage, setUnverifiedMessage] = useState('');
 	const [showVerifyModal, setShowVerifyModal] = useState(false);
 	const [verifyMessage, setVerifyMessage] = useState('');

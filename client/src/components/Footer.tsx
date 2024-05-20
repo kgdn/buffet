@@ -19,7 +19,7 @@
 import React from 'react';
 import { Container, Row, Col, Image } from 'react-bootstrap';
 
-const Footer: React.FC = () => {
+const Footer: React.FC = (): React.ReactElement => {
     return (
         <div className='footer'>
             <Container>

@@ -66,8 +66,13 @@ def index_vm():
     with open("iso/index.json", "r", encoding="utf-8") as f:
         data = json.load(f)
         for iso in data:
-            with open("iso/logos/" + iso["logo"], "rb") as f:
-                iso["logo"] = base64.b64encode(f.read()).decode("utf-8")
+            logo_path = "iso/logos/" + iso["logo"]
+            if os.path.exists(logo_path):
+                with open(logo_path, "rb") as f:
+                    iso["logo"] = base64.b64encode(f.read()).decode("utf-8")
+            else:
+                with open("assets/unknown.png", "rb") as f:
+                    iso["logo"] = base64.b64encode(f.read()).decode("utf-8")
 
     return jsonify(data), 200
 
