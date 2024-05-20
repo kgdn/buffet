@@ -277,7 +277,7 @@ Buffet is an open-source project, and contributions are welcome. If you would li
 > When contributing to Buffet's back-end, please follow the [PEP 8](https://pep8.org/) style guide for Python code. Please ensure that your code follows the [PEP 8](https://pep8.org/) style guide and that your commit messages are clear and concise. Use the Black code formatter, isort, and pylint to format your code and check for errors.
 
 > [!IMPORTANT]
-> When contributing to Buffet's front-end, use ESLint, Prettier, and Stylelint to format your code and check for errors. Please ensure that your code follows the [Airbnb JavaScript Style Guide](https://airbnb.io/javascript/).
+> When contributing to Buffet's front-end, use ESLint, Prettier and Stylelint to format your code and check for errors.
 
 ## License
 
