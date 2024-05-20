@@ -1,5 +1,5 @@
 <div align="center" style="margin-bottom: 20px;">
-  <img src="images/logo.png" alt="Buffet Logo" width="200" height="200">
+  <img src="assets/logo.png" alt="Buffet Logo" width="200" height="200">
 </div>
 
 <div align="center">
