@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /*
 * index.jsx - Main entry point for the application.
 * Copyright (C) 2024, Kieran Gordon

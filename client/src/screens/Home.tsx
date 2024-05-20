@@ -37,6 +37,7 @@ interface Image {
     homepage: string;
     beginner_friendly: boolean;
     desktop_homepage: string;
+    linux: boolean;
 }
 
 interface VmDetails {
@@ -75,9 +76,9 @@ const Home: React.FC = () => {
             const getImages = async () => {
                 const response = await getIsoFiles();
                 if (response.status === 200) {
-                    const linuxImages: any[] | ((prevState: Image[]) => Image[]) = [];
-                    const nonLinuxImages: any[] | ((prevState: Image[]) => Image[]) = [];
-                    response.data.forEach((image: { linux: any; }) => {
+                    const linuxImages: Image[] = [];
+                    const nonLinuxImages: Image[] = [];
+                    response.data.forEach((image: Image) => {
                         if (image.linux) {
                             linuxImages.push(image);
                         } else {
@@ -156,13 +157,18 @@ const Home: React.FC = () => {
     }
 
     const connectToVM = useCallback(() => {
-        const rfb = new RFB(document.getElementById('app')!, `wss://${API_BASE_URL}:${vmDetails.wsport}`, {
-            credentials: { username: '', password: vmDetails.password, target: '' }
-        });
-        rfb.viewOnly = true;
-        rfb.scaleViewport = true;
-        rfb.resizeSession = true;
-    }, [vmDetails.password, vmDetails.wsport]);
+        const appElement = document.getElementById('app');
+        if (appElement) {
+            const rfb = new RFB(appElement, `wss://${API_BASE_URL}:${vmDetails.wsport}`, {
+                credentials: { username: '', password: vmDetails.password, target: '' }
+            });
+            rfb.viewOnly = true;
+            rfb.scaleViewport = true;
+            rfb.resizeSession = true;
+        } else {
+            console.error('App element not found');
+        }
+    }, [vmDetails.password, vmDetails.wsport, API_BASE_URL]);
 
     useEffect(() => {
         // If the user has a VM running, connect to it

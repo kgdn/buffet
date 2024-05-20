@@ -32,7 +32,11 @@ interface AuthContextType {
     logout: () => void;
 }
 
-export const AuthContext = createContext<AuthContextType>({ user: null, logout: () => { } });
+const defaultLogout = () => {
+    console.error('Logout function not set');
+}
+
+export const AuthContext = createContext<AuthContextType>({ user: null, logout: () => defaultLogout() });
 
 interface AuthProviderProps {
     children: ReactNode;

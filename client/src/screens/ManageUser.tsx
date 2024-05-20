@@ -150,32 +150,24 @@ const VirtualMachineView: React.FC = () => {
     };
 
     const EnableTwoFactorButton = async () => {
-        try {
-            enableTwoFactorAuth().then((response) => {
-                if (response.status === 200) {
-                    setQrCode(response.data.qr_code);
-                    setShowTwoFactorModal(true);
-                } else {
-                    setTwoFactorMessage(response.message);
-                }
-            });
-        } catch (error: any) {
-            setTwoFactorMessage(error.response.data.message);
-        }
+        enableTwoFactorAuth().then((response) => {
+            if (response.status === 200) {
+                setQrCode(response.data.qr_code);
+                setShowTwoFactorModal(true);
+            } else {
+                setTwoFactorMessage(response.message);
+            }
+        });
     };
 
     const VerifyTwoFactorButton = async () => {
-        try {
-            verifyTwoFactorAuth(twoFactorCode).then((response) => {
-                if (response.status === 200) {
-                    window.location.reload();
-                } else {
-                    setTwoFactorMessage(response.message);
-                }
-            });
-        } catch (error: any) {
-            setTwoFactorMessage(error.response.data.message);
-        }
+        verifyTwoFactorAuth(twoFactorCode).then((response) => {
+            if (response.status === 200) {
+                window.location.reload();
+            } else {
+                setTwoFactorMessage(response.message);
+            }
+        });
     };
 
     const DisableTwoFactorButton = async () => {
@@ -185,17 +177,13 @@ const VirtualMachineView: React.FC = () => {
             return;
         }
 
-        try {
-            disableTwoFactorAuth(currentPassword).then((response) => {
-                if (response.status === 200) {
-                    window.location.reload();
-                } else {
-                    setTwoFactorMessage(response.message);
-                }
-            });
-        } catch (error: any) {
-            setTwoFactorMessage(error.response.data.message);
-        }
+        disableTwoFactorAuth(currentPassword).then((response) => {
+            if (response.status === 200) {
+                window.location.reload();
+            } else {
+                setTwoFactorMessage(response.message);
+            }
+        });
     };
 
     useEffect(() => {

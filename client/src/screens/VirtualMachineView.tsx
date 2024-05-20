@@ -103,11 +103,11 @@ const VirtualMachineView: React.FC = () => {
     * @returns {void} - No return value
     */
     const handleFullscreen = () => {
-        const elem = document.getElementById('app')!;
+        const elem = document.getElementById('app');
         if (document.fullscreenElement) {
             document.exitFullscreen();
         } else {
-            elem.requestFullscreen();
+            elem?.requestFullscreen();
         }
     };
 
@@ -117,20 +117,25 @@ const VirtualMachineView: React.FC = () => {
      * @returns {void} - No return value
      */
     const connectToVM = useCallback(() => {
-        const rfb = new RFB(document.getElementById('app')!, `wss://${API_BASE_URL}:${vmDetails.wsport}`, {
-            credentials: { username: '', password: vmDetails.password, target: '' }
-        });
-        rfb.scaleViewport = true;
-        rfb.resizeSession = true;
-        rfb.focusOnClick = true;
-
-        // When the connection is established, focus on the virtual machine
-        rfb.addEventListener("connect", () => {
-            rfb.focus();
-            rfb.addEventListener("disconnect", () => {
-                deleteVM();
+        const appElement = document.getElementById('app');
+        if (appElement) {
+            const rfb = new RFB(appElement, `wss://${API_BASE_URL}:${vmDetails.wsport}`, {
+                credentials: { username: '', password: vmDetails.password, target: '' }
             });
-        });
+            rfb.viewOnly = true;
+            rfb.scaleViewport = true;
+            rfb.resizeSession = true;
+
+            // When the connection is established, focus on the virtual machine
+            rfb.addEventListener("connect", () => {
+                rfb.focus();
+                rfb.addEventListener("disconnect", () => {
+                    deleteVM();
+                });
+            });
+        } else {
+            console.error('App element not found');
+        }
     }, [API_BASE_URL, deleteVM, vmDetails.password, vmDetails.wsport]);
 
     /**
