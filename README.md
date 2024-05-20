@@ -92,7 +92,7 @@ npm install
 **`.env`**
 
 ```bash
-BROWSER= # none
+BROWSER= # none or chrome or firefox or edge or safari
 GENERATE_SOURCEMAP= # true or false
 VITE_BASE_URL= # url of api (e.g. https://localhost)
 VITE_MAX_VM_COUNT= # max no. of virtual machines available at any given time
