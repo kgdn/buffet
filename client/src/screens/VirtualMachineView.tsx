@@ -122,9 +122,11 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
             const rfb = new RFB(appElement, `wss://${API_BASE_URL}:${vmDetails.wsport}`, {
                 credentials: { username: '', password: vmDetails.password, target: '' }
             });
-            rfb.viewOnly = true;
+
             rfb.scaleViewport = true;
             rfb.resizeSession = true;
+            rfb.focusOnClick = true;
+            rfb.clipViewport = true;
 
             // When the connection is established, focus on the virtual machine
             rfb.addEventListener("connect", () => {
