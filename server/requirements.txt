@@ -46,7 +46,7 @@ pytz==2024.1
 qemu.qmp==0.0.3
 qrcode==7.4.2
 redis==5.0.4
-requests==2.31.0
+requests==2.32.0
 rich==13.7.1
 setuptools==69.5.1
 simplejson==3.19.2
