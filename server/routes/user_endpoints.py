@@ -365,8 +365,8 @@ def resend_verification_email():
             <p>Please enter this code on the website to verify your account.</p>
             <br>
             <p>Buffet is a free and open source student project developed by <a href="https://kgdn.xyz/">Kieran Gordon</a> as a part of a final year project at <a href="https://www.hw.ac.uk/">Heriot-Watt University</a>.</p>
-            <p>The source code for Buffet can be found on <a href="github.com/kgdn/buffet">GitHub</a>. If you would like to contribute, please feel free to make a pull request or open an issue.</p>
-            <p>If you have any questions, please contact me at <a href="mailto:kjg2000@hw.ac.uk">
+            <p>The source code for Buffet can be found on <a href="https://github.com/kgdn/buffet">GitHub</a>. If you would like to contribute, please feel free to make a pull request or open an issue.</p>
+            <p>If you have any questions, please contact me at <a href="mailto:kjg2000@hw.ac.uk">kjg2000@hw.ac.uk</a>.</p>
             <br>
             <p>Thank you!</p>
             <p><i>Kieran Gordon</i></p>
