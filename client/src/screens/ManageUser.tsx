@@ -124,7 +124,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
 
     const DeleteAccountButton = () => {
         if (currentPassword.trim() === '') {
-            setMessage('Password cannot be empty.');
+            setDeleteMessage('Password cannot be empty.');
             return;
         }
 

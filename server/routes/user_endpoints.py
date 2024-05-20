@@ -175,7 +175,7 @@ def register():
         return jsonify({"message": "Invalid username"}), 400
 
     # Check if the password matches the password policy
-    if not policy.test(password):
+    if policy.test(password):
         return (
             jsonify(
                 {
