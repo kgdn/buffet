@@ -2,7 +2,13 @@
   <img src="images/logo.png" alt="Buffet Logo" width="200" height="200">
 </div>
 
-# Buffet [![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![GitHub issues](https://img.shields.io/github/issues/kgdn/buffet)](https://github.com/kgdn/buffet/issues) [![GitHub stars](https://img.shields.io/github/stars/kgdn/buffet)](https://github.com/kgdn/buffet/stargazers)
+<div align="center">
+  <h1>Buffet</h1>
+  <p>A full-stack, fully-featured web-based virtual machine manager</p>
+
+  [![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![GitHub issues](https://img.shields.io/github/issues/kgdn/buffet)](https://github.com/kgdn/buffet/issues) [![GitHub stars](https://img.shields.io/github/stars/kgdn/buffet)](https://github.com/kgdn/buffet/stargazers)
+
+</div>
 
 Buffet is a full-stack, fully-featured web-based virtual machine manager that aims to provide a free, open-source, lightweight, easy-to-use, and secure alternative to other web-based virtual machine managers such as [DistroSea](https://distrosea.com/) and [DistroTest](https://www.reddit.com/r/DistroHopping/comments/wqrwbw/what_happened_to_distrotestnet/).
 The back-end is written in Python using the [Flask](https://github.com/pallets/flask) web framework, and the front-end is written in JavaScript with the [React](https://github.com/facebook/react) library. Buffet uses [QEMU](https://github.com/qemu/qemu) and [KVM](https://www.linux-kvm.org/) for virtualization, and [noVNC](https://github.com/novnc/noVNC) + [websockify](https://github.com/novnc/websockify) for remote desktop access.
@@ -27,16 +33,21 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 - Secure user authentication and authorisation using JSON Web Tokens (JWT), bcrypt and two-factor authentication
 - Supports any SQL database supported by SQLAlchemy, such as SQLite, PostgreSQL, MySQL, and MariaDB
 
-## Screenshots
+## Screenshots and GIFs
 
 <div align="center">
-    <img src="images/homepage.png" alt="Homepage">
-    <p>The dashboard showing the virtual machines</p>
+    <img src="images/light-mode.png" alt="Light Mode">
+    <p>Buffet comes with a light theme that is easy on the eyes and looks great on any device.</p>
 </div>
 
 <div align="center">
-    <img src="images/virtual-machine-view.png" alt="Virtual Machines">
-    <p>A virtual machine running Linux Mint</p>
+    <img src="images/dark-mode.png" alt="Dark Mode">
+    <p>If you prefer a darker theme, Buffet has you covered with a dark mode that is easy on the eyes.</p>
+</div>
+
+<div align="center">
+    <img src="images/virtual-machine-view.gif" alt="Virtual Machine View">
+    <p>The virtual machine view allows you to access your virtual machines using noVNC, and comes with draggable, usable navigation bars.</p>
 </div>
 
 ## Installation
