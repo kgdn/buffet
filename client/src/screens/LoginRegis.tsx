@@ -30,12 +30,13 @@ const LoginRegis: React.FC = () => {
     const [registerUsername, setRegisterUsername] = useState('');
     const [registerEmail, setRegisterEmail] = useState('');
     const [registerPassword, setRegisterPassword] = useState('');
-    const [message, setMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [token, setToken] = useState('');
     const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
     const [twoFactorMessage, setTwoFactorMessage] = useState(''); // Error message for 2FA
     const [twoFactorCode, setTwoFactorCode] = useState('');
+    const [emailMessage, setEmailMessage] = useState(''); // Error message for email verification
     const schema = new passwordValidator();
 
     useEffect(() => {
@@ -44,27 +45,27 @@ const LoginRegis: React.FC = () => {
 
     const LoginButton = () => {
         if (loginUsername.trim() === '' || loginPassword.trim() === '') {
-            setMessage('Username and password cannot be empty.');
+            setErrorMessage('Username and password cannot be empty.');
             return;
         }
         AccountsAPI.login(loginUsername, loginPassword, token).then((response) => {
             // If account is unverified, show modal to verify email
-            if (response.message === 'Please verify your account before logging in') {
-                setShowModal(true);
-            }
-            // If account requires 2FA, show modal to enter 2FA code
-            if (response.message === 'Please provide the 2FA code') {
-                setShowTwoFactorModal(true);
-            }
-            // If 2FA code is invalid, show error message
-            if (response.message === 'Invalid 2FA code') {
-                setTwoFactorMessage(response.message);
-            }
-            // If login is successful, redirect to home page
-            else if (response.status === 200) {
-                window.location.href = '/';
-            } else { // If login is unsuccessful, show error message
-                setMessage(response.message);
+            switch (response.message) {
+                case 'Please verify your account before logging in':
+                    setShowModal(true);
+                    break;
+                case 'Invalid 2FA code':
+                    setTwoFactorMessage('Invalid two-factor code.');
+                    break;
+                case 'Please provide the 2FA code':
+                    setShowTwoFactorModal(true);
+                    break;
+                case 'Login is successful':
+                    window.location.href = '/';
+                    break;
+                default:
+                    setErrorMessage(response.message);
+                    break;
             }
         }).catch((error) => {
             setTwoFactorMessage('An error occurred while logging in. Please try again. Error: ' + error);
@@ -73,17 +74,18 @@ const LoginRegis: React.FC = () => {
 
     const RegisterButton = () => {
         if (registerUsername.trim() === '' || registerEmail.trim() === '' || registerPassword.trim() === '') {
-            setMessage('Username, email, and password cannot be empty.');
+            setErrorMessage('Username, email, and password cannot be empty.');
             return;
         }
+
         if (!validator.isEmail(registerEmail)) {
-            setMessage('Invalid email.');
+            setErrorMessage('Invalid email.');
             return;
         }
 
         // Username can only contain letters, numbers, underscores, and dashes. It cannot contain spaces.
         if (!validator.matches(registerUsername, /^[a-zA-Z0-9_-]+$/)) {
-            setMessage('Invalid username. Your username can only contain letters, numbers, underscores, and dashes. It cannot contain spaces.');
+            setErrorMessage('Invalid username. Your username can only contain letters, numbers, underscores, and dashes. It cannot contain spaces.');
             return;
         }
 
@@ -91,7 +93,7 @@ const LoginRegis: React.FC = () => {
         schema.is().min(8).is().max(100).has().uppercase().has().lowercase().has().digits(2).has().not().spaces().has().symbols();
 
         if (!schema.validate(registerPassword)) {
-            setMessage('Invalid password. Your password must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces.');
+            setErrorMessage('Invalid password. Your password must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces.');
             return;
         }
 
@@ -100,7 +102,7 @@ const LoginRegis: React.FC = () => {
             if (response.status === 201) {
                 setShowModal(true);
             } else {
-                setMessage(response.message);
+                setErrorMessage(response.message);
             }
         });
     };
@@ -118,25 +120,34 @@ const LoginRegis: React.FC = () => {
                     if (response.status === 200) {
                         window.location.href = '/';
                     } else {
-                        setTwoFactorMessage(response.message);
+                        setEmailMessage(response.message);
                     }
                 });
             }
             if (response.status === 401) {
-                setTwoFactorMessage(response.message);
+                setEmailMessage(response.message);
             }
         });
     }
 
     const TwoFactorButton = () => {
         if (twoFactorCode.trim() === '') {
-            setMessage('Two-factor code cannot be empty.');
+            setTwoFactorMessage('Two-factor code cannot be empty.');
             return;
         }
         AccountsAPI.login(loginUsername, loginPassword, twoFactorCode).then((response) => {
             if (response.status === 200) {
                 window.location.href = '/';
+            } else {
+                setTwoFactorMessage(response.message);
             }
+        });
+    }
+
+    const ResendVerificationEmailButton = () => {
+        const username = registerUsername || loginUsername;
+        AccountsAPI.resendVerificationEmail(username).then((response) => {
+            setEmailMessage(response.message);
         });
     }
 
@@ -148,8 +159,8 @@ const LoginRegis: React.FC = () => {
                     <Col>
                         <h1>Login</h1>
                         <p>Already have an account? Login.</p>
-                        <Alert variant="danger" style={{ display: message === '' ? 'none' : 'block', marginTop: '1rem' }}>
-                            {message}
+                        <Alert variant="danger" style={{ display: errorMessage === '' ? 'none' : 'block', marginTop: '1rem' }}>
+                            {errorMessage}
                         </Alert>
                         <Form onSubmit={(e) => { e.preventDefault(); LoginButton(); }}>
                             <Form.Group as={Row} controlId="formLoginUsername" className="mb-2">
@@ -222,11 +233,14 @@ const LoginRegis: React.FC = () => {
                             </Col>
                         </Form.Group>
                     </Form>
+                    <Alert variant="danger" style={{ display: emailMessage === '' ? 'none' : 'block', marginTop: '1rem' }}>
+                        {emailMessage}
+                    </Alert>
                 </Modal.Body>
                 <Modal.Footer>
                     <ButtonGroup>
                         <Button variant="primary" onClick={VerifyButton}>Verify</Button>
-                        <Button variant="danger" onClick={() => setShowModal(false)}>Cancel</Button>
+                        <Button variant="danger" onClick={ResendVerificationEmailButton}>Resend email</Button>
                     </ButtonGroup>
                 </Modal.Footer>
             </Modal>
@@ -237,7 +251,6 @@ const LoginRegis: React.FC = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <p>Enter the two-factor authentication code from your authenticator app.</p>
-                    {twoFactorMessage === '' ? '' : <Alert variant="danger">{twoFactorMessage}</Alert>}
                     <p>If you have not set up two-factor authentication, please contact the system administrator.</p>
                     <Form onSubmit={(e) => { e.preventDefault(); TwoFactorButton(); }}>
                         <Form.Group as={Row} controlId="formTwoFactorCode" className="mb-2">
@@ -245,6 +258,9 @@ const LoginRegis: React.FC = () => {
                                 <Form.Control type="text" placeholder="Two-factor code" onChange={(e) => setTwoFactorCode(e.target.value)} />
                             </Col>
                         </Form.Group>
+                        <Alert variant="danger" style={{ display: twoFactorMessage === '' ? 'none' : 'block', marginTop: '1rem' }}>
+                            {twoFactorMessage}
+                        </Alert>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
@@ -253,9 +269,8 @@ const LoginRegis: React.FC = () => {
                         <Button variant="danger" onClick={() => setShowTwoFactorModal(false)}>Cancel</Button>
                     </ButtonGroup>
                 </Modal.Footer>
-
             </Modal>
-        </div >
+        </div>
     );
 }
 

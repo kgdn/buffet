@@ -16,6 +16,7 @@
 
 import json
 import os
+import re
 import subprocess
 from datetime import datetime
 
@@ -25,9 +26,46 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from helper_functions import HelperFunctions
 from models import BannedUser, UnverifiedUser, User, VirtualMachine, db
+from password_strength import PasswordPolicy
 
 admin_endpoints = Blueprint("admin", __name__)
 Bcrypt = Bcrypt()
+
+
+def is_valid_username(username):
+    """Check if the username is valid
+
+    Args:
+        username (str): The username to check
+
+    Returns:
+        bool: If the username is valid
+    """
+
+    return re.match("^[a-zA-Z0-9_-]+$", username)
+
+
+def is_valid_email(email):
+    """Check if the email is valid
+
+    Args:
+        email (str): The email to check
+
+    Returns:
+        bool: If the email is valid
+    """
+
+    return re.match(r"[^@]+@[^@]+\.[^@]+", email)
+
+
+# Check passwords on the back-end and on the front-end just in case
+policy = PasswordPolicy.from_names(
+    length=8,
+    uppercase=1,
+    numbers=2,
+    special=1,
+    nonletters=2,
+)
 
 
 @admin_endpoints.route("/api/admin/vm/all/", methods=["GET"])
@@ -354,7 +392,20 @@ def change_user_username():
     if not user_to_change:
         return jsonify({"message": "Invalid user"}), 404
 
-    # Check if the username is already taken
+    # Check if the username is already taken in the users table
+    username_exists = User.query.filter_by(username=data["username"]).first()
+    if username_exists:
+        return jsonify({"message": "Username already taken"}), 400
+
+    # Check if the username is already taken in the banned users table
+    username_exists = BannedUser.query.filter_by(username=data["username"]).first()
+    if username_exists:
+        return jsonify({"message": "Username already taken"}), 400
+
+    # Check if the username is a valid format
+    if not is_valid_username(data["username"]):
+        return jsonify({"message": "Invalid username"}), 400
+
     user_to_change.username = data["username"]
 
     db.session.commit()
@@ -410,6 +461,20 @@ def change_user_email():
     user_to_change = User.query.filter_by(id=data["user_id"]).first()
     if not user_to_change:
         return jsonify({"message": "Invalid user"}), 404
+
+    # Check if the email is already taken
+    email_exists = User.query.filter_by(email=data["email"]).first()
+    if email_exists:
+        return jsonify({"message": "Email already taken"}), 400
+
+    # Check if the email is already taken in the banned users table
+    email_exists = BannedUser.query.filter_by(email=data["email"]).first()
+    if email_exists:
+        return jsonify({"message": "Email already taken"}), 400
+
+    # Check if the email is valid
+    if not is_valid_email(data["email"]):
+        return jsonify({"message": "Invalid email"}), 400
 
     user_to_change.email = data["email"]
 

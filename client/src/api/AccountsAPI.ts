@@ -59,6 +59,18 @@ export default class AccountsAPI {
         }
     }
 
+    // Resend email verification code
+    static async resendVerificationEmail(username: string): Promise<ApiResponse> {
+        try {
+            const response: AxiosResponse = await axios.post(`${API_BASE_URL}:${API_BASE_PORT}/api/user/verify/resend/`, {
+                username
+            });
+            return { status: response.status, message: response.data.message };
+        } catch (error: any) {
+            return { status: error.response.status, message: error.response.data.message };
+        }
+    }
+
     // Verify the user's registration by checking the unique code
     static async verifyRegistration(username: string, unique_code: string): Promise<ApiResponse> {
         try {

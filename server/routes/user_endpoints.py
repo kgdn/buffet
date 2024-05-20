@@ -16,6 +16,7 @@
 
 import base64
 import os
+import re
 import subprocess
 from datetime import datetime, timedelta, timezone
 
@@ -35,6 +36,7 @@ from flask_jwt_extended import (
 from flask_mail import Mail, Message
 from helper_functions import HelperFunctions
 from models import BannedUser, UnverifiedUser, User, VirtualMachine, db
+from password_strength import PasswordPolicy
 
 user_endpoints = Blueprint("user_endpoints", __name__)
 Bcrypt = Bcrypt()
@@ -54,6 +56,42 @@ def refresh_expiring_jwts(response):
         return response
     except (RuntimeError, KeyError):
         return response
+
+
+def is_valid_username(username):
+    """Check if the username is valid
+
+    Args:
+        username (str): The username to check
+
+    Returns:
+        bool: If the username is valid
+    """
+
+    return re.match("^[a-zA-Z0-9_-]+$", username)
+
+
+def is_valid_email(email):
+    """Check if the email is valid
+
+    Args:
+        email (str): The email to check
+
+    Returns:
+        bool: If the email is valid
+    """
+
+    return re.match(r"[^@]+@[^@]+\.[^@]+", email)
+
+
+# Check passwords on the back-end and on the front-end just in case
+policy = PasswordPolicy.from_names(
+    length=8,
+    uppercase=1,
+    numbers=2,
+    special=1,
+    nonletters=2,
+)
 
 
 @user_endpoints.route("/api/user/", methods=["GET"])
@@ -123,6 +161,29 @@ def register():
     # Check if the email is already taken in the unverified users table
     if UnverifiedUser.query.filter_by(email=email).first():
         return jsonify({"message": "Email already taken"}), 409
+
+    # Check if the username is already taken in the banned users table
+    if BannedUser.query.filter_by(username=username).first():
+        return jsonify({"message": "Username already taken"}), 409
+
+    # Check if the email is already taken in the banned users table
+    if BannedUser.query.filter_by(email=email).first():
+        return jsonify({"message": "Email already taken"}), 409
+
+    # Check if the username matches the username policy
+    if not is_valid_username(username):
+        return jsonify({"message": "Invalid username"}), 400
+
+    # Check if the password matches the password policy
+    if not policy.test(password):
+        return (
+            jsonify(
+                {
+                    "message": "Password must be at least 8 characters long, contain at least 1 uppercase letter, 2 numbers, 1 special character, and 2 non-letter characters"
+                }
+            ),
+            400,
+        )
 
     # If everything is valid, create a new user
     new_user = UnverifiedUser(
@@ -224,7 +285,7 @@ def verify_user():
 
     # Check if the unique code is correct
     if user.unique_code != unique_code:
-        return jsonify({"message": "Invalid username or unique code"}), 401
+        return jsonify({"message": "Invalid code"}), 401
 
     # If everything is valid, create a new user
     new_user = User(
@@ -257,6 +318,71 @@ def verify_user():
     )
 
     return jsonify({"message": "User verified"}), 200
+
+
+@user_endpoints.route("/api/user/verify/resend/", methods=["POST"])
+def resend_verification_email():
+    """Resend the verification email to the user
+
+    Returns:
+        json: Message
+    """
+
+    # Get the data from the request
+    data = request.get_json()
+    if not data or "username" not in data:
+        return jsonify({"message": "Invalid data format"}), 400
+
+    # Check if the username is in the request
+    username = data["username"]
+
+    # Check if the user exists in the unverified users table
+    user = UnverifiedUser.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"message": "Invalid username"}), 401
+
+    # Generate a 6 character unique code
+    unique_code = user.unique_code
+
+    # Send the verification email
+    msg = Message(
+        "Buffet - Verify your account",
+        sender=(os.environ.get("MAIL_USERNAME")),
+        recipients=[user.email],
+    )
+    msg.html = f"""\
+    <html>
+        <head>
+            <style>
+                body {{
+                    font-family: sans-serif;
+                }}
+            </style>
+        </head>
+        <body>
+            <p>Hello! You're recieving this email because you created an account on Buffet.</p>
+            <p>Your unique 6 character code is: {unique_code}</p>
+            <p>Please enter this code on the website to verify your account.</p>
+            <br>
+            <p>Buffet is a free and open source student project developed by <a href="https://kgdn.xyz/">Kieran Gordon</a> as a part of a final year project at <a href="https://www.hw.ac.uk/">Heriot-Watt University</a>.</p>
+            <p>The source code for Buffet can be found on <a href="github.com/kgdn/buffet">GitHub</a>. If you would like to contribute, please feel free to make a pull request or open an issue.</p>
+            <p>If you have any questions, please contact me at <a href="mailto:kjg2000@hw.ac.uk">
+            <br>
+            <p>Thank you!</p>
+            <p><i>Kieran Gordon</i></p>
+        </body>
+    </html>
+    """
+    mail.send(msg)
+
+    return (
+        jsonify(
+            {
+                "message": "Verification email sent. Please check your email to verify your account. Please check your spam folder if you do not see the email."
+            }
+        ),
+        201,
+    )
 
 
 @user_endpoints.route("/api/user/login/", methods=["POST"])
@@ -513,18 +639,52 @@ def change_password():
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
-    # Get the current and new password from the request
+    # Get the new password from the request, and the current password
     data = request.get_json()
-    if not data or "current_password" not in data or "new_password" not in data:
+    if not data or "new_password" not in data or "current_password" not in data:
         return jsonify({"message": "Invalid data format"}), 400
 
-    # Check if the current password is correct
+    # Check if the user is banned
+    if BannedUser.query.filter_by(username=user.username).first():
+        return (
+            jsonify(
+                {
+                    "message": "You were banned for: "
+                    + BannedUser.query.filter_by(username=user.username)
+                    .first()
+                    .ban_reason
+                    + ". Please contact the head admin to appeal."
+                }
+            ),
+            403,
+        )
+
+    # Check if the user is unverified
+    if UnverifiedUser.query.filter_by(username=user.username).first():
+        return (
+            jsonify(
+                {"message": "Please verify your account before changing your password"}
+            ),
+            401,
+        )
+
     current_password = data["current_password"]
     new_password = data["new_password"]
 
     # Check if the current password is correct
     if not Bcrypt.check_password_hash(user.password, current_password):
         return jsonify({"message": "Invalid password"}), 401
+
+    # Check if the new password matches the password policy
+    if policy.test(new_password):
+        return (
+            jsonify(
+                {
+                    "message": "Password must be at least 8 characters long, contain at least 1 uppercase letter, 2 numbers, 1 special character, and 2 non-letter characters"
+                }
+            ),
+            400,
+        )
 
     # Change the password
     user.password = Bcrypt.generate_password_hash(new_password).decode("utf-8")
@@ -536,7 +696,7 @@ def change_password():
     HelperFunctions.create_cef_logs_folders()
 
     cef.log_cef(
-        "User password changed",
+        "User with ID: " + str(user.id) + " changed password",
         3,
         request.environ,
         config={
@@ -570,6 +730,46 @@ def change_username():
     data = request.get_json()
     if not data or "username" not in data or "password" not in data:
         return jsonify({"message": "Invalid data format"}), 400
+
+    # Check if the user is banned
+    if BannedUser.query.filter_by(username=user.username).first():
+        return (
+            jsonify(
+                {
+                    "message": "You were banned for: "
+                    + BannedUser.query.filter_by(username=user.username)
+                    .first()
+                    .ban_reason
+                    + ". Please contact the head admin to appeal."
+                }
+            ),
+            403,
+        )
+
+    # Check if the user is unverified
+    if UnverifiedUser.query.filter_by(username=user.username).first():
+        return (
+            jsonify(
+                {"message": "Please verify your account before changing your username"}
+            ),
+            401,
+        )
+
+    # Check if the username is already taken in the banned users table
+    if BannedUser.query.filter_by(username=data["username"]).first():
+        return jsonify({"message": "Username already taken"}), 409
+
+    # Check if the username is already taken in the unverified users table
+    if UnverifiedUser.query.filter_by(username=data["username"]).first():
+        return jsonify({"message": "Username already taken"}), 409
+
+    # Check if the username is already taken
+    if User.query.filter_by(username=data["username"]).first():
+        return jsonify({"message": "Username already taken"}), 409
+
+    # Ensure the username is valid
+    if not is_valid_username(data["username"]):
+        return jsonify({"message": "Invalid username"}), 400
 
     username = data["username"]
     password = data["password"]
@@ -629,6 +829,46 @@ def change_email():
     # Check if the current password is correct
     if not Bcrypt.check_password_hash(user.password, password):
         return jsonify({"message": "Invalid password"}), 401
+
+    # Check if the email is already taken
+    if User.query.filter_by(email=email).first():
+        return jsonify({"message": "Email already taken"}), 409
+
+    # Check if the email is already taken in the unverified users table
+    if UnverifiedUser.query.filter_by(email=email).first():
+        return jsonify({"message": "Email already taken"}), 409
+
+    # Check if the email is already taken in the banned users table
+    if BannedUser.query.filter_by(email=email).first():
+        return jsonify({"message": "Email already taken"}), 409
+
+    # Check if the user is banned
+    if BannedUser.query.filter_by(username=user.username).first():
+        return (
+            jsonify(
+                {
+                    "message": "You were banned for: "
+                    + BannedUser.query.filter_by(username=user.username)
+                    .first()
+                    .ban_reason
+                    + ". Please contact the head admin to appeal."
+                }
+            ),
+            403,
+        )
+
+    # Check if the user is unverified
+    if UnverifiedUser.query.filter_by(username=user.username).first():
+        return (
+            jsonify(
+                {"message": "Please verify your account before changing your email"}
+            ),
+            401,
+        )
+
+    # Check if the email is valid
+    if not is_valid_email(email):
+        return jsonify({"message": "Invalid email"}), 400
 
     # Change the email
     user.email = email

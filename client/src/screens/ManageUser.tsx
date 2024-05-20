@@ -58,6 +58,12 @@ const VirtualMachineView: React.FC = () => {
             return;
         }
 
+        // Username can only contain letters, numbers, underscores, and dashes. It cannot contain spaces.
+        if (!validator.matches(username, /^[a-zA-Z0-9_-]+$/)) {
+            setMessage('Invalid username. Your username can only contain letters, numbers, underscores, and dashes. It cannot contain spaces.');
+            return;
+        }
+
         AccountsAPI.changeUsername(username, currentPassword).then((response) => {
             if (response.status === 200) {
                 window.location.reload();
@@ -296,13 +302,6 @@ const VirtualMachineView: React.FC = () => {
                 <Modal.Body>
                     <p>Are you sure you want to delete your account?</p>
                     <p className="text-danger">This action cannot be undone.</p>
-                    {deleteMessage === '' ? (
-                        <></>
-                    ) : (
-                        <Alert variant="primary" role="alert">
-                            {deleteMessage}
-                        </Alert>
-                    )}
                     <Form onSubmit={(e) => { e.preventDefault(); DeleteAccountButton(); }}>
                         <Form.Group as={Row} controlId="formPassword" className="mb-2">
                             <Col>
@@ -310,6 +309,13 @@ const VirtualMachineView: React.FC = () => {
                             </Col>
                         </Form.Group>
                     </Form>
+                    {deleteMessage === '' ? (
+                        <></>
+                    ) : (
+                        <Alert variant="danger" role="alert">
+                            {deleteMessage}
+                        </Alert>
+                    )}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="danger" onClick={DeleteAccountButton}>
@@ -326,13 +332,6 @@ const VirtualMachineView: React.FC = () => {
                 <Modal.Body>
                     <p>Scan the QR code below with your two-factor authentication app to enable two-factor authentication.</p>
                     <Image src={decodeBase64(qrCode)} alt="QR Code" rounded fluid className='mb-3 mt-3' />
-                    {twoFactorMessage === '' ? (
-                        <></>
-                    ) : (
-                        <Alert variant="primary" role="alert">
-                            {twoFactorMessage}
-                        </Alert>
-                    )}
                     <Form onSubmit={(e) => { e.preventDefault(); VerifyTwoFactorButton(); }}>
                         <Form.Group as={Row} controlId="formTwoFactorCode" className="mb-2">
                             <Col>
@@ -340,6 +339,9 @@ const VirtualMachineView: React.FC = () => {
                             </Col>
                         </Form.Group>
                     </Form>
+                    <Alert variant="danger" style={{ display: twoFactorMessage === '' ? 'none' : 'block', marginTop: '1rem' }}>
+                        {twoFactorMessage}
+                    </Alert>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={VerifyTwoFactorButton}>
@@ -355,13 +357,6 @@ const VirtualMachineView: React.FC = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <p>Are you sure you want to disable two-factor authentication?</p>
-                    {twoFactorMessage === '' ? (
-                        <></>
-                    ) : (
-                        <Alert variant="primary" role="alert">
-                            {twoFactorMessage}
-                        </Alert>
-                    )}
                     <Form onSubmit={(e) => { e.preventDefault(); DisableTwoFactorButton(); }}>
                         <Form.Group as={Row} controlId="formPassword" className="mb-2">
                             <Col>
@@ -369,6 +364,9 @@ const VirtualMachineView: React.FC = () => {
                             </Col>
                         </Form.Group>
                     </Form>
+                    <Alert variant="danger" style={{ display: twoFactorMessage === '' ? 'none' : 'block', marginTop: '1rem' }}>
+                        {twoFactorMessage}
+                    </Alert>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="danger" onClick={DisableTwoFactorButton}>
@@ -385,13 +383,9 @@ const VirtualMachineView: React.FC = () => {
                 <Modal.Body>
                     <p>Enter the two-factor authentication code from your authenticator app.</p>
                     <p className="text-danger">Deleting your account requires two-factor authentication. Please enter the code below.</p>
-                    {deleteMessage === '' ? (
-                        <></>
-                    ) : (
-                        <Alert variant="primary" role="alert">
-                            {deleteMessage}
-                        </Alert>
-                    )}
+                    <Alert variant="danger" style={{ display: deleteMessage === '' ? 'none' : 'block', marginTop: '1rem' }}>
+                        {deleteMessage}
+                    </Alert>
                     <Form onSubmit={(e) => { e.preventDefault(); DeleteAccountButton(); }}>
                         <Form.Group as={Row} controlId="formTwoFactorCode" className="mb-2">
                             <Col>
