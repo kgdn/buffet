@@ -1,32 +1,32 @@
 /*
-* AccountsAPI.ts - API functions for user accounts.
-* Copyright (C) 2024, Kieran Gordon
-* 
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Affero General Public License as
-* published by the Free Software Foundation, either version 3 of the
-* License, or (at your option) any later version.
-* 
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Affero General Public License for more details.
-* 
-* You should have received a copy of the GNU Affero General Public License
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ * AccountsAPI.ts - API functions for user accounts.
+ * Copyright (C) 2024, Kieran Gordon
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
-import axios, { AxiosResponse } from 'axios';
-import Cookies from 'universal-cookie';
+import axios, { AxiosResponse } from "axios";
+import Cookies from "universal-cookie";
 
-const cookies = new Cookies(null, { path: '/' });
+const cookies = new Cookies(null, { path: "/" });
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
 interface ApiResponse<T = any> {
-    status: number;
-    message: string;
-    data?: T;
+  status: number;
+  message: string;
+  data?: T;
 }
 
 /**
@@ -36,17 +36,27 @@ interface ApiResponse<T = any> {
  * @param {string} code - The two-factor authentication code
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function logIn(username: string, password: string, code: string): Promise<ApiResponse> {
-    try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/login/`, {
-            username,
-            password,
-            code
-        });
-        return { status: response.status, message: response.data.message };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
-    }
+export async function logIn(
+  username: string,
+  password: string,
+  code: string
+): Promise<ApiResponse> {
+  try {
+    const response: AxiosResponse = await axios.post(
+      `${API_BASE_URL}/api/user/login/`,
+      {
+        username,
+        password,
+        code,
+      }
+    );
+    return { status: response.status, message: response.data.message };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 }
 
 /**
@@ -56,17 +66,27 @@ export async function logIn(username: string, password: string, code: string): P
  * @param {string} password - The password of the user
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function register(username: string, email: string, password: string): Promise<ApiResponse> {
-    try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/register/`, {
-            username,
-            email,
-            password
-        });
-        return { status: response.status, message: response.data.message };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
-    }
+export async function register(
+  username: string,
+  email: string,
+  password: string
+): Promise<ApiResponse> {
+  try {
+    const response: AxiosResponse = await axios.post(
+      `${API_BASE_URL}/api/user/register/`,
+      {
+        username,
+        email,
+        password,
+      }
+    );
+    return { status: response.status, message: response.data.message };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 }
 
 /**
@@ -74,15 +94,23 @@ export async function register(username: string, email: string, password: string
  * @param {string} username - The username of the user
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function resendVerificationEmail(username: string): Promise<ApiResponse> {
-    try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/verify/resend/`, {
-            username
-        });
-        return { status: response.status, message: response.data.message };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
-    }
+export async function resendVerificationEmail(
+  username: string
+): Promise<ApiResponse> {
+  try {
+    const response: AxiosResponse = await axios.post(
+      `${API_BASE_URL}/api/user/verify/resend/`,
+      {
+        username,
+      }
+    );
+    return { status: response.status, message: response.data.message };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 }
 
 /**
@@ -91,16 +119,25 @@ export async function resendVerificationEmail(username: string): Promise<ApiResp
  * @param {string} unique_code - The unique code sent to the user
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function verifyRegistration(username: string, unique_code: string): Promise<ApiResponse> {
-    try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/verify/`, {
-            username,
-            unique_code
-        });
-        return { status: response.status, message: response.data.message };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
-    }
+export async function verifyRegistration(
+  username: string,
+  unique_code: string
+): Promise<ApiResponse> {
+  try {
+    const response: AxiosResponse = await axios.post(
+      `${API_BASE_URL}/api/user/verify/`,
+      {
+        username,
+        unique_code,
+      }
+    );
+    return { status: response.status, message: response.data.message };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 }
 
 /**
@@ -108,14 +145,21 @@ export async function verifyRegistration(username: string, unique_code: string):
  * @returns {Promise<ApiResponse>} - The response from the server
  */
 export async function logOut(): Promise<ApiResponse> {
-    try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/logout/`, {}, {
-            withCredentials: true
-        });
-        return { status: response.status, message: response.data.message };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
-    }
+  try {
+    const response: AxiosResponse = await axios.post(
+      `${API_BASE_URL}/api/user/logout/`,
+      {},
+      {
+        withCredentials: true,
+      }
+    );
+    return { status: response.status, message: response.data.message };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 }
 
 /**
@@ -124,19 +168,28 @@ export async function logOut(): Promise<ApiResponse> {
  * @param {string} code - The two-factor authentication code
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function deleteAccount(password: string, code: string): Promise<ApiResponse> {
-    try {
-        const response: AxiosResponse = await axios.delete(`${API_BASE_URL}/api/user/delete/`, {
-            data: { password, code },
-            withCredentials: true,
-            headers: {
-                'X-CSRF-TOKEN': cookies.get('csrf_access_token')
-            }
-        });
-        return { status: response.status, message: response.data.message };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
-    }
+export async function deleteAccount(
+  password: string,
+  code: string
+): Promise<ApiResponse> {
+  try {
+    const response: AxiosResponse = await axios.delete(
+      `${API_BASE_URL}/api/user/delete/`,
+      {
+        data: { password, code },
+        withCredentials: true,
+        headers: {
+          "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        },
+      }
+    );
+    return { status: response.status, message: response.data.message };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 }
 
 /**
@@ -144,17 +197,27 @@ export async function deleteAccount(password: string, code: string): Promise<Api
  * @returns {Promise<ApiResponse>} - The response from the server
  */
 export async function getUserDetails(): Promise<ApiResponse> {
-    try {
-        const response: AxiosResponse = await axios.get(`${API_BASE_URL}/api/user/`, {
-            withCredentials: true,
-            headers: {
-                'X-CSRF-TOKEN': cookies.get('csrf_access_token')
-            }
-        });
-        return { status: response.status, message: response.data.message, data: response.data };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
-    }
+  try {
+    const response: AxiosResponse = await axios.get(
+      `${API_BASE_URL}/api/user/`,
+      {
+        withCredentials: true,
+        headers: {
+          "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        },
+      }
+    );
+    return {
+      status: response.status,
+      message: response.data.message,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 }
 
 /**
@@ -163,21 +226,31 @@ export async function getUserDetails(): Promise<ApiResponse> {
  * @param {string} password - The password of the user
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function changeUsername(username: string, password: string): Promise<ApiResponse> {
-    try {
-        const response: AxiosResponse = await axios.put(`${API_BASE_URL}/api/user/username/`, {
-            username,
-            password
-        }, {
-            withCredentials: true,
-            headers: {
-                'X-CSRF-TOKEN': cookies.get('csrf_access_token')
-            }
-        });
-        return { status: response.status, message: response.data.message };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
-    }
+export async function changeUsername(
+  username: string,
+  password: string
+): Promise<ApiResponse> {
+  try {
+    const response: AxiosResponse = await axios.put(
+      `${API_BASE_URL}/api/user/username/`,
+      {
+        username,
+        password,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        },
+      }
+    );
+    return { status: response.status, message: response.data.message };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 }
 
 /**
@@ -186,21 +259,31 @@ export async function changeUsername(username: string, password: string): Promis
  * @param {string} new_password - The new password of the user
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function changePassword(current_password: string, new_password: string): Promise<ApiResponse> {
-    try {
-        const response: AxiosResponse = await axios.put(`${API_BASE_URL}/api/user/password/`, {
-            current_password,
-            new_password
-        }, {
-            withCredentials: true,
-            headers: {
-                'X-CSRF-TOKEN': cookies.get('csrf_access_token')
-            }
-        });
-        return { status: response.status, message: response.data.message };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
-    }
+export async function changePassword(
+  current_password: string,
+  new_password: string
+): Promise<ApiResponse> {
+  try {
+    const response: AxiosResponse = await axios.put(
+      `${API_BASE_URL}/api/user/password/`,
+      {
+        current_password,
+        new_password,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        },
+      }
+    );
+    return { status: response.status, message: response.data.message };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 }
 
 /**
@@ -209,21 +292,31 @@ export async function changePassword(current_password: string, new_password: str
  * @param {string} password - The password of the user
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function changeEmail(email: string, password: string): Promise<ApiResponse> {
-    try {
-        const response: AxiosResponse = await axios.put(`${API_BASE_URL}/api/user/email/`, {
-            email,
-            password
-        }, {
-            withCredentials: true,
-            headers: {
-                'X-CSRF-TOKEN': cookies.get('csrf_access_token')
-            }
-        });
-        return { status: response.status, message: response.data.message };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
-    }
+export async function changeEmail(
+  email: string,
+  password: string
+): Promise<ApiResponse> {
+  try {
+    const response: AxiosResponse = await axios.put(
+      `${API_BASE_URL}/api/user/email/`,
+      {
+        email,
+        password,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        },
+      }
+    );
+    return { status: response.status, message: response.data.message };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 }
 
 /**
@@ -231,17 +324,28 @@ export async function changeEmail(email: string, password: string): Promise<ApiR
  * @returns {Promise<ApiResponse>} - The response from the server
  */
 export async function enableTwoFactorAuth(): Promise<ApiResponse> {
-    try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/2fa/`, {}, {
-            withCredentials: true,
-            headers: {
-                'X-CSRF-TOKEN': cookies.get('csrf_access_token')
-            }
-        });
-        return { status: response.status, message: response.data.message, data: response.data };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
-    }
+  try {
+    const response: AxiosResponse = await axios.post(
+      `${API_BASE_URL}/api/user/2fa/`,
+      {},
+      {
+        withCredentials: true,
+        headers: {
+          "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        },
+      }
+    );
+    return {
+      status: response.status,
+      message: response.data.message,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 }
 
 /**
@@ -250,19 +354,30 @@ export async function enableTwoFactorAuth(): Promise<ApiResponse> {
  * @returns {Promise<ApiResponse>} - The response from the server
  */
 export async function verifyTwoFactorAuth(token: string): Promise<ApiResponse> {
-    try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/2fa/verify/`, {
-            token
-        }, {
-            withCredentials: true,
-            headers: {
-                'X-CSRF-TOKEN': cookies.get('csrf_access_token')
-            }
-        });
-        return { status: response.status, message: response.data.message, data: response.data };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
-    }
+  try {
+    const response: AxiosResponse = await axios.post(
+      `${API_BASE_URL}/api/user/2fa/verify/`,
+      {
+        token,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        },
+      }
+    );
+    return {
+      status: response.status,
+      message: response.data.message,
+      data: response.data,
+    };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 }
 
 /**
@@ -270,18 +385,27 @@ export async function verifyTwoFactorAuth(token: string): Promise<ApiResponse> {
  * @param {string} password - The password of the user
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function disableTwoFactorAuth(password: string): Promise<ApiResponse> {
-    try {
-        const response: AxiosResponse = await axios.post(`${API_BASE_URL}/api/user/2fa/disable/`, {
-            password
-        }, {
-            withCredentials: true,
-            headers: {
-                'X-CSRF-TOKEN': cookies.get('csrf_access_token')
-            }
-        });
-        return { status: response.status, message: response.data.message };
-    } catch (error: any) {
-        return { status: error.response.status, message: error.response.data.message };
-    }
+export async function disableTwoFactorAuth(
+  password: string
+): Promise<ApiResponse> {
+  try {
+    const response: AxiosResponse = await axios.post(
+      `${API_BASE_URL}/api/user/2fa/disable/`,
+      {
+        password,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        },
+      }
+    );
+    return { status: response.status, message: response.data.message };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
+  }
 }

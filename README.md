@@ -6,16 +6,16 @@
   <h1>Buffet</h1>
   <p>A full-stack, fully-featured web-based virtual machine manager</p>
 
-  [![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![GitHub issues](https://img.shields.io/github/issues/kgdn/buffet)](https://github.com/kgdn/buffet/issues) [![GitHub stars](https://img.shields.io/github/stars/kgdn/buffet)](https://github.com/kgdn/buffet/stargazers)
+[![License: AGPLv3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0) [![GitHub issues](https://img.shields.io/github/issues/kgdn/buffet)](https://github.com/kgdn/buffet/issues) [![GitHub stars](https://img.shields.io/github/stars/kgdn/buffet)](https://github.com/kgdn/buffet/stargazers)
+
 </div>
 
 Buffet is a full-stack, fully-featured web-based virtual machine manager that aims to provide a free, open-source, lightweight, easy-to-use, and secure alternative to other web-based virtual machine managers such as [DistroSea](https://distrosea.com/) and [DistroTest](https://www.reddit.com/r/DistroHopping/comments/wqrwbw/what_happened_to_distrotestnet/).
 The back-end is written in Python using the [Flask](https://github.com/pallets/flask) web framework, and the front-end is written in JavaScript with the [React](https://github.com/facebook/react) library. Buffet uses [QEMU](https://github.com/qemu/qemu) and [KVM](https://www.linux-kvm.org/) for virtualization, and [noVNC](https://github.com/novnc/noVNC) + [websockify](https://github.com/novnc/websockify) for remote desktop access.
 
-Buffet was made over the course of 12 weeks as part of the final project for my bachelor's degree in Computer Systems at the [School of Mathematical and Computer Sciences](https://www.hw.ac.uk/schools/mathematical-computer-sciences.htm) at [Heriot-Watt University](https://www.hw.ac.uk/). 
+Buffet was made over the course of 12 weeks as part of the final project for my bachelor's degree in Computer Systems at the [School of Mathematical and Computer Sciences](https://www.hw.ac.uk/schools/mathematical-computer-sciences.htm) at [Heriot-Watt University](https://www.hw.ac.uk/).
 
-> [!IMPORTANT]
-> **Please note that Buffet is not intended for production use, as it is still in the early stages of development.** 
+> [!IMPORTANT] > **Please note that Buffet is not intended for production use, as it is still in the early stages of development.**
 >
 > However, you are welcome to use it for testing and development purposes. Please report any bugs or issues you encounter on the [Issues](https://github.com/kgdn/buffet/issues) page. Feel free to contribute to the project by submitting a pull request.
 
@@ -51,13 +51,13 @@ Buffet was made over the course of 12 weeks as part of the final project for my 
 
 ## Installation
 
-Buffet is designed to be easy to install and use. It consists of two main components: the front-end and the back-end. The front-end is a React application that communicates with the back-end using a REST API. The back-end is a Flask application that provides the REST API for the front-end. 
+Buffet is designed to be easy to install and use. It consists of two main components: the front-end and the back-end. The front-end is a React application that communicates with the back-end using a REST API. The back-end is a Flask application that provides the REST API for the front-end.
 
 If you want to host your own instance of Buffet, you will need to install both the front-end and the back-end on your server. A detailed guide on how to install Buffet is provided below. A Dockerfile will be provided in the future for easier installation. Stay tuned!
 
 ### Front-end Installation
 
-The front-end is a React application that communicates with the back-end using the REST API. It is designed to be lightweight, easy to install, and easy to use. 
+The front-end is a React application that communicates with the back-end using the REST API. It is designed to be lightweight, easy to install, and easy to use.
 
 > [!NOTE]
 > You can install the front-end on any server that supports Node.js and npm, i.e. on Windows, macOS, or GNU/Linux.
@@ -76,11 +76,13 @@ git clone https://github.com/kgdn/buffet.git
 ```
 
 2. Change into the `client` directory:
+
 ```bash
 cd client
 ```
 
 3. Install the required dependencies:
+
 ```bash
 npm install
 ```
@@ -88,6 +90,7 @@ npm install
 4. Create a .env file in the `client` directory with the following contents:
 
 **`.env`**
+
 ```bash
 BROWSER= # none
 GENERATE_SOURCEMAP= # true or false
@@ -96,23 +99,26 @@ VITE_MAX_VM_COUNT= # max no. of virtual machines available at any given time
 ```
 
 5. Start the development server (optional):
+
 ```bash
-npm start
+npm run dev
 ```
 
 6. Build the production version:
+
 ```bash
 npm run build
 ```
 
-1. Deploy the production version to your server using your preferred method, such as Nginx, Apache, or Caddy. 
+1. Deploy the production version to your server using your preferred method, such as Nginx, Apache, or Caddy.
+
 ```bash
 npm run build && cp -r dist/* /path/to/your/webserver/
 ```
- 
+
 ### Back-end Installation
 
-The back-end is a Flask application that provides the REST API for the front-end. 
+The back-end is a Flask application that provides the REST API for the front-end.
 
 > [!NOTE]
 > Unlike the front-end, the back-end is designed to be installed on a GNU/Linux server, as it makes extensive use of QEMU and KVM for virtualization. You can install the back-end on any GNU/Linux distribution that supports Python 3 and pip. Ensure that you have the required dependencies installed before proceeding.
@@ -156,10 +162,8 @@ Buffet uses SQLAlchemy to interact with the database. A database is required to 
 - To use SQLite, you can set the `SQLALCHEMY_DATABASE_URI` variable in the `.env` file to `sqlite:///db.sqlite3`. This requires no additional setup.
 
 - To use PostgreSQL, you can set the `SQLALCHEMY_DATABASE_URI` variable in the `.env` file to `postgresql://username:password@localhost/dbname`. This assumes that you have a PostgreSQL database running on your server. You may need to install the `psycopg2` package using pip. **This is the recommended database for production use.**
-  
 - To use MySQL/MariaDB, you can set the `SQLALCHEMY_DATABASE_URI` variable in the `.env` file to `mysql://username:password@localhost/dbname`. This assumes that you have a MySQL database running on your server. You may need to install the `mysql-connector-python` package using pip.
 
- 
 #### Instructions
 
 1. Clone the repository:
@@ -169,21 +173,25 @@ git clone https://github.com/kgdn/buffet.git
 ```
 
 2. Change into the `server` directory:
+
 ```bash
 cd server
 ```
 
 3. Create a virtual environment:
+
 ```bash
 python3 -m venv .venv
 ```
 
 4. Activate the virtual environment:
+
 ```bash
 source .venv/bin/activate
 ```
 
 5. Install the required dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -191,6 +199,7 @@ pip install -r requirements.txt
 6. Create a .env file in the `server` directory with the following contents:
 
 **`.env`**
+
 ```bash
 SECRET_KEY= # your secret
 SQLALCHEMY_DATABASE_URI= # your_database_uri
@@ -222,37 +231,55 @@ MAX_VM_COUNT= # max no. of virtual machines available at any given time
 ```
 
 7. Put your virtual machine images in the `iso` directory, and create an `index.json` file in the `iso` directory with the following structure:
+
 ```jsonc
 [
-    {
-        "iso": "archlinux.iso", // name of the ISO file
-        "desktop": "No desktop", // desktop environment
-        "name": "Arch Linux", // name of the distribution
-        "version": "Latest", // version of the distribution
-        "description": "Bleeding edge GNU/Linux distribution where you build your own system from the ground up, tailored to your needs.", // description of the distribution
-        "linux": true, // whether the distribution uses the Linux kernel or not
-        "logo": "archlinux.png", // name of the logo file found in the iso/logos directory
-        "homepage": "https://archlinux.org", // homepage of the distribution
-        "beginner_friendly": false // whether the distribution is beginner-friendly or not
-    }, // add more distributions here
+  {
+    "iso": "archlinux.iso", // name of the ISO file
+    "desktop": "No desktop", // desktop environment
+    "name": "Arch Linux", // name of the distribution
+    "version": "Latest", // version of the distribution
+    "description": "Bleeding edge GNU/Linux distribution where you build your own system from the ground up, tailored to your needs.", // description of the distribution
+    "linux": true, // whether the distribution uses the Linux kernel or not
+    "logo": "archlinux.png", // name of the logo file found in the iso/logos directory
+    "homepage": "https://archlinux.org", // homepage of the distribution
+    "beginner_friendly": false // whether the distribution is beginner-friendly or not
+  } // add more distributions here
 ]
 ```
 
 8. Create a `logos` directory in the `iso` directory and put your distribution logos in it.
+
 ```bash
 mkdir iso/logos
 mv archlinux.png iso/logos
 ```
 
 9. Start the development server (optional):
+
 ```bash
 flask -A app run
 ```
 
 10. Run the production server (recommended):
+
 ```bash
 gunicorn app:app
 ```
+
+## Contributing
+
+Buffet is an open-source project, and contributions are welcome. If you would like to contribute to Buffet, please follow the standard guidelines for contributing to open-source projects. That is, fork the repository, make your changes, and submit a pull request.
+
+> [!IMPORTANT]
+> When contributing to Buffet's back-end, please follow the [PEP 8](https://pep8.org/) style guide for Python code. Please ensure that your code follows the [PEP 8](https://pep8.org/) style guide and that your commit messages are clear and concise. Use the Black code formatter, isort, and pylint to format your code and check for errors.
+
+> [!IMPORTANT]
+> When contributing to Buffet's front-end, use ESLint, Prettier, and Stylelint to format your code and check for errors. Please ensure that your code follows the [Airbnb JavaScript Style Guide](https://airbnb.io/javascript/).
+
+## License
+
+Buffet is licensed under the GNU Affero General Public License v3.0. You are free to use, modify, and distribute Buffet under the terms of the AGPLv3. Please read the [LICENSE](LICENSE) file for more information.
 
 ## Third-party Libraries and Dependencies
 
@@ -293,9 +320,8 @@ Buffet uses the following third-party libraries and dependencies:
 19. [vite](https://www.npmjs.com/package/vite) (MIT License)
 20. [web-vitals](https://www.npmjs.com/package/web-vitals) (Apache-2.0 License)
 
-
-
 ### Back-end Dependencies
+
 1. [cef](https://pypi.org/project/cef/) (Mozilla Public License 2.0)
 2. [Flask](https://flask.palletsprojects.com/) (BSD-3 License)
 3. [Flask-Bcrypt](https://flask-bcrypt.readthedocs.io/en/latest/) (MIT License)

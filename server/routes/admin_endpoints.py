@@ -157,7 +157,7 @@ def delete_vm_by_id():
         subprocess.Popen(
             ["kill", str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
-    except:
+    except subprocess.CalledProcessError:
         return jsonify({"message": "Error deleting virtual machine"}), 500
 
     # Stop the virtual machine from the database
@@ -272,7 +272,7 @@ def delete_user_by_id():
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-        except:
+        except subprocess.CalledProcessError:
             return jsonify({"message": "Error deleting virtual machine"}), 500
 
     db.session.delete(user_to_delete)
@@ -612,7 +612,7 @@ def ban_user():
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-        except:
+        except subprocess.CalledProcessError:
             return jsonify({"message": "Error deleting virtual machine"}), 500
 
         db.session.delete(vm)
@@ -971,7 +971,9 @@ def get_all_logs():
             logs[log_date] = []
             for log_file in os.listdir("logs/" + log_date):
                 if os.path.isfile("logs/" + log_date + "/" + log_file):
-                    with open("logs/" + log_date + "/" + log_file, "r") as f:
+                    with open(
+                        "logs/" + log_date + "/" + log_file, "r", encoding="utf-8"
+                    ) as f:
                         logs[log_date].extend(f.readlines())
 
     return jsonify(logs), 200
