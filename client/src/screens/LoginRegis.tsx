@@ -203,7 +203,7 @@ const LoginRegis: React.FC = (): React.ReactElement => {
   };
 
   return (
-    <div id="login-regis">
+    <div id="login-regis" style={{ marginTop: "4rem" }}>
       <NavbarComponent />
       <Container>
         <Row>

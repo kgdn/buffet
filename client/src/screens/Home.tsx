@@ -236,7 +236,7 @@ const Home: React.FC = (): React.ReactElement => {
   }, [vmDetails.id, connectToVM]);
 
   return (
-    <div id="home">
+    <div id="home" style={{ marginTop: "4rem" }}>
       <NavbarComponent />
       {loggedIn ? (
         <Container>
@@ -300,7 +300,7 @@ const Home: React.FC = (): React.ReactElement => {
           {/* If user already has a VM running, show a view of the VM */}
           {vmDetails.id !== 0 ? (
             <Row>
-              <Col id="current-vm" className="text-center mt-3">
+              <Col id="current-vm" className="text-center">
                 <Alert variant="info" role="alert">
                   <h1>Your current virtual machine</h1>
                   <p>

@@ -427,7 +427,7 @@ def login():
             )
         return jsonify({"message": "Invalid username or password"}), 401
     if not Bcrypt.check_password_hash(user.password, password):
-        return jsonify({"message": "Invalid password or username"}), 401
+        return jsonify({"message": "Invalid username or password"}), 401
 
     # Check if the user has 2FA enabled
     if user.two_factor_enabled:

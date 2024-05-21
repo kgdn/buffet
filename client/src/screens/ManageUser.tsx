@@ -233,7 +233,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
   }, [user]);
 
   return (
-    <div id="manage-user">
+    <div id="manage-user" style={{ marginTop: "4rem" }}>
       <NavbarComponent />
       <Container>
         <Row>

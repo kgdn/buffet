@@ -55,11 +55,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
   );
   const navigate = useNavigate();
 
-  /**
-   * Fetches the virtual machine details from the database
-   * @param {void} - No parameters
-   * @returns {void} - No return value
-   */
+  // Fetches the virtual machine details from the database
   useEffect(() => {
     const fetchVMDetails = async () => {
       const { data } = await getVirtualMachineByUser();
@@ -77,34 +73,21 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
     fetchVMDetails();
   }, []);
 
-  /**
-   * Sets the document title to the virtual machine name, version, and desktop, and handles keydown events
-   * @param {void} - No parameters
-   * @returns {void} - No return value
-   */
+  // Sets the document title to the virtual machine name, version, and desktop, and handles keydown events
   useEffect(() => {
     document.title = `${vmDetails.name} ${vmDetails.version} ${vmDetails.desktop} - Buffet`;
 
     window.addEventListener("keydown", handleKeyDown);
   });
 
-  /**
-   * Deletes the virtual machine from the database and redirects the user to the home page
-   * @param {number} id - The ID of the virtual machine to delete
-   * @returns {void} - No return value
-   */
+  // Deletes the virtual machine from the database and navigates to the home page
   const deleteVM = useCallback(() => {
     deleteVirtualMachine(String(vmDetails.id)).then(() => {
       navigate("/");
     });
   }, [vmDetails.id, navigate]);
 
-  /**
-   * Handles the keydown event. If the key is F11, it toggles fullscreen mode.
-   * @callback handleKeyDown
-   * @param {KeyboardEvent} event - The keydown event
-   * @returns {void} - No return value
-   */
+  // Handles the keydown event. If the key is F11, it toggles fullscreen mode.
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (event.key === "F11") {
       event.preventDefault();
@@ -112,11 +95,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
     }
   }, []);
 
-  /**
-   * Toggles fullscreen mode. If the document is currently in fullscreen mode, it exits fullscreen mode. Otherwise, it enters fullscreen mode.
-   * @function handleFullscreen
-   * @returns {void} - No return value
-   */
+  // Toggles fullscreen mode. If the document is currently in fullscreen mode, it exits fullscreen mode. Otherwise, it enters fullscreen mode.
   const handleFullscreen = () => {
     const elem = document.getElementById("app");
     if (document.fullscreenElement) {
@@ -126,11 +105,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
     }
   };
 
-  /**
-   * Connects to the virtual machine using noVNC
-   * @param {void} - No parameters
-   * @returns {void} - No return value
-   */
+  // Connect to the virtual machine using noVNC when the wsport is set
   const connectToVM = useCallback(() => {
     const appElement = document.getElementById("app");
     if (appElement) {
@@ -163,12 +138,10 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
     }
   }, [API_BASE_URL, deleteVM, vmDetails.password, vmDetails.wsport]);
 
-  /**
-   * Connect to the virtual machine when the wsport is set
-   */
+  // Connect to the virtual machine when the wsport is set
   useEffect(() => {
     if (vmDetails.wsport !== 0) {
-      const timeout = setTimeout(connectToVM, 200);
+      const timeout = setTimeout(connectToVM, 250);
       return () => clearTimeout(timeout);
     }
   }, [connectToVM, vmDetails.wsport]);

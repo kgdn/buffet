@@ -377,7 +377,7 @@ const Admin: React.FC = (): React.ReactElement => {
   };
 
   return (
-    <div id="admin">
+    <div id="admin" style={{ marginTop: "4rem" }}>
       <NavbarComponent />
       <Container>
         <h1>Admin</h1>

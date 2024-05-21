@@ -44,12 +44,11 @@ const NavbarComponent: React.FC = (): React.ReactElement => {
         bg={import.meta.env.DEV ? "danger" : "dark"}
         variant={import.meta.env.DEV ? "danger" : "dark"}
         expand="lg"
+        className="mb-3"
         style={{
-          padding: "10px",
-          marginBottom: "20px",
           boxShadow: "0px 0px 10px 0px rgba(0,0,0,0.75)",
         }}
-        sticky="top"
+        fixed="top"
       >
         <Container>
           {/* display development warning if in development mode */}
