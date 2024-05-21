@@ -69,6 +69,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     logOut().then((response) => {
       if (response.status === 200) {
         navigate("/");
+        navigate(0);
         setUser(null);
       }
     });
