@@ -75,7 +75,7 @@ const LoginRegis: React.FC = (): React.ReactElement => {
           case "Please provide the 2FA code":
             setShowTwoFactorModal(true);
             break;
-          case "Login is successful":
+          case "Login successful":
             window.location.href = "/";
             break;
           default:

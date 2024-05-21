@@ -453,7 +453,7 @@ def login():
 
     # Set access and refresh JWT cookies
     access_token = create_access_token(identity=user.id)
-    resp = jsonify({"login": True})
+    resp = jsonify({"message": "Login successful"})
     set_access_cookies(resp, access_token)
 
     # Log the user's login
@@ -501,7 +501,7 @@ def logout():
         db.session.commit()
 
     # Unset the JWT cookies
-    resp = jsonify({"logout": True})
+    resp = jsonify({"message": "Logout successful"})
     unset_jwt_cookies(resp)
 
     # Log the user's logout

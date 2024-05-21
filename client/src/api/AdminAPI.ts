@@ -47,14 +47,11 @@ export async function getAllVMs(): Promise<ApiResponse> {
       message: response.data.message,
       data: response.data,
     };
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      return {
-        status: error.response?.status ?? 500,
-        message: error.response?.data?.message ?? "An error occurred",
-      };
-    }
-    return { status: 500, message: "An unknown error occurred" };
+  } catch (error: any) {
+    return {
+      status: error.response.status,
+      message: error.response.data.message,
+    };
   }
 }
 
