@@ -48,6 +48,7 @@ import {
   Card,
 } from "react-bootstrap";
 import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   id: number;
@@ -138,6 +139,7 @@ const Admin: React.FC = (): React.ReactElement => {
     useState(false);
   const [deleteUnverifiedMessage, setDeleteUnverifiedMessage] = useState("");
   const [logs, setLogs] = useState<Logs>({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "Buffet - Admin";
@@ -245,7 +247,7 @@ const Admin: React.FC = (): React.ReactElement => {
     changeUsername(id, newUsername)
       .then((response) => {
         if (response.status === 200) {
-          window.location.reload();
+          navigate(0);
         } else {
           setUsernameMessage(response.message);
         }
@@ -271,7 +273,7 @@ const Admin: React.FC = (): React.ReactElement => {
     changeEmail(id, newEmail)
       .then((response) => {
         if (response.status === 200) {
-          window.location.reload();
+          navigate(0);
         } else {
           setEmailMessage(response.message);
         }
@@ -284,7 +286,7 @@ const Admin: React.FC = (): React.ReactElement => {
     deleteUser(id)
       .then((response) => {
         if (response.status === 200) {
-          window.location.reload();
+          navigate(0);
         } else {
           setDeleteUserMessage(response.message);
         }
@@ -298,7 +300,7 @@ const Admin: React.FC = (): React.ReactElement => {
     banUser(id, banReason)
       .then((response) => {
         if (response.status === 200) {
-          window.location.reload();
+          navigate(0);
         } else {
           setBanMessage(response.message);
         }
@@ -312,7 +314,7 @@ const Admin: React.FC = (): React.ReactElement => {
     unbanUser(id)
       .then((response) => {
         if (response.status === 200) {
-          window.location.reload();
+          navigate(0);
         } else {
           setUnbanMessage(response.message);
         }
@@ -326,7 +328,7 @@ const Admin: React.FC = (): React.ReactElement => {
     deleteVM(id)
       .then((response) => {
         if (response.status === 200) {
-          window.location.reload();
+          navigate(0);
         } else {
           setStopVMMessage(response.message);
         }
@@ -340,7 +342,7 @@ const Admin: React.FC = (): React.ReactElement => {
     verifyUser(id)
       .then((response) => {
         if (response.status === 200) {
-          window.location.reload();
+          navigate(0);
         } else {
           setVerifyMessage(response.message);
         }
@@ -354,7 +356,7 @@ const Admin: React.FC = (): React.ReactElement => {
     deleteUnverifiedUser(id)
       .then((response) => {
         if (response.status === 200) {
-          window.location.reload();
+          navigate(0);
         } else {
           setDeleteUnverifiedMessage(response.message);
         }

@@ -21,8 +21,8 @@ const App: FC = () => {
   }
 
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route
@@ -42,8 +42,8 @@ const App: FC = () => {
             element={<ProtectedRoute element={<VirtualMachineView />} />}
           />
         </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 };
 

@@ -18,6 +18,7 @@
 
 import React, { createContext, useState, useEffect, ReactNode } from "react";
 import { getUserDetails, logOut } from "../api/AccountsAPI";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   id: string;
@@ -54,6 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   children,
 }: AuthProviderProps): ReactNode => {
   const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getUserDetails().then((response) => {
@@ -66,7 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const logout = () => {
     logOut().then((response) => {
       if (response.status === 200) {
-        window.location.href = "/";
+        navigate("/");
         setUser(null);
       }
     });
