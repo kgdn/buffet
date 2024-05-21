@@ -28,10 +28,10 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "dev": "VITE_COMMIT_HASH=`git rev-parse --short HEAD` VITE_VERSION=`node -p \"require('./package.json').version\"` vite",
-    "build": "tsc && VITE_COMMIT_HASH=`git rev-parse --short HEAD` VITE_VERSION=`node -p \"require('./package.json').version\"` vite build",
+    "dev": "VITE_COMMIT_HASH=`git rev-parse --short HEAD` VITE_VERSION=`node -p \"require('./package.json').version\"` VITE_COMMIT_DATE=`git log -1 --format=%cd --date=iso --pretty=format:%cd` DEV=true vite",
+    "build": "tsc && VITE_COMMIT_HASH=`git rev-parse --short HEAD` VITE_VERSION=`node -p \"require('./package.json').version\"` VITE_COMMIT_DATE=`git log -1 --format=%cd --date=iso --pretty=format:%cd` vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "VITE_COMMIT_HASH=`git rev-parse --short HEAD` VITE_VERSION=`node -p \"require('./package.json').version\"` vite preview"
+    "preview": "VITE_COMMIT_HASH=`git rev-parse --short HEAD` VITE_VERSION=`node -p \"require('./package.json').version\"` VITE_COMMIT_DATE=`git log -1 --format=%cd --date=iso --pretty=format:%cd` vite preview"
   },
   "browserslist": {
     "production": [

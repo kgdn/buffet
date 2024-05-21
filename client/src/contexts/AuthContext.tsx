@@ -57,14 +57,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
+  // Get the user details when the component mounts
   useEffect(() => {
     getUserDetails().then((response) => {
       if (response.status === 200) {
-        setUser(response.data as User);
+        setUser(response.data as User); // Set the user in the context
       }
     });
   }, []);
 
+  // Logout function, clears the user from the context and redirects to the home page
   const logout = () => {
     logOut().then((response) => {
       if (response.status === 200) {
@@ -75,6 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     });
   };
 
+  // Provide the user and logout function to the context
   return (
     <AuthContext.Provider value={{ user, logout }}>
       {children}

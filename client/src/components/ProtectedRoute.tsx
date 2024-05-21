@@ -36,31 +36,32 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const location = useLocation();
   const navigate = useNavigate();
 
+  // If user is logged in and tries to access the login page, redirect to home page
   if (location.pathname === "/login" && user) {
-    // If user is already logged in, redirect to home page
     navigate("/");
   }
 
+  // If user is not logged in and tries to access the account page, redirect to login page
   if (location.pathname === "/account" && !user) {
-    // If user is not logged in, redirect to login page
     navigate("/login");
   }
 
+  // If user is not logged in and tries to access the admin page, redirect to login page
   if (location.pathname === "/admin" && !user) {
-    // If user is not logged in, redirect to login page
     navigate("/login");
   }
 
+  // If user is not logged in and tries to access the VM page, redirect to login page
   if (location.pathname === "/vm" && !user) {
-    // If user is not logged in, redirect to login page
     navigate("/login");
   }
 
+  // If user is not an admin, redirect to home page
   if (location.pathname === "/admin" && user && user.role !== "admin") {
-    // If user is not an admin, redirect to home page
     navigate("/");
   }
 
+  // If none of the above conditions are met, return the element
   return <>{element}</>;
 };
 

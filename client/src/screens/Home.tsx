@@ -553,7 +553,7 @@ const Home: React.FC = (): React.ReactElement => {
         </Container>
       ) : (
         <Container>
-          <Row className="mt-3">
+          <Row className="mt-3 mb-3" id="welcome">
             <Col id="about" className="text-center mt-3">
               <h1 className="display-4 text-center">Welcome to Buffet.</h1>
               <h3 className="text-center">

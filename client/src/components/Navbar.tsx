@@ -27,8 +27,8 @@ const NavbarComponent: React.FC = (): React.ReactElement => {
 
   return (
     <Navbar
-      bg="dark"
-      variant="dark"
+      bg={import.meta.env.DEV ? "danger" : "dark"}
+      variant={import.meta.env.DEV ? "danger" : "dark"}
       expand="lg"
       style={{
         padding: "10px",
@@ -38,6 +38,7 @@ const NavbarComponent: React.FC = (): React.ReactElement => {
       sticky="top"
     >
       <Container>
+        {/* display development warning if in development mode */}
         <Navbar.Brand href="/">
           <img
             alt=""
@@ -47,7 +48,7 @@ const NavbarComponent: React.FC = (): React.ReactElement => {
             className="d-inline-block align-top"
             style={{ marginRight: "10px" }}
           />
-          Buffet
+          {import.meta.env.DEV ? "Buffet (Development)" : "Buffet"}
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
@@ -75,7 +76,7 @@ const NavbarComponent: React.FC = (): React.ReactElement => {
                 <NavDropdown.Item href="/account">
                   Manage Account
                 </NavDropdown.Item>
-                {user.role === "admin" ? (
+                {user.role === "admin" ? ( // If user is an admin, show the admin panel link
                   <NavDropdown.Item href="/admin">Admin Panel</NavDropdown.Item>
                 ) : null}
                 <NavDropdown.Item onClick={logout}>Logout</NavDropdown.Item>

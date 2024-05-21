@@ -34,9 +34,12 @@ const Footer: React.FC = (): React.ReactElement => {
                 />
               </a>
             </Col>
+            <b>{import.meta.env.DEV && " (Development)"}</b>
             <p>
+              {/* Get the version and commit hash from the environment variables. Environment variables are set on build. */}
               Version: {import.meta.env.VITE_VERSION} (Commit:{" "}
-              {import.meta.env.VITE_COMMIT_HASH})
+              {import.meta.env.VITE_COMMIT_HASH} at{" "}
+              {import.meta.env.VITE_COMMIT_DATE})
             </p>
             <p className="mb-0" style={{ marginLeft: "10px" }}>
               &copy; {new Date().getFullYear()} Kieran Gordon &middot; Licensed

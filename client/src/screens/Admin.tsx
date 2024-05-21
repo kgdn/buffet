@@ -907,7 +907,6 @@ const Admin: React.FC = (): React.ReactElement => {
                 onSubmit={(e) => {
                   e.preventDefault();
                   ChangeUsernameButton(selectedUser);
-                  setShowUsernameModal(false);
                 }}
               >
                 <Form.Group className="mb-3">
@@ -931,7 +930,6 @@ const Admin: React.FC = (): React.ReactElement => {
                   variant="primary"
                   onClick={() => {
                     ChangeUsernameButton(selectedUser);
-                    setShowUsernameModal(false);
                   }}
                 >
                   Change
@@ -956,7 +954,6 @@ const Admin: React.FC = (): React.ReactElement => {
                 onSubmit={(e) => {
                   e.preventDefault();
                   ChangeEmailButton(selectedUser);
-                  setShowEmailModal(false);
                 }}
               >
                 <Form.Group className="mb-3">
@@ -984,7 +981,6 @@ const Admin: React.FC = (): React.ReactElement => {
                   variant="primary"
                   onClick={() => {
                     ChangeEmailButton(selectedUser);
-                    setShowEmailModal(false);
                   }}
                 >
                   Change
