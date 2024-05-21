@@ -225,14 +225,23 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
           <Modal.Title>For Your Information</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Buffet is currently in development. Some features may not work as
-          expected. If you find a bug, please report it on GitHub. Due to
-          technical limitations, you need to click the viewer to interact with
-          the virtual machine. Your virtual machine will be shut down after 5
-          minutes of inactivity.
-          <strong>Please note:</strong> All internet traffic is logged, and can
-          be viewed by the system administrator. Any misuse of the system will
-          result in your account being terminated.
+          <p>
+            Buffet is currently in development. Some features may not work as
+            expected. If you find a bug, please report it on GitHub.
+          </p>
+          <p>
+            Due to technical limitations, you need to click the viewer to
+            interact with the virtual machine.
+          </p>
+          <p>
+            Your virtual machine will be shut down after 5 minutes of
+            inactivity.
+          </p>
+          <p>
+            <strong>Please note:</strong> All internet traffic is logged, and
+            can be viewed by the system administrator. Any misuse of the system
+            will result in your account being terminated.
+          </p>
         </Modal.Body>
         <Modal.Footer>
           <ButtonGroup>
