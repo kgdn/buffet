@@ -46,6 +46,7 @@ import Footer from "../components/Footer";
 import fedora from "../assets/carousel/fedora.png";
 import ubuntu from "../assets/carousel/ubuntu.png";
 import opensuse from "../assets/carousel/opensuse.png";
+import { useNavigate } from "react-router-dom";
 
 interface Image {
   name: string;
@@ -100,6 +101,7 @@ const Home: React.FC = (): React.ReactElement => {
     ""
   );
   const MAX_VM_COUNT = parseInt(import.meta.env.VITE_MAX_VM_COUNT, 10);
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "Buffet";
@@ -154,7 +156,7 @@ const Home: React.FC = (): React.ReactElement => {
     const createVM = async () => {
       const response = await createVirtualMachine(iso);
       if (response.status === 201) {
-        window.location.href = "/vm";
+        navigate("/vm");
       } else {
         showErrorModal(true);
         setErrorMessage(response.message);
@@ -165,9 +167,9 @@ const Home: React.FC = (): React.ReactElement => {
 
   const deleteVMButton = useCallback(() => {
     deleteVirtualMachine(String(vmDetails.id)).then(() => {
-      window.location.href = "/";
+      navigate(0);
     });
-  }, [vmDetails.id]);
+  }, [vmDetails.id, navigate]);
 
   const filteredImages = iso.filter(
     (image) =>

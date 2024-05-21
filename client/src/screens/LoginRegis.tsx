@@ -37,6 +37,7 @@ import {
 import validator from "validator";
 import passwordValidator from "password-validator";
 import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
 
 const LoginRegis: React.FC = (): React.ReactElement => {
   const [loginUsername, setLoginUsername] = useState("");
@@ -52,10 +53,16 @@ const LoginRegis: React.FC = (): React.ReactElement => {
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [emailMessage, setEmailMessage] = useState(""); // Error message for email verification
   const schema = new passwordValidator();
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "Buffet - Login/Register";
   }, []);
+
+  const navigateToHome = () => {
+    navigate("/");
+    navigate(0);
+  };
 
   const LoginButton = () => {
     if (loginUsername.trim() === "" || loginPassword.trim() === "") {
@@ -75,8 +82,8 @@ const LoginRegis: React.FC = (): React.ReactElement => {
           case "Please provide the 2FA code":
             setShowTwoFactorModal(true);
             break;
-          case "Login successful":
-            window.location.href = "/";
+          case "Login is successful":
+            navigateToHome();
             break;
           default:
             setErrorMessage(response.message);
@@ -162,7 +169,7 @@ const LoginRegis: React.FC = (): React.ReactElement => {
       if (response.status === 200) {
         logIn(username, password, "").then((response) => {
           if (response.status === 200) {
-            window.location.href = "/";
+            navigateToHome();
           } else {
             setEmailMessage(response.message);
           }
@@ -181,7 +188,7 @@ const LoginRegis: React.FC = (): React.ReactElement => {
     }
     logIn(loginUsername, loginPassword, twoFactorCode).then((response) => {
       if (response.status === 200) {
-        window.location.href = "/";
+        navigateToHome();
       } else {
         setTwoFactorMessage(response.message);
       }

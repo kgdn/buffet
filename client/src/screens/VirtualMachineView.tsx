@@ -24,6 +24,7 @@ import {
   getVirtualMachineByUser,
 } from "../api/VirtualMachineAPI";
 import Draggable from "react-draggable";
+import { useNavigate } from "react-router-dom";
 
 interface VmDetails {
   wsport: number;
@@ -52,6 +53,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
     /(^\w+:|^)\/\//,
     ""
   );
+  const navigate = useNavigate();
 
   /**
    * Fetches the virtual machine details from the database
@@ -93,9 +95,9 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
    */
   const deleteVM = useCallback(() => {
     deleteVirtualMachine(String(vmDetails.id)).then(() => {
-      window.location.href = "/";
+      navigate("/");
     });
-  }, [vmDetails.id]);
+  }, [vmDetails.id, navigate]);
 
   /**
    * Handles the keydown event. If the key is F11, it toggles fullscreen mode.

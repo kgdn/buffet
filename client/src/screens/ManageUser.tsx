@@ -42,6 +42,7 @@ import validator from "validator";
 import passwordValidator from "password-validator";
 import Footer from "../components/Footer";
 import { AuthContext } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const VirtualMachineView: React.FC = (): React.ReactElement => {
   const { user, logout } = useContext(AuthContext);
@@ -69,6 +70,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
   ] = useState(false);
   const [requiresTwoFactorCode, setRequiresTwoFactorCode] = useState("");
   const schema = new passwordValidator();
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "Buffet - Manage User";
@@ -90,7 +92,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
 
     changeUsername(username, currentPassword).then((response) => {
       if (response.status === 200) {
-        window.location.reload();
+        navigate(0);
       } else {
         setMessage(response.message);
       }
@@ -118,8 +120,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
       .has()
       .not()
       .spaces()
-      .has()
-      .symbols();
+      .has().symbols;
 
     if (!schema.validate(newPassword)) {
       setMessage(
@@ -136,7 +137,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
 
     changePassword(oldPassword, newPassword).then((response) => {
       if (response.status === 200) {
-        window.location.reload();
+        navigate(0);
       } else {
         setMessage(response.message);
       }
@@ -156,7 +157,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
 
     changeEmail(email, currentPassword).then((response) => {
       if (response.status === 200) {
-        window.location.reload();
+        navigate(0);
       } else {
         setMessage(response.message);
       }
@@ -171,7 +172,8 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
 
     deleteAccount(currentPassword, requiresTwoFactorCode).then((response) => {
       if (response.status === 200) {
-        window.location.href = "/";
+        navigate("/");
+        navigate(0);
       }
       if (response.message === "Please provide the 2FA code") {
         setShowDeleteModal(false);
@@ -183,7 +185,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
   };
 
   const LogoutButton = () => {
-    logout();
+    logout;
   };
 
   const decodeBase64 = (input: string) => {
@@ -204,7 +206,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
   const VerifyTwoFactorButton = async () => {
     verifyTwoFactorAuth(twoFactorCode).then((response) => {
       if (response.status === 200) {
-        window.location.reload();
+        navigate(0);
       } else {
         setTwoFactorMessage(response.message);
       }
@@ -220,7 +222,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
 
     disableTwoFactorAuth(currentPassword).then((response) => {
       if (response.status === 200) {
-        window.location.reload();
+        navigate(0);
       } else {
         setTwoFactorMessage(response.message);
       }
@@ -309,8 +311,8 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
           <Col>
             <Form
               onSubmit={(e) => {
-                e.preventDefault();
-                ChangePasswordButton();
+                e.preventDefault;
+                ChangePasswordButton;
               }}
             >
               <Form.Group className="mb-3">
@@ -374,8 +376,8 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
           <p className="text-danger">This action cannot be undone.</p>
           <Form
             onSubmit={(e) => {
-              e.preventDefault();
-              DeleteAccountButton();
+              e.preventDefault;
+              DeleteAccountButton;
             }}
           >
             <Form.Group as={Row} controlId="formPassword" className="mb-2">
@@ -425,8 +427,8 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
           />
           <Form
             onSubmit={(e) => {
-              e.preventDefault();
-              VerifyTwoFactorButton();
+              e.preventDefault;
+              VerifyTwoFactorButton;
             }}
           >
             <Form.Group as={Row} controlId="formTwoFactorCode" className="mb-2">
@@ -468,8 +470,8 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
           <p>Are you sure you want to disable two-factor authentication?</p>
           <Form
             onSubmit={(e) => {
-              e.preventDefault();
-              DisableTwoFactorButton();
+              e.preventDefault;
+              DisableTwoFactorButton;
             }}
           >
             <Form.Group as={Row} controlId="formPassword" className="mb-2">
@@ -527,8 +529,8 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
           </Alert>
           <Form
             onSubmit={(e) => {
-              e.preventDefault();
-              DeleteAccountButton();
+              e.preventDefault;
+              DeleteAccountButton;
             }}
           >
             <Form.Group as={Row} controlId="formTwoFactorCode" className="mb-2">
