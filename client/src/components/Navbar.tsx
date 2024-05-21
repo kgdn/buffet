@@ -85,7 +85,11 @@ const NavbarComponent: React.FC = (): React.ReactElement => {
           <Navbar.Collapse className="justify-content-end">
             {user ? (
               <Nav>
-                <NavDropdown title={user.username} id="basic-nav-dropdown">
+                <NavDropdown
+                  title={user.username}
+                  id="basic-nav-dropdown"
+                  menuVariant="dark"
+                >
                   <NavDropdown.Item href="/account">
                     Manage Account
                   </NavDropdown.Item>

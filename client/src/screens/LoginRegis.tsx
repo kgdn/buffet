@@ -259,15 +259,11 @@ const LoginRegis: React.FC = (): React.ReactElement => {
             </Form>
           </Col>
         </Row>
-
         <Row>
           <Col>
-            <h1>Register</h1>
+            <h1 className="mt-4">Register</h1>
             <p>New to Buffet? Register for an account.</p>
-            <Alert
-              variant="info"
-              style={{ display: "block", marginTop: "1rem" }}
-            >
+            <Alert variant="info" className="mb-3">
               <Alert.Heading>Rules for usernames and passwords</Alert.Heading>
               <hr />
               <ul>

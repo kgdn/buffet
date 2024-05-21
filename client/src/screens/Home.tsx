@@ -250,7 +250,7 @@ const Home: React.FC = (): React.ReactElement => {
             </Col>
           </Row>
           <Row>
-            <Col id="vm-count" className="text-center mt-3">
+            <Col id="vm-count" className="text-center">
               <Alert variant="info" role="alert">
                 <p>
                   There are currently {vmCount} virtual machines running. The

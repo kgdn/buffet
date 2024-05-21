@@ -239,10 +239,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
         <Row>
           <Col>
             <h1>Manage User</h1>
-            <Alert
-              variant="info"
-              style={{ display: "block", marginTop: "1rem" }}
-            >
+            <Alert variant="info" className="mt-3">
               <Alert.Heading>Rules for usernames and passwords</Alert.Heading>
               <hr />
               <ul>
@@ -272,7 +269,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
         </Row>
         <Row>
           <Col>
-            <h2 className="mt-3">Change Username/Email</h2>
+            <h2>Change Username/Email</h2>
             <Form>
               <Form.Group className="mb-3">
                 <Form.Control
