@@ -347,10 +347,8 @@ const LoginRegis: React.FC = (): React.ReactElement => {
           <Modal.Title>Verify your email</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>
-            An email has been sent to your email address. Please enter the
-            verification code below.
-          </p>
+          An email has been sent to your email address. Please enter the
+          verification code below.
           <Form
             onSubmit={(e) => {
               e.preventDefault();

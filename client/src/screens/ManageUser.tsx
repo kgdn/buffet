@@ -45,12 +45,11 @@ import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const VirtualMachineView: React.FC = (): React.ReactElement => {
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [getEmail, setCurrentEmail] = useState("");
   const [getUserName, setCurrentUserName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("");
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [oldPassword, setOldPassword] = useState("");
@@ -184,10 +183,6 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
     });
   };
 
-  const LogoutButton = () => {
-    logout;
-  };
-
   const decodeBase64 = (input: string) => {
     return `data:image/png;base64,${input}`;
   };
@@ -233,7 +228,6 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
     if (user) {
       setCurrentEmail(user.email);
       setCurrentUserName(user.username);
-      setRole(user.role);
       setTwoFactorEnabled(user.two_factor_enabled);
     }
   }, [user]);
@@ -274,6 +268,11 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
                 )}
               </Col>
             </Row>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <h2 className="mt-3">Change Username/Email</h2>
             <Form>
               <Form.Group className="mb-3">
                 <Form.Control
@@ -296,7 +295,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
                   onChange={(event) => setCurrentPassword(event.target.value)}
                 />
               </Form.Group>
-              <ButtonGroup className="mb-3">
+              <ButtonGroup>
                 <Button variant="primary" onClick={ChangeUsernameButton}>
                   Change Username
                 </Button>
@@ -309,10 +308,11 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
         </Row>
         <Row>
           <Col>
+            <h2 className="mt-3">Change Password</h2>
             <Form
               onSubmit={(e) => {
-                e.preventDefault;
-                ChangePasswordButton;
+                e.preventDefault();
+                ChangePasswordButton();
               }}
             >
               <Form.Group className="mb-3">
@@ -329,39 +329,42 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
                   onChange={(event) => setNewPassword(event.target.value)}
                 />
               </Form.Group>
-              <ButtonGroup className="mb-3">
-                <Button variant="primary" type="submit">
-                  Change Password
-                </Button>
-                {twoFactorEnabled ? (
-                  <Button
-                    variant="danger"
-                    onClick={() => setShowDisableTwoFactorModal(true)}
-                  >
-                    Disable 2FA
-                  </Button>
-                ) : (
-                  <Button variant="success" onClick={EnableTwoFactorButton}>
-                    Enable 2FA
-                  </Button>
-                )}
-              </ButtonGroup>
-              <ButtonGroup className="mb-3 float-end">
-                <Button variant="warning" onClick={LogoutButton}>
-                  Log Out
-                </Button>
-                {role === "admin" ? (
-                  <></>
-                ) : (
-                  <Button
-                    variant="danger"
-                    onClick={() => setShowDeleteModal(true)}
-                  >
-                    Delete Account
-                  </Button>
-                )}
-              </ButtonGroup>
+              <Button variant="primary" onClick={ChangePasswordButton}>
+                Change Password
+              </Button>
             </Form>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <h2 className="mt-3">Two-Factor Authentication</h2>
+            <p>
+              Two-factor authentication is currently{" "}
+              {twoFactorEnabled ? "enabled" : "disabled"}.
+            </p>
+            <Button
+              variant="primary"
+              onClick={
+                twoFactorEnabled
+                  ? () => setShowDisableTwoFactorModal(true)
+                  : EnableTwoFactorButton
+              }
+            >
+              {twoFactorEnabled ? "Disable" : "Enable"} Two-Factor
+              Authentication
+            </Button>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <h2 className="mt-3">Delete Account</h2>
+            <p>
+              Deleting your account will permanently remove all of your data
+              from the system.
+            </p>
+            <Button variant="danger" onClick={() => setShowDeleteModal(true)}>
+              Delete Account
+            </Button>
           </Col>
         </Row>
       </Container>
@@ -376,8 +379,8 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
           <p className="text-danger">This action cannot be undone.</p>
           <Form
             onSubmit={(e) => {
-              e.preventDefault;
-              DeleteAccountButton;
+              e.preventDefault();
+              DeleteAccountButton();
             }}
           >
             <Form.Group as={Row} controlId="formPassword" className="mb-2">
@@ -427,8 +430,8 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
           />
           <Form
             onSubmit={(e) => {
-              e.preventDefault;
-              VerifyTwoFactorButton;
+              e.preventDefault();
+              VerifyTwoFactorButton();
             }}
           >
             <Form.Group as={Row} controlId="formTwoFactorCode" className="mb-2">
@@ -470,8 +473,8 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
           <p>Are you sure you want to disable two-factor authentication?</p>
           <Form
             onSubmit={(e) => {
-              e.preventDefault;
-              DisableTwoFactorButton;
+              e.preventDefault();
+              DisableTwoFactorButton();
             }}
           >
             <Form.Group as={Row} controlId="formPassword" className="mb-2">
@@ -529,8 +532,8 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
           </Alert>
           <Form
             onSubmit={(e) => {
-              e.preventDefault;
-              DeleteAccountButton;
+              e.preventDefault();
+              DeleteAccountButton();
             }}
           >
             <Form.Group as={Row} controlId="formTwoFactorCode" className="mb-2">

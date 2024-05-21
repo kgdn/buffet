@@ -130,7 +130,8 @@ const Home: React.FC = (): React.ReactElement => {
       const getVMCount = async () => {
         const response = await getRunningVMs();
         if (response.status === 200) {
-          setVMCount(response.data.count);
+          console.log(response.data);
+          setVMCount(response.data.vm_count);
         }
       };
 

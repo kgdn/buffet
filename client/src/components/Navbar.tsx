@@ -17,79 +17,122 @@
  */
 
 import React, { useContext } from "react";
-import { Container, Navbar, Nav, NavDropdown } from "react-bootstrap";
+import {
+  Container,
+  Navbar,
+  Nav,
+  NavDropdown,
+  Modal,
+  Button,
+  ButtonGroup,
+} from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import logo from "../assets/logo.svg";
 import { AuthContext } from "../contexts/AuthContext";
 
 const NavbarComponent: React.FC = (): React.ReactElement => {
   const { user, logout } = useContext(AuthContext);
+  const [showLogoutModal, setShowLogoutModal] = React.useState(false);
+
+  const handleLogout = () => {
+    setShowLogoutModal(true);
+  };
 
   return (
-    <Navbar
-      bg={import.meta.env.DEV ? "danger" : "dark"}
-      variant={import.meta.env.DEV ? "danger" : "dark"}
-      expand="lg"
-      style={{
-        padding: "10px",
-        marginBottom: "20px",
-        boxShadow: "0px 0px 10px 0px rgba(0,0,0,0.75)",
-      }}
-      sticky="top"
-    >
-      <Container>
-        {/* display development warning if in development mode */}
-        <Navbar.Brand href="/">
-          <img
-            alt=""
-            src={logo}
-            width="30"
-            height="30"
-            className="d-inline-block align-top"
-            style={{ marginRight: "10px" }}
-          />
-          {import.meta.env.DEV ? "Buffet (Development)" : "Buffet"}
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link href="https://github.com/kgdn/buffet">
-              <i
-                className="bi bi-github"
-                style={{ color: "white", marginRight: "5px" }}
-              ></i>
-              GitHub
-            </Nav.Link>
-            <Nav.Link href="https://kgdn.xyz">
-              <i
-                className="bi bi-globe"
-                style={{ color: "white", marginRight: "5px" }}
-              ></i>
-              kgdn.xyz
-            </Nav.Link>
-          </Nav>
-        </Navbar.Collapse>
-        <Navbar.Collapse className="justify-content-end">
-          {user ? (
-            <Nav>
-              <NavDropdown title={user.username} id="basic-nav-dropdown">
-                <NavDropdown.Item href="/account">
-                  Manage Account
-                </NavDropdown.Item>
-                {user.role === "admin" ? ( // If user is an admin, show the admin panel link
-                  <NavDropdown.Item href="/admin">Admin Panel</NavDropdown.Item>
-                ) : null}
-                <NavDropdown.Item onClick={logout}>Logout</NavDropdown.Item>
-              </NavDropdown>
+    <div id="navbar">
+      <Navbar
+        bg={import.meta.env.DEV ? "danger" : "dark"}
+        variant={import.meta.env.DEV ? "danger" : "dark"}
+        expand="lg"
+        style={{
+          padding: "10px",
+          marginBottom: "20px",
+          boxShadow: "0px 0px 10px 0px rgba(0,0,0,0.75)",
+        }}
+        sticky="top"
+      >
+        <Container>
+          {/* display development warning if in development mode */}
+          <Navbar.Brand href="/">
+            <img
+              alt=""
+              src={logo}
+              width="30"
+              height="30"
+              className="d-inline-block align-top"
+              style={{ marginRight: "10px" }}
+            />
+            {import.meta.env.DEV ? "Buffet (Development)" : "Buffet"}
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link href="https://github.com/kgdn/buffet">
+                <i
+                  className="bi bi-github"
+                  style={{ color: "white", marginRight: "5px" }}
+                ></i>
+                GitHub
+              </Nav.Link>
+              <Nav.Link href="https://kgdn.xyz">
+                <i
+                  className="bi bi-globe"
+                  style={{ color: "white", marginRight: "5px" }}
+                ></i>
+                kgdn.xyz
+              </Nav.Link>
             </Nav>
-          ) : (
-            <Nav>
-              <Nav.Link href="/login">Login</Nav.Link>
-            </Nav>
-          )}
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+          </Navbar.Collapse>
+          <Navbar.Collapse className="justify-content-end">
+            {user ? (
+              <Nav>
+                <NavDropdown title={user.username} id="basic-nav-dropdown">
+                  <NavDropdown.Item href="/account">
+                    Manage Account
+                  </NavDropdown.Item>
+                  {user.role === "admin" ? ( // If user is an admin, show the admin panel link
+                    <NavDropdown.Item href="/admin">
+                      Admin Panel
+                    </NavDropdown.Item>
+                  ) : null}
+                  <NavDropdown.Item onClick={handleLogout}>
+                    Logout
+                  </NavDropdown.Item>
+                </NavDropdown>
+              </Nav>
+            ) : (
+              <Nav>
+                <Nav.Link href="/login">Login</Nav.Link>
+              </Nav>
+            )}
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+
+      {/* Are you sure you want to log out? modal */}
+      <Modal show={showLogoutModal} onHide={() => setShowLogoutModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Log Out</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to log out? You will need to log in again to
+          access your account and interact with the application.
+        </Modal.Body>
+        <Modal.Footer>
+          <ButtonGroup>
+            <Button
+              variant="secondary"
+              onClick={() => setShowLogoutModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={logout}>
+              Log Out
+            </Button>
+          </ButtonGroup>
+        </Modal.Footer>
+      </Modal>
+    </div>
   );
 };
 
