@@ -51,12 +51,12 @@ export async function getAllVMs(): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -80,12 +80,12 @@ export async function getAllUsers(): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -115,12 +115,12 @@ export async function getAllVMsByUser(id: string): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -145,12 +145,12 @@ export async function deleteUser(id: string): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -176,12 +176,12 @@ export async function deleteVM(id: string): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -210,12 +210,12 @@ export async function changeUsername(
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -244,12 +244,12 @@ export async function changeEmail(
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -278,12 +278,12 @@ export async function banUser(
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -307,12 +307,12 @@ export async function unbanUser(user_id: string): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -336,12 +336,12 @@ export async function getBannedUsers(): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -365,12 +365,12 @@ export async function getUnverifiedUsers(): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -396,12 +396,12 @@ export async function deleteUnverifiedUser(
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -425,12 +425,12 @@ export async function verifyUser(user_id: string): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -454,12 +454,12 @@ export async function getLogs(): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }

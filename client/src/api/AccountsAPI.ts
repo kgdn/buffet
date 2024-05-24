@@ -55,12 +55,12 @@ export async function logIn(
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -92,12 +92,12 @@ export async function register(
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -123,12 +123,12 @@ export async function resendVerificationEmail(
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -157,12 +157,12 @@ export async function verifyRegistration(
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -186,12 +186,12 @@ export async function logOut(): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -223,12 +223,12 @@ export async function deleteAccount(
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -258,12 +258,12 @@ export async function getUserDetails(): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -298,12 +298,12 @@ export async function changeUsername(
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -338,12 +338,12 @@ export async function changePassword(
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -378,12 +378,12 @@ export async function changeEmail(
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -414,12 +414,12 @@ export async function enableTwoFactorAuth(): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -453,12 +453,12 @@ export async function verifyTwoFactorAuth(token: string): Promise<ApiResponse> {
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
@@ -490,12 +490,12 @@ export async function disableTwoFactorAuth(
     if (error instanceof AxiosError) {
       return {
         status: error.response?.status || 500,
-        message: error.response?.data.message || "An unknown error occurred",
+        message: error.response?.data.message || "Internal Server Error",
       };
     } else {
       return {
         status: 500,
-        message: "An unknown error occurred",
+        message: "Internal Server Error",
       };
     }
   }
