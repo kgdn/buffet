@@ -26,7 +26,8 @@ interface ProtectedRouteProps {
 }
 
 /**
- * ProtectedRoute component
+ * ProtectedRoute component to protect routes based on user authentication and role, i.e users can't access admin pages,
+ * and users can't access account pages if they're not logged in.
  * @param {ProtectedRouteProps} props - The properties of the component
  * @returns {ReactNode} - The protected route component
  */

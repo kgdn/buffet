@@ -20,14 +20,21 @@ import { useMediaQuery } from "react-responsive";
 
 export const ThemeContext = createContext("");
 
+/**
+ * ThemeProvider component to provide the dark/light theme context to the application
+ * @param {ReactNode} children - The children of the component
+ * @returns {ReactNode} - The theme provider component
+ */
 export const ThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const isDarkMode = useMediaQuery({ query: "(prefers-color-scheme: dark)" });
   const theme = isDarkMode ? "dark" : "light";
 
+  // Set the theme attribute on the body element
   useEffect(() => {
     document.body.setAttribute("data-bs-theme", theme);
   }, [theme]);
 
+  // Return the theme provider component
   return (
     <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
   );

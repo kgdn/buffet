@@ -48,7 +48,7 @@ interface AuthProviderProps {
 }
 
 /**
- * AuthProvider component
+ * AuthProvider component to provide the user and logout function to the application
  * @param {AuthProviderProps} props - The properties of the component
  * @returns {ReactNode} - The authentication provider component
  */
