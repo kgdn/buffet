@@ -16,9 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { createContext, useState, useEffect, ReactNode } from "react";
-import { getUserDetails, logOut } from "../api/AccountsAPI";
+import { createContext, FC, ReactNode, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { getUserDetails, logOut } from "../api/AccountsAPI";
 
 interface User {
   id: string;
@@ -51,7 +52,7 @@ interface AuthProviderProps {
  * @param {AuthProviderProps} props - The properties of the component
  * @returns {ReactNode} - The authentication provider component
  */
-export const AuthProvider: React.FC<AuthProviderProps> = ({
+export const AuthProvider: FC<AuthProviderProps> = ({
   children,
 }: AuthProviderProps): ReactNode => {
   const [user, setUser] = useState<User | null>(null);

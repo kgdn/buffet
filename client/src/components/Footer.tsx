@@ -16,10 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React from "react";
-import { Container, Row, Col, Image } from "react-bootstrap";
+import { FC, ReactElement } from "react";
+import { Col, Container, Image, Row } from "react-bootstrap";
 
-const Footer: React.FC = (): React.ReactElement => {
+const Footer: FC = (): ReactElement => {
   return (
     <div className="footer">
       <Container>

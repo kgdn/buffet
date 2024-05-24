@@ -16,37 +16,46 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useEffect, useState, useContext, useCallback } from "react";
 import {
-  Card,
+  FC,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import {
+  Alert,
   Button,
-  Container,
-  Row,
+  ButtonGroup,
+  Card,
+  Carousel,
   Col,
+  Container,
   Form,
   Modal,
-  Alert,
-  Carousel,
-  ButtonGroup,
-  ProgressBar,
-  Tooltip,
   OverlayTrigger,
+  ProgressBar,
+  Row,
+  Tooltip,
 } from "react-bootstrap";
-import NavbarComponent from "../components/Navbar";
-import { AuthContext } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+
+import RFB from "@novnc/novnc/core/rfb";
+
 import {
-  getIsoFiles,
   createVirtualMachine,
+  deleteVirtualMachine,
+  getIsoFiles,
   getRunningVMs,
   getVirtualMachineByUser,
-  deleteVirtualMachine,
 } from "../api/VirtualMachineAPI";
-import RFB from "@novnc/novnc/core/rfb";
-import Footer from "../components/Footer";
 import fedora from "../assets/carousel/fedora.png";
-import ubuntu from "../assets/carousel/ubuntu.png";
 import opensuse from "../assets/carousel/opensuse.png";
-import { useNavigate } from "react-router-dom";
+import ubuntu from "../assets/carousel/ubuntu.png";
+import Footer from "../components/Footer";
+import NavbarComponent from "../components/Navbar";
+import { AuthContext } from "../contexts/AuthContext";
 
 interface Image {
   name: string;
@@ -75,7 +84,7 @@ interface VmDetails {
  * @param {HomeProps} props - The properties of the component
  * @returns {ReactNode} - The home component
  */
-const Home: React.FC = (): React.ReactElement => {
+const Home: FC = (): ReactNode => {
   const { user } = useContext(AuthContext);
   const [loggedIn, setLoggedIn] = useState(false);
   const [iso, setImages] = useState<Image[]>([]);

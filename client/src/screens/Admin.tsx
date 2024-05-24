@@ -15,40 +15,41 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import React, { useEffect, useState, Fragment } from "react";
-import NavbarComponent from "../components/Navbar";
-import {
-  getAllUsers,
-  getAllVMs,
-  changeUsername,
-  changeEmail,
-  deleteUser,
-  banUser,
-  unbanUser,
-  deleteVM,
-  getBannedUsers,
-  getUnverifiedUsers,
-  verifyUser,
-  deleteUnverifiedUser,
-  getLogs,
-} from "../api/AdminAPI";
-import validator from "validator";
+import { FC, Fragment, ReactElement, useEffect, useState } from "react";
 import {
   Alert,
-  Container,
-  Col,
-  Row,
   Button,
-  Form,
   ButtonGroup,
+  Card,
+  Col,
+  Container,
+  Form,
   Modal,
+  Row,
   Tab,
   Table,
   Tabs,
-  Card,
 } from "react-bootstrap";
-import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
+import validator from "validator";
+
+import {
+  banUser,
+  changeEmail,
+  changeUsername,
+  deleteUnverifiedUser,
+  deleteUser,
+  deleteVM,
+  getAllUsers,
+  getAllVMs,
+  getBannedUsers,
+  getLogs,
+  getUnverifiedUsers,
+  unbanUser,
+  verifyUser,
+} from "../api/AdminAPI";
+import Footer from "../components/Footer";
+import NavbarComponent from "../components/Navbar";
 
 interface User {
   id: number;
@@ -97,7 +98,7 @@ interface Logs {
   [date: string]: string[];
 }
 
-const Admin: React.FC = (): React.ReactElement => {
+const Admin: FC = (): ReactElement => {
   /*
    * I have to admit, this is not the most elegant solution, but it works. I have to use multiple states for each modal,
    * because if I use one state for all modals, the modals will not work as expected. A better solution for state management would

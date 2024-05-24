@@ -16,30 +16,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useEffect, useState } from "react";
-import NavbarComponent from "../components/Navbar";
+import passwordValidator from "password-validator";
+import { FC, ReactElement, useEffect, useState } from "react";
 import {
-  Form,
+  Alert,
   Button,
-  Row,
+  ButtonGroup,
   Col,
   Container,
-  Alert,
+  Form,
   Modal,
-  ButtonGroup,
+  Row,
 } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import validator from "validator";
+
 import {
   logIn,
   register,
-  verifyRegistration,
   resendVerificationEmail,
+  verifyRegistration,
 } from "../api/AccountsAPI";
-import validator from "validator";
-import passwordValidator from "password-validator";
 import Footer from "../components/Footer";
-import { useNavigate } from "react-router-dom";
+import NavbarComponent from "../components/Navbar";
 
-const LoginRegis: React.FC = (): React.ReactElement => {
+const LoginRegis: FC = (): ReactElement => {
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [registerUsername, setRegisterUsername] = useState("");

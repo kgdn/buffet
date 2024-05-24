@@ -16,22 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useContext } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { FC, ReactNode, useContext } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import { AuthContext } from "../contexts/AuthContext";
 
 interface ProtectedRouteProps {
-  element: React.ReactNode;
+  element: ReactNode;
 }
 
 /**
  * ProtectedRoute component
  * @param {ProtectedRouteProps} props - The properties of the component
- * @returns {React.ReactNode} - The protected route component
+ * @returns {ReactNode} - The protected route component
  */
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+const ProtectedRoute: FC<ProtectedRouteProps> = ({
   element,
-}: ProtectedRouteProps): React.ReactNode => {
+}: ProtectedRouteProps): ReactNode => {
   const { user } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();

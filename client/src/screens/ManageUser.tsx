@@ -16,35 +16,36 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useState, useEffect, useContext } from "react";
-import NavbarComponent from "../components/Navbar";
+import passwordValidator from "password-validator";
+import { FC, ReactElement, useContext, useEffect, useState } from "react";
 import {
-  Modal,
-  Form,
+  Alert,
   Button,
   ButtonGroup,
-  Container,
-  Row,
   Col,
-  Alert,
+  Container,
+  Form,
   Image,
+  Modal,
+  Row,
 } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import validator from "validator";
+
 import {
-  changeUsername,
-  changePassword,
   changeEmail,
+  changePassword,
+  changeUsername,
   deleteAccount,
+  disableTwoFactorAuth,
   enableTwoFactorAuth,
   verifyTwoFactorAuth,
-  disableTwoFactorAuth,
 } from "../api/AccountsAPI";
-import validator from "validator";
-import passwordValidator from "password-validator";
 import Footer from "../components/Footer";
+import NavbarComponent from "../components/Navbar";
 import { AuthContext } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 
-const VirtualMachineView: React.FC = (): React.ReactElement => {
+const VirtualMachineView: FC = (): ReactElement => {
   const { user } = useContext(AuthContext);
   const [getEmail, setCurrentEmail] = useState("");
   const [getUserName, setCurrentUserName] = useState("");

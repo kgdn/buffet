@@ -16,15 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useCallback, useEffect, useState } from "react";
-import RFB from "@novnc/novnc/core/rfb";
+import { FC, ReactElement, useCallback, useEffect, useState } from "react";
 import { Button, ButtonGroup, Modal } from "react-bootstrap";
+import Draggable from "react-draggable";
+import { useNavigate } from "react-router-dom";
+
+import RFB from "@novnc/novnc/core/rfb";
+
 import {
   deleteVirtualMachine,
   getVirtualMachineByUser,
 } from "../api/VirtualMachineAPI";
-import Draggable from "react-draggable";
-import { useNavigate } from "react-router-dom";
 
 interface VmDetails {
   wsport: number;
@@ -37,7 +39,7 @@ interface VmDetails {
   desktop_homepage: string;
 }
 
-const VirtualMachineView: React.FC = (): React.ReactElement => {
+const VirtualMachineView: FC = (): ReactElement => {
   const [vmDetails, setVmDetails] = useState<VmDetails>({
     wsport: 0,
     id: 0,

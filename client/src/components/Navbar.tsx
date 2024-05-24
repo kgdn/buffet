@@ -16,23 +16,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useContext } from "react";
+import "bootstrap-icons/font/bootstrap-icons.css";
+
+import { FC, ReactElement, useContext, useState } from "react";
 import {
-  Container,
-  Navbar,
-  Nav,
-  NavDropdown,
-  Modal,
   Button,
   ButtonGroup,
+  Container,
+  Modal,
+  Nav,
+  Navbar,
+  NavDropdown,
 } from "react-bootstrap";
-import "bootstrap-icons/font/bootstrap-icons.css";
+
 import logo from "../assets/logo.svg";
 import { AuthContext } from "../contexts/AuthContext";
 
-const NavbarComponent: React.FC = (): React.ReactElement => {
+const NavbarComponent: FC = (): ReactElement => {
   const { user, logout } = useContext(AuthContext);
-  const [showLogoutModal, setShowLogoutModal] = React.useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
     setShowLogoutModal(true);
