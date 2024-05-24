@@ -1,0 +1,17 @@
+services:
+  server:
+    build: server/
+    devices:
+      - "/dev/kvm:/dev/kvm"
+    volumes:
+      - /home/kgdn/iso:/app/iso
+      - /home/kgdn/nginx/certs:/etc/ssl/certs
+    ports:
+      - 8000:8000
+      - 5700:5700
+  client:
+    build: client/
+    ports:
+      - 443:443
+    volumes:
+      - /home/kgdn/nginx/certs:/etc/ssl/certs
