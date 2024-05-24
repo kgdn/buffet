@@ -10,10 +10,11 @@
 
 </div>
 
-Buffet is a full-stack, fully-featured web-based virtual machine manager that aims to provide a free, open-source, lightweight, easy-to-use, and secure alternative to other web-based virtual machine managers such as [DistroSea](https://distrosea.com/) and [DistroTest](https://www.reddit.com/r/DistroHopping/comments/wqrwbw/what_happened_to_distrotestnet/).
-The back-end is written in Python using the [Flask](https://github.com/pallets/flask) web framework, and the front-end is written in JavaScript with the [React](https://github.com/facebook/react) library. Buffet uses [QEMU](https://github.com/qemu/qemu) and [KVM](https://www.linux-kvm.org/) for virtualization, and [noVNC](https://github.com/novnc/noVNC) + [websockify](https://github.com/novnc/websockify) for remote desktop access.
+Buffet is a full-stack, fully-featured web-based virtual machine manager that aims to provide a free, open-source, easy-to-use, secure alternative to other web-based virtual machine managers such as [DistroSea](https://distrosea.com/) and [DistroTest](https://www.reddit.com/r/DistroHopping/comments/wqrwbw/what_happened_to_distrotestnet/).
 
-Buffet was made over the course of 12 weeks as part of the final project for my bachelor's degree in Computer Systems at the [School of Mathematical and Computer Sciences](https://www.hw.ac.uk/schools/mathematical-computer-sciences.htm) at [Heriot-Watt University](https://www.hw.ac.uk/).
+The back-end is written in Python using the [Flask](https://flask.palletsprojects.com/en/3.0.x/) web framework, and the front-end is written in JavaScript with the [React](https://react.dev/) library. Buffet uses [QEMU](https://www.qemu.org/) and [KVM](https://www.linux-kvm.org/) for virtualization, and [noVNC](https://novnc.com/info.html) + [websockify](https://github.com/novnc/websockify) for remote desktop access.
+
+Buffet in its original form was made over the course of 12 weeks as part of the final project for my bachelor's degree in Computer Systems at the [School of Mathematical and Computer Sciences](https://www.hw.ac.uk/schools/mathematical-computer-sciences.htm) at [Heriot-Watt University](https://www.hw.ac.uk/). Since then, I have continued to work on Buffet in my free time to improve it and add new features.
 
 > [!IMPORTANT]
 > **Please note that Buffet is not intended for production use, as it is still in the early stages of development.** 
@@ -275,8 +276,7 @@ Buffet is an open-source project, and contributions are welcome. If you would li
 
 > [!IMPORTANT]
 > When contributing to Buffet's back-end, please follow the [PEP 8](https://pep8.org/) style guide for Python code. Please ensure that your code follows the [PEP 8](https://pep8.org/) style guide and that your commit messages are clear and concise. Use the Black code formatter, isort, and pylint to format your code and check for errors.
-
-> [!IMPORTANT]
+> 
 > When contributing to Buffet's front-end, use ESLint, Prettier and Stylelint to format your code and check for errors.
 
 ## License
