@@ -151,7 +151,7 @@ const Admin: React.FC = (): React.ReactElement => {
     getAllUsers()
       .then((response) => {
         if (response.status === 200) {
-          setUsers(response.data);
+          setUsers(response.data as User[]);
         } else {
           console.error(response.message);
         }
@@ -160,7 +160,7 @@ const Admin: React.FC = (): React.ReactElement => {
     // Get all VMs
     getAllVMs().then((response) => {
       if (response.status === 200) {
-        setVMs(response.data);
+        setVMs(response.data as VM[]);
       } else {
         setVMMessage(response.message);
       }
@@ -168,7 +168,7 @@ const Admin: React.FC = (): React.ReactElement => {
     // Get all banned users
     getBannedUsers().then((response) => {
       if (response.status === 200) {
-        setBannedUsers(response.data);
+        setBannedUsers(response.data as BannedUser[]);
       } else {
         setBannedMessage(response.message);
       }
@@ -176,7 +176,7 @@ const Admin: React.FC = (): React.ReactElement => {
     // Get all unverified users
     getUnverifiedUsers().then((response) => {
       if (response.status === 200) {
-        setUnverifiedUsers(response.data);
+        setUnverifiedUsers(response.data as UnverifiedUser[]);
       } else {
         setUnverifiedMessage(response.message);
       }
@@ -184,7 +184,7 @@ const Admin: React.FC = (): React.ReactElement => {
     // Get all logs
     getLogs().then((response) => {
       if (response.status === 200) {
-        setLogs(response.data);
+        setLogs(response.data as Logs);
       }
     });
   }, []);

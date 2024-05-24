@@ -129,21 +129,24 @@ const Home: React.FC = (): React.ReactElement => {
 
       const getVMCount = async () => {
         const response = await getRunningVMs();
-        if (response.status === 200) {
+        if (response.status === 200 && response.data) {
           setVMCount(response.data.vm_count);
         }
       };
 
       const fetchVMDetails = async () => {
-        const { data } = await getVirtualMachineByUser();
-        setVmDetails({
-          wsport: data.wsport,
-          id: data.id,
-          name: data.name,
-          version: data.version,
-          desktop: data.desktop,
-          password: data.vnc_password,
-        });
+        const response = await getVirtualMachineByUser();
+        const data = response.data;
+        if (data) {
+          setVmDetails({
+            wsport: data.wsport,
+            id: data.id,
+            name: data.name,
+            version: data.version,
+            desktop: data.desktop,
+            password: data.vnc_password,
+          });
+        }
       };
 
       getImages();

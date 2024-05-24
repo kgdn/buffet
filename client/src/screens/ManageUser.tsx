@@ -190,7 +190,7 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
   const EnableTwoFactorButton = async () => {
     enableTwoFactorAuth().then((response) => {
       if (response.status === 200) {
-        setQrCode(response.data.qr_code);
+        setQrCode((response.data as { qr_code: string }).qr_code);
         setShowTwoFactorModal(true);
       } else {
         setTwoFactorMessage(response.message);

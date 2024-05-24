@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import Cookies from "universal-cookie";
 
 const cookies = new Cookies(null, { path: "/" });
@@ -27,17 +27,50 @@ axios.defaults.headers.common["X-CSRF-TOKEN"] =
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   status: number;
   message: string;
   data?: T;
+}
+
+interface IsoFile {
+  iso: string;
+  desktop: string;
+  name: string;
+  version: string;
+  description: string;
+  linux: boolean;
+  logo: string;
+  homepage: string;
+  desktop_homepage: string;
+  beginner_friendly: boolean;
+}
+
+interface VmDetails {
+  wsport: number;
+  id: number;
+  name: string;
+  version: string;
+  desktop: string;
+  password: string;
+  homepage: string;
+  desktop_homepage: string;
+  vnc_password: string;
+}
+
+interface DeleteVm {
+  vm_id: string;
+}
+
+interface VmCount {
+  vm_count: number;
 }
 
 /**
  * Get a list of available ISO files
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function getIsoFiles(): Promise<ApiResponse> {
+export async function getIsoFiles(): Promise<ApiResponse<IsoFile[]>> {
   try {
     const response: AxiosResponse = await axios.get(
       `${API_BASE_URL}/api/vm/iso/`,
@@ -50,11 +83,18 @@ export async function getIsoFiles(): Promise<ApiResponse> {
       message: response.data.message,
       data: response.data,
     };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "Internal Server Error",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "Internal Server Error",
+      };
+    }
   }
 }
 
@@ -63,7 +103,9 @@ export async function getIsoFiles(): Promise<ApiResponse> {
  * @param {string} iso - The ISO file to use
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function createVirtualMachine(iso: string): Promise<ApiResponse> {
+export async function createVirtualMachine(
+  iso: string
+): Promise<ApiResponse<VmDetails>> {
   try {
     const response: AxiosResponse = await axios.post(
       `${API_BASE_URL}/api/vm/create/`,
@@ -76,11 +118,18 @@ export async function createVirtualMachine(iso: string): Promise<ApiResponse> {
       message: response.data.message,
       data: response.data,
     };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "Internal Server Error",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "Internal Server Error",
+      };
+    }
   }
 }
 
@@ -91,7 +140,7 @@ export async function createVirtualMachine(iso: string): Promise<ApiResponse> {
  */
 export async function deleteVirtualMachine(
   vm_id: string
-): Promise<ApiResponse> {
+): Promise<ApiResponse<DeleteVm>> {
   try {
     const response: AxiosResponse = await axios.delete(
       `${API_BASE_URL}/api/vm/delete/`,
@@ -106,11 +155,18 @@ export async function deleteVirtualMachine(
       message: response.data.message,
       data: response.data,
     };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "Internal Server Error",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "Internal Server Error",
+      };
+    }
   }
 }
 
@@ -118,7 +174,9 @@ export async function deleteVirtualMachine(
  * Get the virtual machine details for the current user
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function getVirtualMachineByUser(): Promise<ApiResponse> {
+export async function getVirtualMachineByUser(): Promise<
+  ApiResponse<VmDetails>
+> {
   try {
     const response: AxiosResponse = await axios.get(
       `${API_BASE_URL}/api/vm/user/`
@@ -128,11 +186,18 @@ export async function getVirtualMachineByUser(): Promise<ApiResponse> {
       message: response.data.message,
       data: response.data,
     };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "Internal Server Error",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "Internal Server Error",
+      };
+    }
   }
 }
 
@@ -140,7 +205,7 @@ export async function getVirtualMachineByUser(): Promise<ApiResponse> {
  * Get the virtual machine details for the current user
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function getRunningVMs(): Promise<ApiResponse> {
+export async function getRunningVMs(): Promise<ApiResponse<VmCount>> {
   try {
     const response: AxiosResponse = await axios.get(
       `${API_BASE_URL}/api/vm/count/`
@@ -150,10 +215,17 @@ export async function getRunningVMs(): Promise<ApiResponse> {
       message: response.data.message,
       data: response.data,
     };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "Internal Server Error",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "Internal Server Error",
+      };
+    }
   }
 }

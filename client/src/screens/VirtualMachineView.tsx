@@ -58,17 +58,20 @@ const VirtualMachineView: React.FC = (): React.ReactElement => {
   // Fetches the virtual machine details from the database
   useEffect(() => {
     const fetchVMDetails = async () => {
-      const { data } = await getVirtualMachineByUser();
-      setVmDetails({
-        wsport: data.wsport,
-        id: data.id,
-        name: data.name,
-        version: data.version,
-        desktop: data.desktop,
-        password: data.vnc_password,
-        homepage: data.homepage,
-        desktop_homepage: data.desktop_homepage,
-      });
+      const response = await getVirtualMachineByUser();
+      const data = response.data;
+      if (data) {
+        setVmDetails({
+          wsport: data.wsport,
+          id: data.id,
+          name: data.name,
+          version: data.version,
+          desktop: data.desktop,
+          password: data.vnc_password,
+          homepage: data.homepage,
+          desktop_homepage: data.desktop_homepage,
+        });
+      }
     };
     fetchVMDetails();
   }, []);

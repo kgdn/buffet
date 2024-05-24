@@ -16,14 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import Cookies from "universal-cookie";
 
 const cookies = new Cookies(null, { path: "/" });
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   status: number;
   message: string;
   data?: T;
@@ -51,11 +51,18 @@ export async function logIn(
       }
     );
     return { status: response.status, message: response.data.message };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "An unknown error occurred",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "An unknown error occurred",
+      };
+    }
   }
 }
 
@@ -81,11 +88,18 @@ export async function register(
       }
     );
     return { status: response.status, message: response.data.message };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "An unknown error occurred",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "An unknown error occurred",
+      };
+    }
   }
 }
 
@@ -105,11 +119,18 @@ export async function resendVerificationEmail(
       }
     );
     return { status: response.status, message: response.data.message };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "An unknown error occurred",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "An unknown error occurred",
+      };
+    }
   }
 }
 
@@ -132,11 +153,18 @@ export async function verifyRegistration(
       }
     );
     return { status: response.status, message: response.data.message };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "An unknown error occurred",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "An unknown error occurred",
+      };
+    }
   }
 }
 
@@ -154,11 +182,18 @@ export async function logOut(): Promise<ApiResponse> {
       }
     );
     return { status: response.status, message: response.data.message };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "An unknown error occurred",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "An unknown error occurred",
+      };
+    }
   }
 }
 
@@ -184,11 +219,18 @@ export async function deleteAccount(
       }
     );
     return { status: response.status, message: response.data.message };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "An unknown error occurred",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "An unknown error occurred",
+      };
+    }
   }
 }
 
@@ -212,11 +254,18 @@ export async function getUserDetails(): Promise<ApiResponse> {
       message: response.data.message,
       data: response.data,
     };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "An unknown error occurred",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "An unknown error occurred",
+      };
+    }
   }
 }
 
@@ -245,11 +294,18 @@ export async function changeUsername(
       }
     );
     return { status: response.status, message: response.data.message };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "An unknown error occurred",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "An unknown error occurred",
+      };
+    }
   }
 }
 
@@ -278,11 +334,18 @@ export async function changePassword(
       }
     );
     return { status: response.status, message: response.data.message };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "An unknown error occurred",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "An unknown error occurred",
+      };
+    }
   }
 }
 
@@ -311,11 +374,18 @@ export async function changeEmail(
       }
     );
     return { status: response.status, message: response.data.message };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "An unknown error occurred",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "An unknown error occurred",
+      };
+    }
   }
 }
 
@@ -340,11 +410,18 @@ export async function enableTwoFactorAuth(): Promise<ApiResponse> {
       message: response.data.message,
       data: response.data,
     };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "An unknown error occurred",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "An unknown error occurred",
+      };
+    }
   }
 }
 
@@ -372,11 +449,18 @@ export async function verifyTwoFactorAuth(token: string): Promise<ApiResponse> {
       message: response.data.message,
       data: response.data,
     };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "An unknown error occurred",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "An unknown error occurred",
+      };
+    }
   }
 }
 
@@ -402,10 +486,17 @@ export async function disableTwoFactorAuth(
       }
     );
     return { status: response.status, message: response.data.message };
-  } catch (error: any) {
-    return {
-      status: error.response.status,
-      message: error.response.data.message,
-    };
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      return {
+        status: error.response?.status || 500,
+        message: error.response?.data.message || "An unknown error occurred",
+      };
+    } else {
+      return {
+        status: 500,
+        message: "An unknown error occurred",
+      };
+    }
   }
 }
