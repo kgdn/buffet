@@ -1,4 +1,6 @@
-# Sort by individual file (alphabetically)
+buffet.code-workspace
+coverage
+dist/
 .DS_Store
 .env
 .env.development.local
@@ -6,23 +8,19 @@
 .env.production.local
 .env.test.local
 .eslintrc.js
-.pytest_cache/
-.pnp
-.pnp.js
-.vscode/
-coverage
-dist/
+instance/
+iso/
 logs/
 migrations/
+nginx.conf
 node_modules/
 npm-debug.log*
+.pnp
+.pnp.js
+__pycache__/
+.pytest_cache/
 restful_api_collection
+.venv/
+.vscode/
 yarn-debug.log*
 yarn-error.log*
-
-# Sort by directory (alphabetically)
-__pycache__/
-iso/
-instance/
-.venv/
-buffet.code-workspace
