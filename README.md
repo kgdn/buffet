@@ -33,7 +33,7 @@ Buffet in its original form was made over the course of 12 weeks as part of the 
 - Lightweight, easy-to-setup back-end using Flask and SQLAlchemy
 - Runs on GNU/Linux servers with QEMU and KVM support
 - Secure user authentication and authorisation using JSON Web Tokens (JWT), bcrypt and two-factor authentication
-- Supports any SQL database supported by SQLAlchemy, such as SQLite, PostgreSQL, MySQL, and MariaDB
+- Compatible with any relational database supported by SQLAlchemy, such as SQLite, PostgreSQL, MySQL, and MariaDB
 
 ## Screenshots and GIFs
 
