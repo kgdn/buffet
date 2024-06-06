@@ -330,7 +330,7 @@ Buffet uses the following third-party libraries and dependencies:
 4. [Flask-Cors](https://flask-cors.readthedocs.io/en/latest/) (MIT License)
 5. [Flask-JWT-Extended](https://flask-jwt-extended.readthedocs.io/en/stable/) (MIT License)
 6. [Flask-Limiter](https://flask-limiter.readthedocs.io/en/stable/) (MIT License)
-7. [Flask-Mail](https://pythonhosted.org/Flask-Mail/) (BSD License)
+7. [Flask-Mail](https://flask-mail.readthedocs.io/en/latest/) (BSD-3 License)
 8. [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/) (MIT License)
 9. [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/3.x/) (MIT License)
 10. [Gunicorn](https://gunicorn.org/) (MIT License)
