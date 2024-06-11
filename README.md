@@ -12,7 +12,7 @@
 
 Buffet is a full-stack, fully-featured web-based virtual machine manager that aims to provide a free, open-source, easy-to-use, secure alternative to other web-based virtual machine managers such as [DistroSea](https://distrosea.com/) and [DistroTest](https://www.reddit.com/r/DistroHopping/comments/wqrwbw/what_happened_to_distrotestnet/).
 
-The back-end is written in Python using the [Flask](https://flask.palletsprojects.com/en/3.0.x/) web framework, and the front-end is written in JavaScript with the [React](https://react.dev/) library. Buffet uses [QEMU](https://www.qemu.org/) and [KVM](https://www.linux-kvm.org/) for virtualization, and [noVNC](https://novnc.com/info.html) + [websockify](https://github.com/novnc/websockify) for remote desktop access.
+The back-end is written in Python using the [Flask](https://flask.palletsprojects.com/en/3.0.x/) web framework, and the front-end is written in TypeScript with the [React](https://react.dev/) library. Buffet uses [QEMU](https://www.qemu.org/) and [KVM](https://www.linux-kvm.org/) for virtualization, and [noVNC](https://novnc.com/info.html) + [websockify](https://github.com/novnc/websockify) for remote desktop access.
 
 Buffet in its original form was made over the course of 12 weeks as part of the final project for my bachelor's degree in Computer Systems at the [School of Mathematical and Computer Sciences](https://www.hw.ac.uk/schools/mathematical-computer-sciences.htm) at [Heriot-Watt University](https://www.hw.ac.uk/). Since then, I have continued to work on Buffet in my free time to improve it and add new features.
 
