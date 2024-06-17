@@ -54,13 +54,13 @@ Buffet in its original form was made over the course of 12 weeks as part of the 
 
 ## Installation
 
-Buffet is designed to be easy to install and use. It consists of two main components: the front-end and the back-end. The front-end is a React application that communicates with the back-end using a REST API. The back-end is a Flask application that provides the REST API for the front-end.
+Buffet is designed to be easy to install and use. It consists of two main components: the front-end and the back-end. The front-end is a React application that communicates with the back-end using a RESTful API. The back-end is a Flask application that provides the RESTful API for the front-end to communicate with.
 
 If you want to host your own instance of Buffet, you will need to install both the front-end and the back-end on your server. A detailed guide on how to install Buffet is provided below. Instructions for installing the front-end, the back-end, and the Docker container are provided in the [Docker Compose Installation](#docker-compose-installation) section. Alternatively, if you just want to install them using the base Docker command, look for the Docker Container Installation in each section.
 
 ### Front-end Installation
 
-The front-end is a React application that communicates with the back-end using the REST API. It is designed to be lightweight, easy to install, and easy to use.
+The front-end is a React application that communicates with the back-end using the RESTful API. It is designed to be lightweight, easy to install, and easy to use.
 
 > [!NOTE]
 > You can install the front-end on any server that supports Node.js and npm, i.e. on Windows, macOS, or GNU/Linux.
@@ -147,7 +147,7 @@ docker run -v ./certs:/app/certs/ -p 443:443 --name buffet-client -d buffet-clie
 
 ### Back-end Installation
 
-The back-end is a Flask application that provides the REST API for the front-end.
+The back-end is a Flask application that provides the RESTful API for the front-end to communicate with, allowing for the creation of virtual machines and querying of database data.
 
 > [!NOTE]
 > Unlike the front-end, the back-end is designed to be installed on a GNU/Linux server, as it makes extensive use of QEMU and KVM for virtualization. You can install the back-end on any GNU/Linux distribution that supports Python 3 and pip. Ensure that you have the required dependencies installed before proceeding.

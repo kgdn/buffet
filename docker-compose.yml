@@ -5,6 +5,7 @@ services:
       - 443:443
     volumes:
       - ./certs:/app/certs
+    restart: unless-stopped
   server:
     build: server/
     devices:
@@ -13,6 +14,7 @@ services:
       - ./iso:/app/iso
       - ./certs:/app/certs
     network_mode: host
+    restart: unless-stopped
   database:
     image: postgres
     environment:
@@ -23,6 +25,7 @@ services:
       - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
+    restart: unless-stopped
 volumes:
   iso:
   certs:

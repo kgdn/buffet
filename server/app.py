@@ -64,19 +64,6 @@ app.wsgi_app = ProxyFix(
 if not os.path.exists("logs"):
     os.makedirs("logs")
 
-# Create iso/ directory if it doesn't exist
-if not os.path.exists("iso"):
-    os.makedirs("iso")
-
-# Create iso/logos/ directory if it doesn't exist
-if not os.path.exists("iso/logos"):
-    os.makedirs("iso/logos")
-
-# Create iso/index.json if it doesn't exist
-if not os.path.exists("iso/index.json"):
-    with open("iso/index.json", "a", encoding="utf-8") as f:
-        f.write("[]")
-
 # Create logs/ directory if it doesn't exist
 if not os.path.exists("logs"):
     os.makedirs("logs")
