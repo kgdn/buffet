@@ -56,7 +56,7 @@ Buffet in its original form was made over the course of 12 weeks as part of the 
 
 Buffet is designed to be easy to install and use. It consists of two main components: the front-end and the back-end. The front-end is a React application that communicates with the back-end using a REST API. The back-end is a Flask application that provides the REST API for the front-end.
 
-If you want to host your own instance of Buffet, you will need to install both the front-end and the back-end on your server. A detailed guide on how to install Buffet is provided below. A Dockerfile will be provided in the future for easier installation. Stay tuned!
+If you want to host your own instance of Buffet, you will need to install both the front-end and the back-end on your server. A detailed guide on how to install Buffet is provided below. Instructions for installing the front-end, the back-end, and the Docker container are provided in the [Docker Compose Installation](#docker-compose-installation) section. Alternatively, if you just want to install them using the base Docker command, look for the Docker Container Installation in each section.
 
 ### Front-end Installation
 
@@ -70,7 +70,7 @@ The front-end is a React application that communicates with the back-end using t
 - Node.js v20.10.0 or later
 - npm 10.4.0 or later
 
-#### Instructions
+#### Standard Installation
 
 1. Clone the repository:
 
@@ -113,10 +113,36 @@ npm run dev
 npm run build
 ```
 
-1. Deploy the production version to your server using your preferred method, such as Nginx, Apache, or Caddy.
+7. Deploy the production version to your server using your preferred method, such as Nginx, Apache, or Caddy.
 
 ```bash
 npm run build && cp -r dist/* /path/to/your/webserver/
+```
+
+#### Docker Container Installation
+
+> [!NOTE]
+> This assumes you have followed the steps in the [Front-end Installation](#front-end-installation) up until step 4.
+> If you have not done so, please refer to the [Front-end Installation](#front-end-installation) section for more details.
+>
+> It is highly recommended to use the Docker Compose installation method as detailed in the [Docker Compose Installation](#docker-compose-installation) section instead.
+
+1. Modify the `nginx/example.conf` file to match your desired configuration. Rename it to `nginx.conf` and save it.
+
+```bash
+mv example.conf nginx.conf
+```
+
+2. Build the Docker image:
+
+```bash
+docker build -t buffet-client .
+```
+
+3. Run the Docker container, where `./certs` is the path to the SSL certificates:
+
+```bash
+docker run -v ./certs:/app/certs/ -p 443:443 --name buffet-client -d buffet-client
 ```
 
 ### Back-end Installation
@@ -160,14 +186,14 @@ sudo modprobe kvm
 
 #### Database Setup
 
-Buffet uses SQLAlchemy to interact with the database. A database is required to store user information and virtual machine information. You can use any SQL database supported by SQLAlchemy, such as SQLite, PostgreSQL, MySQL, and MariaDB.
+Buffet uses SQLAlchemy to interact with the database. A database is required to store user information and virtual machine information. You can use any SQL database supported by SQLAlchemy, such as SQLite, PostgreSQL, MySQL, and MariaDB. You can use a Docker container for this if you prefer.
 
 - To use SQLite, you can set the `SQLALCHEMY_DATABASE_URI` variable in the `.env` file to `sqlite:///db.sqlite3`. This requires no additional setup.
 
 - To use PostgreSQL, you can set the `SQLALCHEMY_DATABASE_URI` variable in the `.env` file to `postgresql://username:password@localhost/dbname`. This assumes that you have a PostgreSQL database running on your server. You may need to install the `psycopg2` package using pip. **This is the recommended database for production use.**
 - To use MySQL/MariaDB, you can set the `SQLALCHEMY_DATABASE_URI` variable in the `.env` file to `mysql://username:password@localhost/dbname`. This assumes that you have a MySQL database running on your server. You may need to install the `mysql-connector-python` package using pip.
 
-#### Instructions
+#### Standard Installation
 
 1. Clone the repository:
 
@@ -268,6 +294,69 @@ flask -A app run
 
 ```bash
 gunicorn app:app
+```
+
+#### Docker Container Installation
+
+> [!NOTE]
+> This assumes you have followed the steps in the [Back-end Installation](#back-end-installation) up until step 8.
+> If you have not done so, please refer to the [Back-end Installation](#back-end-installation) section for more details.
+>
+> It is highly recommended to use the Docker Compose installation method as detailed in the [Docker Compose Installation](#docker-compose-installation) section instead.
+
+1. Build the Docker image:
+
+```bash
+docker build -t buffet-server .
+```
+
+2. Run the Docker container, where `./iso` is the path to the virtual machine images and `./certs` is the path to the SSL certificates:
+
+```bash
+docker run -v ./iso:/app/iso -v ./certs:/app/certs -p 8000:8000 --name buffet-server -d buffet-server
+```
+
+### Docker Compose Installation
+
+An example `docker-compose.yml` file is shown below, and is available in the root of the repository [here](https://github.com/kgdn/buffet/blob/master/docker-compose.yml). You should follow the same structure, but change `POSTGRES_PASSWORD`, `POSTGRES_USER`, and `POSTGRES_DB` to your desired values.
+
+```yml
+services:
+  client:
+    build: client/
+    ports:
+      - 443:443
+    volumes:
+      - ./certs:/app/certs
+  server:
+    build: server/
+    devices:
+      - "/dev/kvm:/dev/kvm"
+    volumes:
+      - ./iso:/app/iso
+      - ./certs:/app/certs
+    network_mode: host
+  database:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres # Change this to your desired password
+      POSTGRES_USER: postgres # Change this to your desired username
+      POSTGRES_DB: postgres # Change this to your desired database
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+volumes:
+  iso:
+  certs:
+  db-data:
+```
+
+To build and run the Docker containers, you can use the following commands:
+
+```bash
+docker compose build
+docker compose up
 ```
 
 ## Contributing
