@@ -222,7 +222,7 @@ const Home: FC = (): ReactNode => {
     if (appElement) {
       const rfb = new RFB(
         appElement,
-        `wss://${API_BASE_URL}:${vmDetails.wsport}`,
+        `wss://${API_BASE_URL}/websockify/${vmDetails.wsport}/`,
         {
           credentials: {
             username: "",

@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y qemu-system-x86
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 8000 available to the world outside this container
-EXPOSE 5700 5900 8000
+# Make port 5700 and 8000 available to the world outside this container
+EXPOSE 5700 8000
 
 # Run gunicorn
 CMD ["gunicorn", "app:app"]

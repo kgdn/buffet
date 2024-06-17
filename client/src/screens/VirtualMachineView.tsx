@@ -116,7 +116,7 @@ const VirtualMachineView: FC = (): ReactElement => {
     if (appElement) {
       const rfb = new RFB(
         appElement,
-        `wss://${API_BASE_URL}:${vmDetails.wsport}`,
+        `wss://${API_BASE_URL}/websockify/${vmDetails.wsport}/`,
         {
           credentials: {
             username: "",
@@ -146,7 +146,7 @@ const VirtualMachineView: FC = (): ReactElement => {
   // Connect to the virtual machine when the wsport is set
   useEffect(() => {
     if (vmDetails.wsport !== 0) {
-      const timeout = setTimeout(connectToVM, 250);
+      const timeout = setTimeout(connectToVM, 300);
       return () => clearTimeout(timeout);
     }
   }, [connectToVM, vmDetails.wsport]);
@@ -237,10 +237,6 @@ const VirtualMachineView: FC = (): ReactElement => {
           <p>
             Due to technical limitations, you need to click the viewer to
             interact with the virtual machine.
-          </p>
-          <p>
-            Your virtual machine will be shut down after 5 minutes of
-            inactivity.
           </p>
           <p>
             <strong>Please note:</strong> All internet traffic is logged, and

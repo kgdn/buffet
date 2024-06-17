@@ -1,5 +1,6 @@
 bruno
 buffet.code-workspace
+certs/
 coverage
 dist/
 .DS_Store

@@ -1,20 +1,29 @@
 services:
-  server:
-    build: server/
-    devices:
-      - "/dev/kvm:/dev/kvm"
-    volumes:
-      - iso:/app/iso
-      - certs:/etc/ssl/certs
-    ports:
-      - 8000:8000
-      - 5700:5700
   client:
     build: client/
     ports:
       - 443:443
     volumes:
-      - certs:/etc/ssl/certs
+      - ./certs:/app/certs
+  server:
+    build: server/
+    devices:
+      - "/dev/kvm:/dev/kvm"
+    volumes:
+      - ./iso:/app/iso
+      - ./certs:/app/certs
+    network_mode: host
+  database:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres # Change this to your desired password
+      POSTGRES_USER: postgres # Change this to your desired username
+      POSTGRES_DB: postgres # Change this to your desired database
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
 volumes:
   iso:
   certs:
+  db-data:
