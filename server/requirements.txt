@@ -56,7 +56,7 @@ six==1.16.0
 SQLAlchemy==2.0.30
 typing_extensions==4.12.2
 tzlocal==5.2
-urllib3==2.2.1
+urllib3==2.2.2
 websockify==0.12.0
 Werkzeug==3.0.3
 wrapt==1.16.0
