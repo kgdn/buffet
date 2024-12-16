@@ -20,27 +20,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-bind = os.getenv(
-    "GUNICORN_BIND_ADDRESS"
-)  # Set the bind address. This can be overridden using --bind.
-certfile = os.getenv(
-    "SSL_CERTIFICATE_PATH"
-)  # Set the certificate file. This is required for HTTPS.
+bind = os.getenv("GUNICORN_BIND_ADDRESS")  # Set the bind address. This can be overridden using --bind.
+certfile = os.getenv("SSL_CERTIFICATE_PATH")  # Set the certificate file. This is required for HTTPS.
 keyfile = os.getenv("SSL_KEY_PATH")  # Set the key file. This is required for HTTPS.
-workers = (
-    os.cpu_count() * 2 + 1
-)  # Auto-calculate the number of workers. This can be overridden using --workers.
+workers = os.cpu_count() * 2 + 1  # Auto-calculate the number of workers. This can be overridden using --workers.
 # This is set to 2 * the number of CPU cores + 1 for optimal performance.
-threads = (
-    os.cpu_count() * 2 + 1
-)  # Auto-calculate the number of threads. This can be overridden using --threads.
+threads = os.cpu_count() * 2 + 1  # Auto-calculate the number of threads. This can be overridden using --threads.
 # This is set to 2 * the number of CPU cores + 1 for optimal performance.
-worker_class = os.getenv(
-    "GUNICORN_WORKER_CLASS"
-)  # Set the worker class. This can be overridden using --worker-class.
-loglevel = os.getenv(
-    "GUNICORN_LOG_LEVEL"
-)  # Set the log level. This can be overridden using --log-level.
-accesslog = os.getenv(
-    "GUNICORN_ACCESS_LOG"
-)  # Set the access log file. This can be overridden using --access-logfile.
+worker_class = os.getenv("GUNICORN_WORKER_CLASS")  # Set the worker class. This can be overridden using --worker-class.
+loglevel = os.getenv("GUNICORN_LOG_LEVEL")  # Set the log level. This can be overridden using --log-level.
+accesslog = os.getenv("GUNICORN_ACCESS_LOG")  # Set the access log file. This can be overridden using --access-logfile.
+errorlog = os.getenv("GUNICORN_ERROR_LOG")  # Set the error log file. This can be overridden using --error-logfile.

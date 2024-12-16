@@ -15,18 +15,15 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import json
-import os
 import re
 import subprocess
-from datetime import datetime
 
-import cef
 from flask import Blueprint, jsonify, request
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from helper_functions import HelperFunctions
-from models import BannedUser, UnverifiedUser, User, VirtualMachine, db
+from models import BannedUsers, UnverifiedUsers, Users, VirtualMachines, db
 from password_strength import PasswordPolicy
+from config import ApplicationConfig
 
 admin_endpoints = Blueprint("admin", __name__)
 Bcrypt = Bcrypt()
@@ -78,7 +75,7 @@ def get_all_vm():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -87,7 +84,7 @@ def get_all_vm():
         return jsonify({"message": "Insufficient permissions"}), 403
 
     # Get all virtual machines
-    vms = VirtualMachine.query.all()
+    vms = VirtualMachines.query.all()
     if not vms:
         return jsonify({"message": "No virtual machines"}), 404
 
@@ -96,7 +93,7 @@ def get_all_vm():
     desktop = None
 
     # Get the name of the operating system, version and desktop environment
-    with open("iso/index.json", "r", encoding="utf-8") as f:
+    with open(f"{ApplicationConfig.ISO_DIR}/index.json") as f:
         data = json.load(f)
         for iso in data:
             if iso["iso"] == vms[0].iso:
@@ -107,19 +104,17 @@ def get_all_vm():
 
     vms_list = []
     for vm in vms:
-        vms_list.append(
-            {
-                "id": vm.id,
-                "port": vm.port,
-                "wsport": vm.wsport,
-                "iso": vm.iso,
-                "process_id": vm.process_id,
-                "user_id": vm.user_id,
-                "name": name,
-                "version": version,
-                "desktop": desktop,
-            }
-        )
+        vms_list.append({
+            "id": vm.id,
+            "port": vm.port,
+            "wsport": vm.wsport,
+            "iso": vm.iso,
+            "process_id": vm.process_id,
+            "user_id": vm.user_id,
+            "name": name,
+            "version": version,
+            "desktop": desktop,
+        })
 
     return jsonify(vms_list), 200
 
@@ -134,7 +129,7 @@ def delete_vm_by_id():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -148,38 +143,19 @@ def delete_vm_by_id():
         return jsonify({"message": "Invalid data format"}), 400
 
     # Get the virtual machine, if it exists
-    vm = VirtualMachine.query.filter_by(id=data["vm_id"]).first()
+    vm = VirtualMachines.query.filter_by(id=data["vm_id"]).first()
     if not vm:
         return jsonify({"message": "Invalid virtual machine"}), 404
 
     # Stop the virtual machine
     try:
-        subprocess.Popen(
-            ["kill", str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        subprocess.Popen(["kill", str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except subprocess.CalledProcessError:
         return jsonify({"message": "Error deleting virtual machine"}), 500
 
     # Stop the virtual machine from the database
     db.session.delete(vm)
     db.session.commit()
-
-    HelperFunctions.create_cef_logs_folders()
-
-    # Log the event in CEF format
-    cef.log_cef(
-        "Virtual machine deleted by admin",
-        9,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
 
     return jsonify({"message": "Virtual machine deleted"}), 200
 
@@ -195,7 +171,7 @@ def get_all_users():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -204,22 +180,20 @@ def get_all_users():
         return jsonify({"message": "Insufficient permissions"}), 403
 
     # Get all users
-    users = User.query.all()
+    users = Users.query.all()
     if not users:
         return jsonify({"message": "No users"}), 404
 
     users_list = []
     for user in users:
-        users_list.append(
-            {
-                "id": user.id,
-                "username": user.username,
-                "email": user.email,
-                "role": user.role,
-                "login_time": user.login_time,
-                "ip": user.ip,
-            }
-        )
+        users_list.append({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role,
+            "login_time": user.login_time,
+            "ip": user.ip,
+        })
 
     return jsonify(users_list), 200
 
@@ -234,7 +208,7 @@ def delete_user_by_id():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -248,23 +222,19 @@ def delete_user_by_id():
         return jsonify({"message": "Invalid data format"}), 400
 
     # Get the user, if it exists
-    user_to_delete = User.query.filter_by(id=data["user_id"]).first()
+    user_to_delete = Users.query.filter_by(id=data["user_id"]).first()
     if not user_to_delete:
         return jsonify({"message": "Invalid user"}), 404
 
     # If the user is an admin, they cannot delete their account
     if user_to_delete.role == "admin":
         return (
-            jsonify(
-                {
-                    "message": "Admins cannot delete their account, please contact the head admin"
-                }
-            ),
+            jsonify({"message": "Admins cannot delete their account, please contact the head admin"}),
             403,
         )
 
     # Stop the user's virtual machine
-    vm = VirtualMachine.query.filter_by(user_id=user_to_delete.id).first()
+    vm = VirtualMachines.query.filter_by(user_id=user_to_delete.id).first()
     if vm:
         try:
             subprocess.Popen(
@@ -277,23 +247,6 @@ def delete_user_by_id():
 
     db.session.delete(user_to_delete)
     db.session.commit()
-
-    HelperFunctions.create_cef_logs_folders()
-
-    # Log the event in CEF format
-    cef.log_cef(
-        "User " + user_to_delete.username + " deleted by admin",
-        9,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
 
     return jsonify({"message": "User deleted"}), 200
 
@@ -308,7 +261,7 @@ def change_user_role():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -321,45 +274,20 @@ def change_user_role():
     if not data or "user_id" not in data or "role" not in data:
         return jsonify({"message": "Invalid data format"}), 400
 
-    user_to_change = User.query.filter_by(id=data["user_id"]).first()
+    user_to_change = Users.query.filter_by(id=data["user_id"]).first()
     if not user_to_change:
         return jsonify({"message": "Invalid user"}), 404
 
     # If the user is an admin, they cannot change their role
     if user_to_change.role == "admin":
         return (
-            jsonify(
-                {
-                    "message": "Admins cannot change their role, please contact the head admin"
-                }
-            ),
+            jsonify({"message": "Admins cannot change their role, please contact the head admin"}),
             403,
         )
 
     user_to_change.role = data["role"]
 
     db.session.commit()
-
-    HelperFunctions.create_cef_logs_folders()
-
-    # Log the event in CEF format
-    cef.log_cef(
-        "User "
-        + user_to_change.username
-        + " role changed to "
-        + data["role"]
-        + " by admin",
-        10,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
 
     return jsonify({"message": "User role changed"}), 200
 
@@ -374,7 +302,7 @@ def change_user_username():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -388,17 +316,17 @@ def change_user_username():
         return jsonify({"message": "Invalid data format"}), 400
 
     # Get the user, if it exists
-    user_to_change = User.query.filter_by(id=data["user_id"]).first()
+    user_to_change = Users.query.filter_by(id=data["user_id"]).first()
     if not user_to_change:
         return jsonify({"message": "Invalid user"}), 404
 
     # Check if the username is already taken in the users table
-    username_exists = User.query.filter_by(username=data["username"]).first()
+    username_exists = Users.query.filter_by(username=data["username"]).first()
     if username_exists:
         return jsonify({"message": "Username already taken"}), 400
 
     # Check if the username is already taken in the banned users table
-    username_exists = BannedUser.query.filter_by(username=data["username"]).first()
+    username_exists = BannedUsers.query.filter_by(username=data["username"]).first()
     if username_exists:
         return jsonify({"message": "Username already taken"}), 400
 
@@ -409,27 +337,6 @@ def change_user_username():
     user_to_change.username = data["username"]
 
     db.session.commit()
-
-    HelperFunctions.create_cef_logs_folders()
-
-    # Log the event in CEF format
-    cef.log_cef(
-        "User "
-        + user_to_change.username
-        + " username changed to "
-        + data["username"]
-        + " by admin",
-        3,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
 
     return jsonify({"message": "User username changed"}), 200
 
@@ -444,7 +351,7 @@ def change_user_email():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -458,17 +365,17 @@ def change_user_email():
         return jsonify({"message": "Invalid data format"}), 400
 
     # Get the user, if it exists
-    user_to_change = User.query.filter_by(id=data["user_id"]).first()
+    user_to_change = Users.query.filter_by(id=data["user_id"]).first()
     if not user_to_change:
         return jsonify({"message": "Invalid user"}), 404
 
     # Check if the email is already taken
-    email_exists = User.query.filter_by(email=data["email"]).first()
+    email_exists = Users.query.filter_by(email=data["email"]).first()
     if email_exists:
         return jsonify({"message": "Email already taken"}), 400
 
     # Check if the email is already taken in the banned users table
-    email_exists = BannedUser.query.filter_by(email=data["email"]).first()
+    email_exists = BannedUsers.query.filter_by(email=data["email"]).first()
     if email_exists:
         return jsonify({"message": "Email already taken"}), 400
 
@@ -479,27 +386,6 @@ def change_user_email():
     user_to_change.email = data["email"]
 
     db.session.commit()
-
-    HelperFunctions.create_cef_logs_folders()
-
-    # Log the event in CEF format
-    cef.log_cef(
-        "User "
-        + user_to_change.username
-        + " email changed to "
-        + data["email"]
-        + " by admin",
-        3,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
 
     return jsonify({"message": "User email changed"}), 200
 
@@ -515,7 +401,7 @@ def get_user_vms():
     """
 
     # Get the user from the authorization token
-    admin = User.query.filter_by(id=get_jwt_identity()).first()
+    admin = Users.query.filter_by(id=get_jwt_identity()).first()
     if not admin:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -529,44 +415,25 @@ def get_user_vms():
         return jsonify({"message": "Invalid data format"}), 400
 
     # Get the user, if it exists
-    user = User.query.filter_by(id=data["user_id"]).first()
+    user = Users.query.filter_by(id=data["user_id"]).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 404
 
     # Get all virtual machines for the user
-    vms = VirtualMachine.query.filter_by(user_id=user.id).all()
+    vms = VirtualMachines.query.filter_by(user_id=user.id).all()
     if not vms:
         return jsonify({"message": "No virtual machines"}), 404
 
     vms_list = []
     for vm in vms:
-        vms_list.append(
-            {
-                "id": vm.id,
-                "port": vm.port,
-                "wsport": vm.wsport,
-                "iso": vm.iso,
-                "process_id": vm.process_id,
-                "user_id": vm.user_id,
-            }
-        )
-
-    HelperFunctions.create_cef_logs_folders()
-
-    # Log the event in CEF format
-    cef.log_cef(
-        "Virtual machines of user " + user.username + " retrieved by admin",
-        8,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=admin.username,
-    )
+        vms_list.append({
+            "id": vm.id,
+            "port": vm.port,
+            "wsport": vm.wsport,
+            "iso": vm.iso,
+            "process_id": vm.process_id,
+            "user_id": vm.user_id,
+        })
 
     return jsonify(vms_list), 200
 
@@ -581,7 +448,7 @@ def ban_user():
     """
 
     # Get the user from the authorization token
-    admin = User.query.filter_by(id=get_jwt_identity()).first()
+    admin = Users.query.filter_by(id=get_jwt_identity()).first()
     if not admin:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -595,7 +462,7 @@ def ban_user():
         return jsonify({"message": "Invalid data format"}), 400
 
     # Get the user, if it exists
-    user = User.query.filter_by(id=data["user_id"]).first()
+    user = Users.query.filter_by(id=data["user_id"]).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 404
 
@@ -604,7 +471,7 @@ def ban_user():
         data["ban_reason"] = None
 
     # Kill their virtual machine
-    vm = VirtualMachine.query.filter_by(user_id=user.id).first()
+    vm = VirtualMachines.query.filter_by(user_id=user.id).first()
     if vm:
         try:
             subprocess.Popen(
@@ -618,7 +485,7 @@ def ban_user():
         db.session.delete(vm)
 
     # Ban the user by moving them to the banned users table
-    banned_user = BannedUser(
+    banned_user = BannedUsers(
         user_id=user.id,
         username=user.username,
         email=user.email,
@@ -635,23 +502,6 @@ def ban_user():
     db.session.delete(user)
     db.session.commit()
 
-    HelperFunctions.create_cef_logs_folders()
-
-    # Log the event in CEF format
-    cef.log_cef(
-        "User " + user.username + " banned by admin with reason " + data["ban_reason"],
-        8,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=admin.username,
-    )
-
     return jsonify({"message": "User banned"}), 200
 
 
@@ -665,7 +515,7 @@ def unban_user():
     """
 
     # Get the user from the authorization token
-    admin = User.query.filter_by(id=get_jwt_identity()).first()
+    admin = Users.query.filter_by(id=get_jwt_identity()).first()
     if not admin:
         return jsonify({"message": "Invalid user, user not found"}), 401
 
@@ -679,12 +529,12 @@ def unban_user():
         return jsonify({"message": "Invalid data format"}), 400
 
     # Get the user, if it exists
-    banned_user = BannedUser.query.filter_by(user_id=data["user_id"]).first()
+    banned_user = BannedUsers.query.filter_by(user_id=data["user_id"]).first()
     if not banned_user:
         return jsonify({"message": "Invalid user"}), 404
 
     # Create the user in the users table
-    user = User(
+    user = Users(
         username=banned_user.username,
         email=banned_user.email,
         password=banned_user.password,
@@ -699,23 +549,6 @@ def unban_user():
     db.session.delete(banned_user)
     db.session.commit()
 
-    HelperFunctions.create_cef_logs_folders()
-
-    # Log the event in CEF format
-    cef.log_cef(
-        "User " + user.username + " unbanned by admin",
-        8,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=admin.username,
-    )
-
     return jsonify({"message": "User unbanned"}), 200
 
 
@@ -729,7 +562,7 @@ def get_banned_users():
     """
 
     # Get the user from the authorization token
-    admin = User.query.filter_by(id=get_jwt_identity()).first()
+    admin = Users.query.filter_by(id=get_jwt_identity()).first()
     if not admin:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -738,25 +571,23 @@ def get_banned_users():
         return jsonify({"message": "Insufficient permissions"}), 403
 
     # Get all banned users
-    banned_users = BannedUser.query.all()
+    banned_users = BannedUsers.query.all()
     if not banned_users:
         return jsonify({"message": "No banned users"}), 404
 
     banned_users_list = []
     for banned_user in banned_users:
-        banned_users_list.append(
-            {
-                "id": banned_user.id,
-                "user_id": banned_user.user_id,
-                "username": banned_user.username,
-                "email": banned_user.email,
-                "login_time": banned_user.login_time,
-                "ip": banned_user.ip,
-                "role": banned_user.role,
-                "ban_reason": banned_user.ban_reason,
-                "two_factor_enabled": banned_user.two_factor_enabled,
-            }
-        )
+        banned_users_list.append({
+            "id": banned_user.id,
+            "user_id": banned_user.user_id,
+            "username": banned_user.username,
+            "email": banned_user.email,
+            "login_time": banned_user.login_time,
+            "ip": banned_user.ip,
+            "role": banned_user.role,
+            "ban_reason": banned_user.ban_reason,
+            "two_factor_enabled": banned_user.two_factor_enabled,
+        })
 
     return jsonify(banned_users_list), 200
 
@@ -771,7 +602,7 @@ def delete_banned_user():
     """
 
     # Get the user from the authorization token
-    admin = User.query.filter_by(id=get_jwt_identity()).first()
+    admin = Users.query.filter_by(id=get_jwt_identity()).first()
     if not admin:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -785,7 +616,7 @@ def delete_banned_user():
         return jsonify({"message": "Invalid data format"}), 400
 
     # Get the user, if it exists
-    banned_user = BannedUser.query.filter_by(id=data["user_id"]).first()
+    banned_user = BannedUsers.query.filter_by(id=data["user_id"]).first()
     if not banned_user:
         return jsonify({"message": "Invalid user"}), 404
 
@@ -806,7 +637,7 @@ def get_unverified_users():
     """
 
     # Get the user from the authorization token
-    admin = User.query.filter_by(id=get_jwt_identity()).first()
+    admin = Users.query.filter_by(id=get_jwt_identity()).first()
     if not admin:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -814,20 +645,18 @@ def get_unverified_users():
     if admin.role != "admin":
         return jsonify({"message": "Insufficient permissions"}), 403
 
-    # Get all unverified users from the UnverifiedUser table
-    unverified_users = UnverifiedUser.query.all()
+    # Get all unverified users from the UnverifiedUsers table
+    unverified_users = UnverifiedUsers.query.all()
     if not unverified_users:
         return jsonify({"message": "No unverified users"}), 404
 
     unverified_users_list = []
     for unverified_user in unverified_users:
-        unverified_users_list.append(
-            {
-                "id": unverified_user.id,
-                "username": unverified_user.username,
-                "email": unverified_user.email,
-            }
-        )
+        unverified_users_list.append({
+            "id": unverified_user.id,
+            "username": unverified_user.username,
+            "email": unverified_user.email,
+        })
 
     return jsonify(unverified_users_list), 200
 
@@ -842,7 +671,7 @@ def delete_unverified_user():
     """
 
     # Get the user from the authorization token
-    admin = User.query.filter_by(id=get_jwt_identity()).first()
+    admin = Users.query.filter_by(id=get_jwt_identity()).first()
     if not admin:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -856,29 +685,12 @@ def delete_unverified_user():
         return jsonify({"message": "Invalid data format"}), 400
 
     # Get the user, if it exists
-    unverified_user = UnverifiedUser.query.filter_by(id=data["user_id"]).first()
+    unverified_user = UnverifiedUsers.query.filter_by(id=data["user_id"]).first()
     if not unverified_user:
         return jsonify({"message": "Invalid user"}), 404
 
     db.session.delete(unverified_user)
     db.session.commit()
-
-    HelperFunctions.create_cef_logs_folders()
-
-    # Log the event in CEF format
-    cef.log_cef(
-        "Unverified user " + unverified_user.username + " deleted by admin",
-        7,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=admin.username,
-    )
 
     return jsonify({"message": "Unverified user deleted"}), 200
 
@@ -893,7 +705,7 @@ def verify_unverified_user():
     """
 
     # Get the user from the authorization token
-    admin = User.query.filter_by(id=get_jwt_identity()).first()
+    admin = Users.query.filter_by(id=get_jwt_identity()).first()
     if not admin:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -907,12 +719,12 @@ def verify_unverified_user():
         return jsonify({"message": "Invalid data format"}), 400
 
     # Get the user, if it exists
-    unverified_user = UnverifiedUser.query.filter_by(id=data["user_id"]).first()
+    unverified_user = UnverifiedUsers.query.filter_by(id=data["user_id"]).first()
     if not unverified_user:
         return jsonify({"message": "Invalid user"}), 404
 
     # Create the user in the users table
-    user = User(
+    user = Users(
         username=unverified_user.username,
         email=unverified_user.email,
         password=unverified_user.password,
@@ -927,53 +739,4 @@ def verify_unverified_user():
     db.session.delete(unverified_user)
     db.session.commit()
 
-    HelperFunctions.create_cef_logs_folders()
-
-    cef.log_cef(
-        "Unverified user " + unverified_user.username + " verified by admin",
-        5,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=admin.username,
-    )
-
     return jsonify({"message": "Unverified user verified"}), 200
-
-
-@admin_endpoints.route("/api/admin/logs/", methods=["GET"])
-@jwt_required()
-def get_all_logs():
-    """Get all logs
-
-    Returns:
-        json: Logs
-    """
-
-    # Get the user from the authorization token
-    admin = User.query.filter_by(id=get_jwt_identity()).first()
-    if not admin:
-        return jsonify({"message": "Invalid user"}), 401
-
-    # Ensure the user is an admin
-    if admin.role != "admin":
-        return jsonify({"message": "Insufficient permissions"}), 403
-
-    # Get all logs
-    logs = {}
-    for log_date in os.listdir("logs"):
-        if os.path.isdir("logs/" + log_date):
-            logs[log_date] = []
-            for log_file in os.listdir("logs/" + log_date):
-                if os.path.isfile("logs/" + log_date + "/" + log_file):
-                    with open(
-                        "logs/" + log_date + "/" + log_file, "r", encoding="utf-8"
-                    ) as f:
-                        logs[log_date].extend(f.readlines())
-
-    return jsonify(logs), 200

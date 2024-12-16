@@ -26,3 +26,4 @@ restful_api_collection
 .vscode/
 yarn-debug.log*
 yarn-error.log*
+docker-compose*.yml

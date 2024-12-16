@@ -17,3 +17,4 @@
 from .admin_endpoints import admin_endpoints
 from .user_endpoints import user_endpoints
 from .vm_endpoints import vm_endpoints
+from .config_endpoints import config_endpoints

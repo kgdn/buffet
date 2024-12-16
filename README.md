@@ -97,7 +97,7 @@ npm install
 ```bash
 BROWSER= # none or chrome or firefox or edge or safari
 GENERATE_SOURCEMAP= # true or false
-VITE_BASE_URL= # url of api (e.g. https://localhost)
+BASE_URL= # url of api (e.g. https://localhost)
 VITE_MAX_VM_COUNT= # max no. of virtual machines available at any given time
 ```
 
@@ -248,8 +248,8 @@ MAIL_PASSWORD= # your password
 MAIL_DEFAULT_SENDER= # your email
 MAIL_MAX_EMAILS= # max_emails (int)
 MAIL_ASCII_ATTACHMENTS= # True or False
-FRONT_END_ADDRESS= # localhost, 127.0.0.1, etc.
-BACK_END_ADDRESS= # localhost, 127.0.0.1, etc.
+CLIENT_URL= # localhost, 127.0.0.1, etc.
+API_URL= # localhost, 127.0.0.1, etc.
 SSL_CERTIFICATE_PATH= # path_to_ssl_certificate
 SSL_KEY_PATH= # path_to_ssl_key
 GUNICORN_BIND_ADDRESS= # bind address, i.e. 0.0.0.0:8000

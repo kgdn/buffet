@@ -17,7 +17,7 @@ import atexit
 import os
 import subprocess
 
-from config import ApplicationConfig
+from config import ApplicationConfig, override_config_with_db
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
@@ -25,11 +25,14 @@ from flask_jwt_extended import JWTManager
 from flask_limiter import Limiter
 from flask_mail import Mail
 from flask_migrate import Migrate
-from models import VirtualMachine, db
+from flask_ldap3_login import LDAP3LoginManager
+from models import VirtualMachines, Users, db
 from routes.admin_endpoints import admin_endpoints
 from routes.user_endpoints import user_endpoints
 from routes.vm_endpoints import vm_endpoints
+from routes.config_endpoints import config_endpoints
 from werkzeug.middleware.proxy_fix import ProxyFix
+from flask_bcrypt import generate_password_hash
 
 # Create Flask app
 app = Flask(__name__)  # __name__ is the name of the current Python module
@@ -42,38 +45,52 @@ mail = Mail(app)  # Initialize Mail for sending emails
 migrate = Migrate(app, db)  # Initialize Migrate for database migrations
 limiter = Limiter(app)
 
-# Rate limiting
-limiter.limit("100 per minute")(user_endpoints)
-limiter.limit("100 per minute")(vm_endpoints)
-limiter.limit("100 per minute")(admin_endpoints)
+# If LDAP is enabled, initialize LDAP3LoginManager
+if ApplicationConfig.LDAP_ENABLED:
+    ldap_manager = LDAP3LoginManager(app)
+    app.ldap3_login_manager = ldap_manager
 
-# Create database tables
+# Rate limiting
+limiter.limit(ApplicationConfig.RATE_LIMIT)(user_endpoints)
+limiter.limit(ApplicationConfig.RATE_LIMIT)(vm_endpoints)
+limiter.limit(ApplicationConfig.RATE_LIMIT)(admin_endpoints)
+limiter.limit(ApplicationConfig.RATE_LIMIT)(config_endpoints)
+
+# Create database tables if they don't exist
 with app.app_context():
     db.create_all()
+
+    override_config_with_db(app=app)  # Override config with values from the database
+
+    # Create default user in user table called 'admin' with password 'admin' and email 'admin@admin.com'
+    # This is for testing purposes only and should be removed in production
+    if not Users.query.filter_by(username="admin").first():
+        hashed_password = generate_password_hash("admin")
+        admin = Users(username="admin", email="admin@admin.com", password=hashed_password, role="admin")
+
+        db.session.add(admin)
+        db.session.commit()
 
 # Register blueprints
 app.register_blueprint(user_endpoints)
 app.register_blueprint(vm_endpoints)
 app.register_blueprint(admin_endpoints)
+app.register_blueprint(config_endpoints)
 
 app.wsgi_app = ProxyFix(
     app.wsgi_app, x_proto=1, x_host=1
 )  # Gunicorn gets confused if it doesn't know that it's behind a proxy, so we need to tell it that it is
 
-# Create logs/ directory if it doesn't exist
-if not os.path.exists("logs"):
-    os.makedirs("logs")
-
-# Create logs/ directory if it doesn't exist
-if not os.path.exists("logs"):
-    os.makedirs("logs")
+# Create logging directory if it doesn't exist
+if not os.path.exists(ApplicationConfig.LOG_DIR):
+    os.makedirs(ApplicationConfig.LOG_DIR)
 
 
 # On exit, clean up any leftover virtual machines
 def clean_up():
     """Cleans up any leftover virtual machines on exit."""
     with app.app_context():
-        vms = VirtualMachine.query.all()
+        vms = VirtualMachines.query.all()
         for vm in vms:
             subprocess.Popen(
                 ["kill", str(vm.websockify_process_id)],

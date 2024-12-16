@@ -18,16 +18,17 @@ import asyncio
 import base64
 import json
 import os
+import re
 import random
 import subprocess
+import socket
 from datetime import datetime
 
-import cef
 from dotenv import load_dotenv
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from helper_functions import HelperFunctions
-from models import User, VirtualMachine, db
+from models import Users, VirtualMachines, db
+from config import ApplicationConfig
 from qemu.qmp import QMPClient
 
 load_dotenv()
@@ -49,24 +50,34 @@ def create_random_vnc_password():
     )
 
 
+def get_host_os_type():
+    """Get the host OS type."""
+    return os.uname().sysname
+
+
+def get_hardware_platform():
+    """Get the hardware platform."""
+    return os.uname().machine
+
+
 @vm_endpoints.route("/api/vm/iso/", methods=["GET"])
 @jwt_required()
 def index_vm():
-    """Index the iso/index.json file
+    """Index the ISO files
 
     Returns:
-        json: Index of the iso/index.json file
+        json: Index of the ISO files with logos
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
-    with open("iso/index.json", "r", encoding="utf-8") as f:
+    with open(f"{ApplicationConfig.ISO_DIR}/index.json", "r", encoding="utf-8") as f:
         data = json.load(f)
         for iso in data:
-            logo_path = "iso/logos/" + iso["logo"]
+            logo_path = f"{ApplicationConfig.ISO_DIR}/logos/{iso['logo']}"
             if os.path.exists(logo_path):
                 with open(logo_path, "rb") as f:
                     iso["logo"] = base64.b64encode(f.read()).decode("utf-8")
@@ -85,9 +96,7 @@ async def create_vm():
     Returns:
         json: Virtual machine
     """
-
-    # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -97,161 +106,181 @@ async def create_vm():
 
     iso = data["iso"]
 
-    if not os.path.exists("iso/" + iso):
+    # Get the ISO architecture
+    arch = get_iso_architecture(iso)
+    if not arch:
         return jsonify({"message": "Invalid ISO"}), 404
 
-    # Get the next available port
-    port_int = 0
-    while port_int <= int(os.getenv("MAX_VM_COUNT")) - 1:
-        if not VirtualMachine.query.filter_by(port=port_int + 5900).first():
-            break
-        port_int += 1
+    port_int = find_available_port()
+    if port_int is None:
+        return jsonify({"message": "The server is at maximum capacity. Please try again later."}), 500
 
-    # If there are no available ports, throw an error
-    if port_int > int(os.getenv("MAX_VM_COUNT")) - 1:
-        return jsonify({"message": "No available ports. Please try again later."}), 500
+    wsport, port = port_int + int(ApplicationConfig.WEBSOCKET_PORT_START), port_int + int(ApplicationConfig.VM_PORT_START)
 
-    wsport = port_int + 5700
-    port = port_int + 5900
+    # Check if user already has a virtual machine
+    if VirtualMachines.query.filter_by(user_id=user.id).count() > 0:
+        return jsonify({
+            "message": "Users may only have one virtual machine at a time. Please shut down your current virtual machine before creating a new one."
+        }), 403
 
-    # If the user has more than one virtual machine at a time, throw an error
-    if VirtualMachine.query.filter_by(user_id=user.id).count() > 0:
-        return (
-            jsonify(
-                {
-                    "message": "Users may only have one virtual machine at a time. Please shut down your current virtual machine before creating a new one."
-                }
-            ),
-            403,
-        )
     try:
-        if not os.path.exists(
-            "logs/" + str(datetime.now().date()) + "/" + str(user.id)
-        ):
-            os.makedirs("logs/" + str(datetime.now().date()) + "/" + str(user.id))
+        create_log_directory(user.id)
+        iso_dir = f"{ApplicationConfig.ISO_DIR}/{iso}"
+        validate_iso(iso_dir)
 
-        # Start websockify to enable VNC over WebSocket
-        front_end_address = os.getenv("FRONT_END_ADDRESS")
-        back_end_address = os.getenv("BACK_END_ADDRESS")
-        cert_path = os.getenv("SSL_CERTIFICATE_PATH")
-        key_path = os.getenv("SSL_KEY_PATH")
+        # Start the virtual machine process
+        process_id = start_vm_process(arch, iso_dir, port_int, user.id)
 
-        # Create the virtual machine
-        process = subprocess.Popen(
-            [
-                "qemu-system-x86_64",
-                "-monitor",
-                "stdio",
-                "-m",
-                "2048M",  # 2GB of RAM
-                "-cpu",
-                "host",  # Use the host CPU
-                "-smp",
-                "2",  # 2 cores
-                "-enable-kvm",  # Enable KVM (hypervisor)
-                "-device",
-                "virtio-balloon",  # Enable virtio-balloon for memory ballooning (dynamic memory allocation)
-                "-cdrom",
-                "iso/" + iso,  # The ISO to boot from, specified in the request
-                "-vga",
-                "virtio",  # Use the virtio graphics card
-                "-netdev",
-                "user,id=net0",  # Create a user network device with the id 'net0'
-                "-device",
-                "virtio-net,netdev=net0",  # Use the virtio network card
-                "-object",
-                "filter-dump,id=f1,netdev=net0,file=logs/"
-                + str(datetime.now().date())
-                + "/"
-                + str(user.id)
-                + "/"
-                + str(
-                    datetime.now().strftime("%H:%M:%S") + "-" + str(iso) + ".pcap"
-                ),  # Create a filter-dump object to log network traffic
-                "-vnc",
-                ":" + str(port_int) + ",to=5,password=on",
-                "-qmp",
-                "unix:/tmp/qmp-" + str(user.id) + ".sock,server,wait=off",
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        process_id = process.pid
+        # If the host OS is not macOS, setup QMP and VNC password
+        password = None
+        if get_host_os_type() != "Darwin":
+            # Wait for VM to start
+            await asyncio.sleep(2)
 
-        # Wait for the virtual machine to start
-        await asyncio.sleep(0.1)
+            # Setup QMP and VNC password
+            qmp = await setup_qmp_client(user.id)
+            password = create_random_vnc_password()
+            await qmp.execute("set_password", {"protocol": "vnc", "password": password})
 
-        # Set the QMP client
-        qmp = QMPClient("virtual-machine-" + str(user.id))
-        await qmp.connect("/tmp/qmp-" + str(user.id) + ".sock")
+        # Start websockify process
+        websockify_process_id = start_websockify(wsport, port)
 
-        # Set the VNC password
-        password = create_random_vnc_password()
-        await qmp.execute("set_password", {"protocol": "vnc", "password": password})
+    except subprocess.CalledProcessError:
+        return jsonify({"message": "Critical error creating virtual machine. Please try again later."}), 500
 
-        # Start websockify to enable VNC over WebSocket
-        websockify_process = subprocess.Popen(
-            [
-                "websockify",
-                "--cert",
-                cert_path,
-                "--key",
-                key_path,
-                "--ssl-only",
-                front_end_address + ":" + str(wsport),
-                back_end_address + ":" + str(port),
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        websockify_process_id = websockify_process.pid
-
-    except subprocess.CalledProcessError as e:
-        return (
-            jsonify(
-                {
-                    "message": "Critical error creating virtual machine. Details: "
-                    + str(e)
-                }
-            ),
-            500,
-        )
-
-    # Create the virtual machine in the database
-    new_vm = VirtualMachine(
+    # Create the VM in the database
+    new_vm = VirtualMachines(
         port=port,
         wsport=wsport,
         iso=iso,
         websockify_process_id=websockify_process_id,
         process_id=process_id,
         user_id=user.id,
-        log_file=str(datetime.now().strftime("%H:%M:%S") + "-" + str(iso) + ".pcap"),
+        log_file=f"{datetime.now().strftime('%H:%M:%S')}-{iso}.pcap",
         vnc_password=password,
     )
     db.session.add(new_vm)
     db.session.commit()
 
-    # Log the request to cef.log
-    HelperFunctions.create_cef_logs_folders()
+    return jsonify({"id": new_vm.id, "wsport": wsport, "iso": iso, "user_id": user.id}), 201
 
-    cef.log_cef(
-        "Virtual machine created with ISO " + iso,
-        2,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
 
-    return (
-        jsonify({"id": new_vm.id, "wsport": wsport, "iso": iso, "user_id": user.id}),
-        201,
-    )
+def get_iso_architecture(iso):
+    """Retrieve the architecture of a given ISO."""
+    with open(f"{ApplicationConfig.ISO_DIR}/index.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+        for iso_data in data:
+            if iso_data["iso"] == iso:
+                return iso_data["arch"]
+    return None
+
+
+def find_available_port():
+    """Find the next available VM port."""
+    max_count = int(ApplicationConfig.MAX_VM_COUNT)
+    for port_int in range(max_count):
+        if not VirtualMachines.query.filter_by(port=port_int + int(ApplicationConfig.WEBSOCKET_PORT_START)).first():
+            return port_int
+    return None
+
+
+def create_log_directory(user_id):
+    """Create a log directory for the user if it doesn't exist."""
+    log_dir = f"logs/{datetime.now().date()}/{user_id}"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+
+def validate_iso(iso_dir):
+    """Validate if the ISO file exists."""
+    if not os.path.exists(iso_dir):
+        raise FileNotFoundError(f"ISO file not found: {iso_dir}")
+
+
+def start_vm_process(arch, iso_dir, port_int, user_id):
+    """Start the virtual machine process."""
+    command = [
+        f"qemu-system-{arch}",
+        "-monitor",
+        "stdio",
+        "-m",
+        f"{ApplicationConfig.MAX_VM_MEMORY}M",
+        "-smp",
+        str(int(ApplicationConfig.MAX_VM_CORES)),
+        "-device",
+        "virtio-balloon",
+        "-drive",
+        f"file={iso_dir},format=raw,media=cdrom" if re.search(r"\.iso$", iso_dir) else f"file={iso_dir},format=raw",
+        "-netdev",
+        "user,id=net0",
+        "-device",
+        "virtio-net,netdev=net0",
+        "-device",
+        "virtio-rng-pci",
+        "-device",
+        "qemu-xhci",
+        "-object",
+        f"filter-dump,id=f1,netdev=net0,file=logs/{datetime.now().date()}/{user_id}/{datetime.now().strftime('%H:%M:%S')}-{iso_dir.split('/')[-1]}.pcap",
+        "-vnc",
+        f":{port_int},to={ApplicationConfig.MAX_VM_COUNT},password=on"
+        if get_host_os_type() != "Darwin"
+        else f":{port_int},to={ApplicationConfig.MAX_VM_COUNT},password=off",
+        "-qmp",
+        f"unix:/tmp/qmp-{user_id}.sock,server,wait=off",
+    ]
+
+    # If KVM is enabled, add the KVM flag
+    if ApplicationConfig.KVM_ENABLED:
+        command.extend(["-enable-kvm", "-cpu", "host"])
+
+    # Add HVF accelerator if running on macOS with an M series chip, and ISO is ARM64
+    if get_host_os_type() == "Darwin" and get_hardware_platform() == "arm64" and arch == "aarch64":
+        # get the latest version of qemu by searching for the latest version in the directory
+        command.extend(["-machine", "virt,accel=hvf", "-device", "virtio-gpu-pci"])
+    # Add HAXM accelerator if running on macOS with an Intel chip
+    elif get_host_os_type() == "Darwin" and get_hardware_platform() == "x86_64":
+        command.extend(["-machine", "q35,accel=hax", "-device", "virtio-gpu-pci"])
+    elif get_host_os_type() == "Linux" and arch == "x86_64" and not ApplicationConfig.KVM_ENABLED:
+        # Use standard QEMU VGA if running on Linux
+        command.extend(["-cpu", "qemu64", "-device", "virtio-vga"])
+
+    # Print the command for debugging
+    print("Executing command:", " ".join(command))
+
+    process = subprocess.Popen(command)
+
+    return process.pid
+
+
+async def setup_qmp_client(user_id):
+    """Setup QMP client for the virtual machine."""
+    qmp = QMPClient(f"virtual-machine-{user_id}")
+    await qmp.connect(f"/tmp/qmp-{user_id}.sock")
+    return qmp
+
+
+def start_websockify(wsport, port):
+    """Start the websockify process."""
+    client_url = ApplicationConfig.CLIENT_URL
+    api_url = socket.gethostbyname(socket.gethostname())
+
+    if ApplicationConfig.SSL_ENABLED:
+        cert_path = ApplicationConfig.SSL_CERTIFICATE_PATH
+        key_path = ApplicationConfig.SSL_KEY_PATH
+
+        process = subprocess.Popen([
+            "websockify",
+            "--cert",
+            cert_path,
+            "--key",
+            key_path,
+            "--ssl-only",
+            f"{client_url}:{wsport}",
+            f"{api_url}:{port}",
+        ])
+    else:
+        process = subprocess.Popen(["websockify", f"{client_url}:{wsport}", f"{api_url}:{port}"])
+    return process.pid
 
 
 @vm_endpoints.route("/api/vm/delete/", methods=["DELETE"])
@@ -264,7 +293,7 @@ def delete_vm():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -272,7 +301,7 @@ def delete_vm():
     if not data or "vm_id" not in data:
         return jsonify({"message": "Invalid data format"}), 400
 
-    vm = VirtualMachine.query.filter_by(id=data["vm_id"]).first()
+    vm = VirtualMachines.query.filter_by(id=data["vm_id"]).first()
     if not vm:
         return jsonify({"message": "Invalid virtual machine"}), 404
 
@@ -287,32 +316,13 @@ def delete_vm():
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
-        subprocess.Popen(
-            ["kill", str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        subprocess.Popen(["kill", str(vm.process_id)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except subprocess.CalledProcessError:
         return jsonify({"message": "Error deleting virtual machine"}), 500
 
     # Stop the virtual machine from the database
     db.session.delete(vm)
     db.session.commit()
-
-    # Log the request to cef.log
-    HelperFunctions.create_cef_logs_folders()
-
-    cef.log_cef(
-        "Virtual machine deleted",
-        2,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
 
     return jsonify({"message": "Virtual machine deleted"}), 200
 
@@ -327,12 +337,12 @@ def get_user_vm():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
     # Get the user's virtual machine
-    vm = VirtualMachine.query.filter_by(user_id=user.id).first()
+    vm = VirtualMachines.query.filter_by(user_id=user.id).first()
     if not vm:
         return jsonify({"message": "Invalid virtual machine"}), 404
 
@@ -341,7 +351,7 @@ def get_user_vm():
     desktop = None
 
     # Get the name of the operating system, version and desktop environment
-    with open("iso/index.json", "r", encoding="utf-8") as f:
+    with open(f"{ApplicationConfig.ISO_DIR}/index.json", "r", encoding="utf-8") as f:
         data = json.load(f)
         for iso in data:
             if iso["iso"] == vm.iso:
@@ -353,20 +363,18 @@ def get_user_vm():
                 break
 
     return (
-        jsonify(
-            {
-                "id": vm.id,
-                "wsport": vm.wsport,
-                "iso": vm.iso,
-                "user_id": vm.user_id,
-                "name": name,
-                "version": version,
-                "desktop": desktop,
-                "vnc_password": vm.vnc_password,
-                "homepage": homepage,
-                "desktop_homepage": desktop_homepage,
-            }
-        ),
+        jsonify({
+            "id": vm.id,
+            "wsport": vm.wsport,
+            "iso": vm.iso,
+            "user_id": vm.user_id,
+            "name": name,
+            "version": version,
+            "desktop": desktop,
+            "vnc_password": vm.vnc_password,
+            "homepage": homepage,
+            "desktop_homepage": desktop_homepage,
+        }),
         201,
     )
 
@@ -381,7 +389,7 @@ def get_vm_by_id():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -391,7 +399,7 @@ def get_vm_by_id():
         return jsonify({"message": "Invalid data format"}), 400
 
     # Get the virtual machine, if it exists
-    vm = VirtualMachine.query.filter_by(id=data["vm_id"]).first()
+    vm = VirtualMachines.query.filter_by(id=data["vm_id"]).first()
     if not vm:
         return jsonify({"message": "Invalid virtual machine"}), 404
 
@@ -400,9 +408,7 @@ def get_vm_by_id():
         return jsonify({"message": "You can only get your own virtual machine"}), 403
 
     return (
-        jsonify(
-            {"id": vm.id, "wsport": vm.wsport, "iso": vm.iso, "user_id": vm.user_id}
-        ),
+        jsonify({"id": vm.id, "wsport": vm.wsport, "iso": vm.iso, "user_id": vm.user_id}),
         200,
     )
 
@@ -417,11 +423,11 @@ def get_vm_count():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
     # Get the number of virtual machines
-    vm_count = VirtualMachine.query.count()
+    vm_count = VirtualMachines.query.count()
 
     return jsonify({"vm_count": vm_count}), 200

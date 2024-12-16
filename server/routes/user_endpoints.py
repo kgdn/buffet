@@ -20,7 +20,6 @@ import re
 import subprocess
 from datetime import datetime, timedelta, timezone
 
-import cef
 import pyotp
 import qrcode
 from flask import Blueprint, jsonify, request
@@ -34,13 +33,16 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
 )
 from flask_mail import Mail, Message
-from helper_functions import HelperFunctions
-from models import BannedUser, UnverifiedUser, User, VirtualMachine, db
+from flask_ldap3_login import LDAP3LoginManager
+from flask_ldap3_login.forms import LDAPLoginForm
+from config import ApplicationConfig
+from models import BannedUsers, UnverifiedUsers, Users, VirtualMachines, db
 from password_strength import PasswordPolicy
 
 user_endpoints = Blueprint("user_endpoints", __name__)
 Bcrypt = Bcrypt()
 mail = Mail()
+ldap_manager = LDAP3LoginManager()
 
 
 @user_endpoints.after_request
@@ -104,21 +106,19 @@ def get_user_info():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
     # Send the user's username
     return (
-        jsonify(
-            {
-                "id": user.id,
-                "username": user.username,
-                "email": user.email,
-                "role": user.role,
-                "two_factor_enabled": user.two_factor_enabled,
-            }
-        ),
+        jsonify({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role,
+            "two_factor_enabled": user.two_factor_enabled,
+        }),
         200,
     )
 
@@ -133,12 +133,7 @@ def register():
 
     # Get the data from the request
     data = request.get_json()
-    if (
-        not data
-        or "username" not in data
-        or "email" not in data
-        or "password" not in data
-    ):
+    if not data or "username" not in data or "email" not in data or "password" not in data:
         return jsonify({"message": "Invalid data format"}), 400
 
     # Check if the username and password are in the request
@@ -147,27 +142,27 @@ def register():
     password = data["password"]
 
     # Check if the username is already taken
-    if User.query.filter_by(username=username).first():
+    if Users.query.filter_by(username=username).first():
         return jsonify({"message": "Username already taken"}), 409
 
     # Check if the email is already taken
-    if User.query.filter_by(email=email).first():
+    if Users.query.filter_by(email=email).first():
         return jsonify({"message": "Email already taken"}), 409
 
     # Check if the username is already taken in the unverified users table
-    if UnverifiedUser.query.filter_by(username=username).first():
+    if UnverifiedUsers.query.filter_by(username=username).first():
         return jsonify({"message": "Username already taken"}), 409
 
     # Check if the email is already taken in the unverified users table
-    if UnverifiedUser.query.filter_by(email=email).first():
+    if UnverifiedUsers.query.filter_by(email=email).first():
         return jsonify({"message": "Email already taken"}), 409
 
     # Check if the username is already taken in the banned users table
-    if BannedUser.query.filter_by(username=username).first():
+    if BannedUsers.query.filter_by(username=username).first():
         return jsonify({"message": "Username already taken"}), 409
 
     # Check if the email is already taken in the banned users table
-    if BannedUser.query.filter_by(email=email).first():
+    if BannedUsers.query.filter_by(email=email).first():
         return jsonify({"message": "Email already taken"}), 409
 
     # Check if the username matches the username policy
@@ -177,16 +172,14 @@ def register():
     # Check if the password matches the password policy
     if policy.test(password):
         return (
-            jsonify(
-                {
-                    "message": "Password must be at least 8 characters long, contain at least 1 uppercase letter, 2 numbers, 1 special character, and 2 non-letter characters"
-                }
-            ),
+            jsonify({
+                "message": "Password must be at least 8 characters long, contain at least 1 uppercase letter, 2 numbers, 1 special character, and 2 non-letter characters"
+            }),
             400,
         )
 
     # If everything is valid, create a new user
-    new_user = UnverifiedUser(
+    new_user = UnverifiedUsers(
         username=username,
         email=email,
         password=Bcrypt.generate_password_hash(password).decode("utf-8"),
@@ -234,29 +227,8 @@ def register():
     """
     mail.send(msg)
 
-    # Log the user's registration
-    HelperFunctions.create_cef_logs_folders()
-
-    cef.log_cef(
-        "User registered",
-        1,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=new_user.username,
-    )
-
     return (
-        jsonify(
-            {
-                "message": "User created. Check your email to verify your account. Please check your spam folder if you do not see the email."
-            }
-        ),
+        jsonify({"message": "User created. Check your email to verify your account. Please check your spam folder if you do not see the email."}),
         201,
     )
 
@@ -279,7 +251,7 @@ def verify_user():
     unique_code = data["unique_code"]
 
     # Check if the user exists in the unverified users table
-    user = UnverifiedUser.query.filter_by(username=username).first()
+    user = UnverifiedUsers.query.filter_by(username=username).first()
     if not user:
         return jsonify({"message": "Invalid username or unique code"}), 401
 
@@ -288,9 +260,7 @@ def verify_user():
         return jsonify({"message": "Invalid code"}), 401
 
     # If everything is valid, create a new user
-    new_user = User(
-        username=user.username, email=user.email, password=user.password, role="user"
-    )
+    new_user = Users(username=user.username, email=user.email, password=user.password, role="user")
 
     # Add the new user to the database
     db.session.add(new_user)
@@ -299,23 +269,6 @@ def verify_user():
     # Delete the unverified user
     db.session.delete(user)
     db.session.commit()
-
-    # Log the user's verification
-    HelperFunctions.create_cef_logs_folders()
-
-    cef.log_cef(
-        "User verified",
-        1,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=new_user.username,
-    )
 
     return jsonify({"message": "User verified"}), 200
 
@@ -337,7 +290,7 @@ def resend_verification_email():
     username = data["username"]
 
     # Check if the user exists in the unverified users table
-    user = UnverifiedUser.query.filter_by(username=username).first()
+    user = UnverifiedUsers.query.filter_by(username=username).first()
     if not user:
         return jsonify({"message": "Invalid username"}), 401
 
@@ -376,11 +329,9 @@ def resend_verification_email():
     mail.send(msg)
 
     return (
-        jsonify(
-            {
-                "message": "Verification email sent. Please check your email to verify your account. Please check your spam folder if you do not see the email."
-            }
-        ),
+        jsonify({
+            "message": "Verification email sent. Please check your email to verify your account. Please check your spam folder if you do not see the email."
+        }),
         201,
     )
 
@@ -398,36 +349,63 @@ def login():
     if not data or "username" not in data or "password" not in data:
         return jsonify({"message": "Invalid data format"}), 400
 
-    # Check if the username and password are in the request
+    # Check if the username or email and password are in the request
     username = data["username"]
     password = data["password"]
 
     # Check if the user exists and if the password is correct
     # If the user is found in the banned users table, return an error
     # If the user is found in the unverified users table, return an error
-    user = User.query.filter_by(username=username).first()
+    user = Users.query.filter((Users.username == username) | (Users.email == username)).first()
     if not user:
-        if BannedUser.query.filter_by(username=username).first():
+        if BannedUsers.query.filter((BannedUsers.username == username) | (BannedUsers.email == username)).first():
             return (
-                jsonify(
-                    {
-                        "message": "You were banned for: "
-                        + BannedUser.query.filter_by(username=username)
-                        .first()
-                        .ban_reason
-                        + ". Please contact the head admin to appeal."
-                    }
-                ),
+                jsonify({
+                    "message": "You were banned for: "
+                    + BannedUsers.query.filter((BannedUsers.username == username) | (BannedUsers.email == username)).first().ban_reason
+                    + ". Please contact the head admin to appeal."
+                }),
                 403,
             )
-        if UnverifiedUser.query.filter_by(username=username).first():
+        if UnverifiedUsers.query.filter((UnverifiedUsers.username == username) | (UnverifiedUsers.email == username)).first():
             return (
                 jsonify({"message": "Please verify your account before logging in"}),
                 401,
             )
         return jsonify({"message": "Invalid username or password"}), 401
+
     if not Bcrypt.check_password_hash(user.password, password):
         return jsonify({"message": "Invalid username or password"}), 401
+
+    # Check if LDAP is enabled
+    if ApplicationConfig.LDAP_ENABLED:
+        # Get the LDAP login form
+        login_form = LDAPLoginForm()
+
+        # Get the LDAP username and password from the request
+        ldap_username = data["username"]
+        ldap_password = data["password"]
+
+        # Check if the LDAP username and password are in the request
+        if not ldap_username or not ldap_password:
+            return jsonify({"message": "Invalid data format"}), 400
+
+        # Check if the LDAP username and password are correct
+        if not login_form.validate():
+            return jsonify({"message": "Invalid username or password"}), 401
+
+        # Create a new user
+        new_user = Users(username=user.username, email=user.email, password=user.password, role="user")
+
+        # Add the new user to the database
+        db.session.add(new_user)
+        db.session.commit()
+
+        # Delete the unverified user
+        db.session.delete(user)
+        db.session.commit()
+
+        return jsonify({"message": "User verified"}), 200
 
     # Check if the user has 2FA enabled
     if user.two_factor_enabled:
@@ -456,23 +434,6 @@ def login():
     resp = jsonify({"message": "Login successful"})
     set_access_cookies(resp, access_token)
 
-    # Log the user's login
-    HelperFunctions.create_cef_logs_folders()
-
-    cef.log_cef(
-        "User logged in",
-        1,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
-
     return resp, 200
 
 
@@ -486,7 +447,7 @@ def logout():
     """
 
     # Stop VM if the user has one, if not just logout
-    vm = VirtualMachine.query.filter_by(user_id=get_jwt_identity()).first()
+    vm = VirtualMachines.query.filter_by(user_id=get_jwt_identity()).first()
     if vm:
         try:
             subprocess.Popen(
@@ -504,23 +465,6 @@ def logout():
     resp = jsonify({"message": "Logout successful"})
     unset_jwt_cookies(resp)
 
-    # Log the user's logout
-    HelperFunctions.create_cef_logs_folders()
-
-    cef.log_cef(
-        "User logged out",
-        1,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=User.query.filter_by(id=get_jwt_identity()).first().username,
-    )
-
     return resp, 200
 
 
@@ -534,7 +478,7 @@ def delete_user():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -546,29 +490,21 @@ def delete_user():
     # If the user is an admin, they cannot delete their account
     if user.role == "admin":
         return (
-            jsonify(
-                {
-                    "message": "Admins cannot delete their account, please contact the head admin"
-                }
-            ),
+            jsonify({"message": "Admins cannot delete their account, please contact the head admin"}),
             403,
         )
 
-    if BannedUser.query.filter_by(username=user.username).first():
+    if BannedUsers.query.filter_by(username=user.username).first():
         return (
-            jsonify(
-                {
-                    "message": "You were banned for: "
-                    + BannedUser.query.filter_by(username=user.username)
-                    .first()
-                    .ban_reason
-                    + ". Please contact the head admin to appeal."
-                }
-            ),
+            jsonify({
+                "message": "You were banned for: "
+                + BannedUsers.query.filter_by(username=user.username).first().ban_reason
+                + ". Please contact the head admin to appeal."
+            }),
             403,
         )
 
-    if UnverifiedUser.query.filter_by(username=user.username).first():
+    if UnverifiedUsers.query.filter_by(username=user.username).first():
         return (
             jsonify({"message": "Please verify your account before deleting it"}),
             401,
@@ -591,7 +527,7 @@ def delete_user():
         return jsonify({"message": "Invalid password"}), 401
 
     # Stop the user's virtual machine
-    vm = VirtualMachine.query.filter_by(user_id=user.id).first()
+    vm = VirtualMachines.query.filter_by(user_id=user.id).first()
     if vm:
         try:
             subprocess.Popen(
@@ -604,23 +540,6 @@ def delete_user():
 
     db.session.delete(user)
     db.session.commit()
-
-    # Log the user's deletion
-    HelperFunctions.create_cef_logs_folders()
-
-    cef.log_cef(
-        "User deleted",
-        5,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
 
     return jsonify({"message": "User deleted"}), 200
 
@@ -635,7 +554,7 @@ def change_password():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -645,26 +564,20 @@ def change_password():
         return jsonify({"message": "Invalid data format"}), 400
 
     # Check if the user is banned
-    if BannedUser.query.filter_by(username=user.username).first():
+    if BannedUsers.query.filter_by(username=user.username).first():
         return (
-            jsonify(
-                {
-                    "message": "You were banned for: "
-                    + BannedUser.query.filter_by(username=user.username)
-                    .first()
-                    .ban_reason
-                    + ". Please contact the head admin to appeal."
-                }
-            ),
+            jsonify({
+                "message": "You were banned for: "
+                + BannedUsers.query.filter_by(username=user.username).first().ban_reason
+                + ". Please contact the head admin to appeal."
+            }),
             403,
         )
 
     # Check if the user is unverified
-    if UnverifiedUser.query.filter_by(username=user.username).first():
+    if UnverifiedUsers.query.filter_by(username=user.username).first():
         return (
-            jsonify(
-                {"message": "Please verify your account before changing your password"}
-            ),
+            jsonify({"message": "Please verify your account before changing your password"}),
             401,
         )
 
@@ -678,36 +591,27 @@ def change_password():
     # Check if the new password matches the password policy
     if policy.test(new_password):
         return (
-            jsonify(
-                {
-                    "message": "Password must be at least 8 characters long, contain at least 1 uppercase letter, 2 numbers, 1 special character, and 2 non-letter characters"
-                }
-            ),
+            jsonify({
+                "message": "Password must be at least 8 characters long, contain at least 1 uppercase letter, 2 numbers, 1 special character, and 2 non-letter characters"
+            }),
             400,
         )
+
+    # If user has 2FA enabled, check if the 2FA code is in the request
+    if user.two_factor_enabled:
+        code = data.get("code")
+        if not code:
+            return jsonify({"message": "Please provide the 2FA code"}), 400
+
+        # Verify the 2FA code
+        if not pyotp.TOTP(user.two_factor_secret).verify(code):
+            return jsonify({"message": "Invalid 2FA code"}), 401
 
     # Change the password
     user.password = Bcrypt.generate_password_hash(new_password).decode("utf-8")
 
     # Save the user
     db.session.commit()
-
-    # Log the user's password change
-    HelperFunctions.create_cef_logs_folders()
-
-    cef.log_cef(
-        "User with ID: " + str(user.id) + " changed password",
-        3,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
 
     return jsonify({"message": "Password changed"}), 200
 
@@ -722,7 +626,7 @@ def change_username():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -732,39 +636,33 @@ def change_username():
         return jsonify({"message": "Invalid data format"}), 400
 
     # Check if the user is banned
-    if BannedUser.query.filter_by(username=user.username).first():
+    if BannedUsers.query.filter_by(username=user.username).first():
         return (
-            jsonify(
-                {
-                    "message": "You were banned for: "
-                    + BannedUser.query.filter_by(username=user.username)
-                    .first()
-                    .ban_reason
-                    + ". Please contact the head admin to appeal."
-                }
-            ),
+            jsonify({
+                "message": "You were banned for: "
+                + BannedUsers.query.filter_by(username=user.username).first().ban_reason
+                + ". Please contact the head admin to appeal."
+            }),
             403,
         )
 
     # Check if the user is unverified
-    if UnverifiedUser.query.filter_by(username=user.username).first():
+    if UnverifiedUsers.query.filter_by(username=user.username).first():
         return (
-            jsonify(
-                {"message": "Please verify your account before changing your username"}
-            ),
+            jsonify({"message": "Please verify your account before changing your username"}),
             401,
         )
 
     # Check if the username is already taken in the banned users table
-    if BannedUser.query.filter_by(username=data["username"]).first():
+    if BannedUsers.query.filter_by(username=data["username"]).first():
         return jsonify({"message": "Username already taken"}), 409
 
     # Check if the username is already taken in the unverified users table
-    if UnverifiedUser.query.filter_by(username=data["username"]).first():
+    if UnverifiedUsers.query.filter_by(username=data["username"]).first():
         return jsonify({"message": "Username already taken"}), 409
 
     # Check if the username is already taken
-    if User.query.filter_by(username=data["username"]).first():
+    if Users.query.filter_by(username=data["username"]).first():
         return jsonify({"message": "Username already taken"}), 409
 
     # Ensure the username is valid
@@ -778,28 +676,21 @@ def change_username():
     if not Bcrypt.check_password_hash(user.password, password):
         return jsonify({"message": "Invalid password"}), 401
 
+    # If user has 2FA enabled, check if the 2FA code is in the request
+    if user.two_factor_enabled:
+        code = data.get("code")
+        if not code:
+            return jsonify({"message": "Please provide the 2FA code"}), 400
+
+        # Verify the 2FA code
+        if not pyotp.TOTP(user.two_factor_secret).verify(code):
+            return jsonify({"message": "Invalid 2FA code"}), 401
+
     # Change the username
     user.username = username
 
     # Save the user
     db.session.commit()
-
-    # Log the user's username change
-    HelperFunctions.create_cef_logs_folders()
-
-    cef.log_cef(
-        "User with ID: " + str(user.id) + " changed username to " + username,
-        3,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
 
     return jsonify({"message": "Username changed"}), 200
 
@@ -814,7 +705,7 @@ def change_email():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -831,38 +722,32 @@ def change_email():
         return jsonify({"message": "Invalid password"}), 401
 
     # Check if the email is already taken
-    if User.query.filter_by(email=email).first():
+    if Users.query.filter_by(email=email).first():
         return jsonify({"message": "Email already taken"}), 409
 
     # Check if the email is already taken in the unverified users table
-    if UnverifiedUser.query.filter_by(email=email).first():
+    if UnverifiedUsers.query.filter_by(email=email).first():
         return jsonify({"message": "Email already taken"}), 409
 
     # Check if the email is already taken in the banned users table
-    if BannedUser.query.filter_by(email=email).first():
+    if BannedUsers.query.filter_by(email=email).first():
         return jsonify({"message": "Email already taken"}), 409
 
     # Check if the user is banned
-    if BannedUser.query.filter_by(username=user.username).first():
+    if BannedUsers.query.filter_by(username=user.username).first():
         return (
-            jsonify(
-                {
-                    "message": "You were banned for: "
-                    + BannedUser.query.filter_by(username=user.username)
-                    .first()
-                    .ban_reason
-                    + ". Please contact the head admin to appeal."
-                }
-            ),
+            jsonify({
+                "message": "You were banned for: "
+                + BannedUsers.query.filter_by(username=user.username).first().ban_reason
+                + ". Please contact the head admin to appeal."
+            }),
             403,
         )
 
     # Check if the user is unverified
-    if UnverifiedUser.query.filter_by(username=user.username).first():
+    if UnverifiedUsers.query.filter_by(username=user.username).first():
         return (
-            jsonify(
-                {"message": "Please verify your account before changing your email"}
-            ),
+            jsonify({"message": "Please verify your account before changing your email"}),
             401,
         )
 
@@ -870,28 +755,21 @@ def change_email():
     if not is_valid_email(email):
         return jsonify({"message": "Invalid email"}), 400
 
+    # If user has 2FA enabled, check if the 2FA code is in the request
+    if user.two_factor_enabled:
+        code = data.get("code")
+        if not code:
+            return jsonify({"message": "Please provide the 2FA code"}), 400
+
+        # Verify the 2FA code
+        if not pyotp.TOTP(user.two_factor_secret).verify(code):
+            return jsonify({"message": "Invalid 2FA code"}), 401
+
     # Change the email
     user.email = email
 
     # Save the user
     db.session.commit()
-
-    # Log the user's email change
-    HelperFunctions.create_cef_logs_folders()
-
-    cef.log_cef(
-        "User with ID: " + str(user.id) + " changed email to " + email,
-        3,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
 
     return jsonify({"message": "Email changed"}), 200
 
@@ -907,7 +785,7 @@ def setup_2fa():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
@@ -922,28 +800,9 @@ def setup_2fa():
     db.session.commit()
 
     # Generate a QR code for the user to scan
-    uri = pyotp.totp.TOTP(secret).provisioning_uri(
-        name=user.username, issuer_name="Buffet"
-    )
+    uri = pyotp.totp.TOTP(secret).provisioning_uri(name=user.username, issuer_name="Buffet")
     img = qrcode.make(uri)
     img.save("qrcode-" + user.username + ".png")
-
-    # Log the user's 2FA setup
-    HelperFunctions.create_cef_logs_folders()
-
-    cef.log_cef(
-        "User with ID: " + str(user.id) + " set up 2FA",
-        3,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
 
     # Return the QR code to the user to scan in base64 format
     with open("qrcode-" + user.username + ".png", "rb") as f:
@@ -963,42 +822,25 @@ def verify_2fa():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
-    # Get the token from the request
+    # Get the code from the request
     data = request.get_json()
-    if not data or "token" not in data:
+    if not data or "code" not in data:
         return jsonify({"message": "Invalid data format"}), 400
 
-    token = data["token"]
+    code = data["code"]
 
-    # Verify the token
-    if pyotp.TOTP(user.two_factor_secret).verify(token):
+    # Verify the code
+    if pyotp.TOTP(user.two_factor_secret).verify(code):
         user.two_factor_enabled = True
         db.session.commit()
 
-        # Log the user's 2FA verification
-        HelperFunctions.create_cef_logs_folders()
-
-        cef.log_cef(
-            "User with ID: " + str(user.id) + " verified 2FA",
-            3,
-            request.environ,
-            config={
-                "cef.product": "Buffet",
-                "cef.vendor": "kgdn",
-                "cef.version": "0",
-                "cef.device_version": "0.1",
-                "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-            },
-            username=user.username,
-        )
-
         return jsonify({"message": "2FA verified"}), 200
 
-    return jsonify({"message": "Invalid token"}), 401
+    return jsonify({"message": "Invalid 2FA code"}), 401
 
 
 @user_endpoints.route("/api/user/2fa/disable/", methods=["POST"])
@@ -1011,14 +853,19 @@ def disable_2fa():
     """
 
     # Get the user from the authorization token
-    user = User.query.filter_by(id=get_jwt_identity()).first()
+    user = Users.query.filter_by(id=get_jwt_identity()).first()
     if not user:
         return jsonify({"message": "Invalid user"}), 401
 
-    # Get the password from the request
+    # Get the password and 2FA code from the request
     data = request.get_json()
-    if not data or "password" not in data:
+    if not data or "password" not in data or "code" not in data:
         return jsonify({"message": "Invalid data format"}), 400
+
+    # Verify the 2FA code
+    code = data["code"]
+    if not pyotp.TOTP(user.two_factor_secret).verify(code):
+        return jsonify({"message": "Invalid 2FA code"}), 401
 
     password = data["password"]
 
@@ -1030,22 +877,5 @@ def disable_2fa():
     user.two_factor_enabled = False
     user.two_factor_secret = None
     db.session.commit()
-
-    # Log the user's 2FA disable
-    HelperFunctions.create_cef_logs_folders()
-
-    cef.log_cef(
-        "User with ID: " + str(user.id) + " disabled 2FA",
-        3,
-        request.environ,
-        config={
-            "cef.product": "Buffet",
-            "cef.vendor": "kgdn",
-            "cef.version": "0",
-            "cef.device_version": "0.1",
-            "cef.file": "logs/" + str(datetime.now().date()) + "/buffet.log",
-        },
-        username=user.username,
-    )
 
     return jsonify({"message": "2FA disabled"}), 200
