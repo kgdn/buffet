@@ -17,12 +17,15 @@
  */
 
 import { FC, ReactNode, useContext } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import { AuthContext } from "../contexts/AuthContext";
 
 interface ProtectedRouteProps {
-  element: ReactNode;
+  element: ReactNode; // The element to render
+  requiredRole?: string; // The role required to access the route
+  requireLogin?: boolean; // Whether the route requires the user to be logged in
+  preventForLoggedIn?: boolean; // Whether the route should be prevented for logged in users
 }
 
 /**
@@ -33,38 +36,31 @@ interface ProtectedRouteProps {
  */
 const ProtectedRoute: FC<ProtectedRouteProps> = ({
   element,
-}: ProtectedRouteProps): ReactNode => {
-  const { user } = useContext(AuthContext);
-  const location = useLocation();
-  const navigate = useNavigate();
+  requiredRole,
+  requireLogin,
+  preventForLoggedIn,
+}: ProtectedRouteProps) => {
+  const authContext = useContext(AuthContext);
+  const user = authContext?.user;
 
-  // If user is logged in and tries to access the login page, redirect to home page
-  if (location.pathname === "/login" && user) {
-    navigate("/");
+  // If the user is not logged in and the route requires a login, redirect to the login page
+  if (requireLogin && !user) {
+    return <Navigate to="/login" />;
   }
 
-  // If user is not logged in and tries to access the account page, redirect to login page
-  if (location.pathname === "/account" && !user) {
-    navigate("/login");
+  // If the user is logged in and the route is for users who are not logged in, redirect to the OS page
+  if (preventForLoggedIn && user) {
+    return <Navigate to="/os" />;
   }
 
-  // If user is not logged in and tries to access the admin page, redirect to login page
-  if (location.pathname === "/admin" && !user) {
-    navigate("/login");
+  // If the user is logged in and the route requires a role, check if the user has the required role
+  if (requireLogin && requiredRole && user) {
+    if (user.role !== requiredRole) {
+      return <Navigate to="/os" />;
+    }
   }
 
-  // If user is not logged in and tries to access the VM page, redirect to login page
-  if (location.pathname === "/vm" && !user) {
-    navigate("/login");
-  }
-
-  // If user is not an admin, redirect to home page
-  if (location.pathname === "/admin" && user && user.role !== "admin") {
-    navigate("/");
-  }
-
-  // If none of the above conditions are met, return the element
   return <>{element}</>;
-};
+}
 
 export default ProtectedRoute;

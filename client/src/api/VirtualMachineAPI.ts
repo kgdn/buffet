@@ -25,7 +25,7 @@ axios.defaults.withCredentials = true;
 axios.defaults.headers.common["X-CSRF-TOKEN"] =
   cookies.get("csrf_access_token");
 
-const API_BASE_URL = import.meta.env.VITE_BASE_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface ApiResponse<T = unknown> {
   status: number;
@@ -73,7 +73,7 @@ interface VmCount {
 export async function getIsoFiles(): Promise<ApiResponse<IsoFile[]>> {
   try {
     const response: AxiosResponse = await axios.get(
-      `${API_BASE_URL}/api/vm/iso/`,
+      `${API_URL}/api/vm/iso/`,
       {
         withCredentials: true,
       }
@@ -108,7 +108,7 @@ export async function createVirtualMachine(
 ): Promise<ApiResponse<VmDetails>> {
   try {
     const response: AxiosResponse = await axios.post(
-      `${API_BASE_URL}/api/vm/create/`,
+      `${API_URL}/api/vm/create/`,
       {
         iso,
       }
@@ -143,7 +143,7 @@ export async function deleteVirtualMachine(
 ): Promise<ApiResponse<DeleteVm>> {
   try {
     const response: AxiosResponse = await axios.delete(
-      `${API_BASE_URL}/api/vm/delete/`,
+      `${API_URL}/api/vm/delete/`,
       {
         data: {
           vm_id,
@@ -179,7 +179,7 @@ export async function getVirtualMachineByUser(): Promise<
 > {
   try {
     const response: AxiosResponse = await axios.get(
-      `${API_BASE_URL}/api/vm/user/`
+      `${API_URL}/api/vm/user/`
     );
     return {
       status: response.status,
@@ -208,7 +208,7 @@ export async function getVirtualMachineByUser(): Promise<
 export async function getRunningVMs(): Promise<ApiResponse<VmCount>> {
   try {
     const response: AxiosResponse = await axios.get(
-      `${API_BASE_URL}/api/vm/count/`
+      `${API_URL}/api/vm/count/`
     );
     return {
       status: response.status,

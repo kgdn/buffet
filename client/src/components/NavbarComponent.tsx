@@ -33,7 +33,9 @@ import logo from "../assets/logo.svg";
 import { AuthContext } from "../contexts/AuthContext";
 
 const NavbarComponent: FC = (): ReactElement => {
-  const { user, logout } = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
+  const user = authContext?.user;
+  const logout = authContext?.logout;
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
@@ -54,7 +56,7 @@ const NavbarComponent: FC = (): ReactElement => {
       >
         <Container>
           {/* display development warning if in development mode */}
-          <Navbar.Brand href="/">
+          <Navbar.Brand href={user ? "/os" : "/"} style={{ color: "white" }}>
             <img
               alt=""
               src={logo}
@@ -75,12 +77,12 @@ const NavbarComponent: FC = (): ReactElement => {
                 ></i>
                 GitHub
               </Nav.Link>
-              <Nav.Link href="https://kgdn.xyz">
+              <Nav.Link href="/">
                 <i
-                  className="bi bi-globe"
+                  className="bi bi-info-circle"
                   style={{ color: "white", marginRight: "5px" }}
                 ></i>
-                kgdn.xyz
+                About
               </Nav.Link>
             </Nav>
           </Navbar.Collapse>
@@ -115,7 +117,7 @@ const NavbarComponent: FC = (): ReactElement => {
       </Navbar>
 
       {/* Are you sure you want to log out? modal */}
-      <Modal show={showLogoutModal} onHide={() => setShowLogoutModal(false)}>
+      <Modal show={showLogoutModal} onHide={() => setShowLogoutModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Log Out</Modal.Title>
         </Modal.Header>

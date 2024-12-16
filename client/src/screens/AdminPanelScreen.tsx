@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { FC, Fragment, ReactElement, useEffect, useState } from "react";
+import { FC, ReactElement, useEffect, useState } from "react";
 import {
   Alert,
   Button,
@@ -27,7 +27,6 @@ import {
   Modal,
   Row,
   Tab,
-  Table,
   Tabs,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
@@ -43,13 +42,12 @@ import {
   getAllUsers,
   getAllVMs,
   getBannedUsers,
-  getLogs,
   getUnverifiedUsers,
   unbanUser,
   verifyUser,
 } from "../api/AdminAPI";
-import Footer from "../components/Footer";
-import NavbarComponent from "../components/Navbar";
+import Footer from "../components/FooterComponent";
+import NavbarComponent from "../components/NavbarComponent";
 
 interface User {
   id: number;
@@ -86,19 +84,7 @@ interface VM {
   wsport: number;
 }
 
-interface Log {
-  date: string;
-  action: string;
-  message: string;
-  severity: string;
-  user: string;
-}
-
-interface Logs {
-  [date: string]: string[];
-}
-
-const Admin: FC = (): ReactElement => {
+const AdminPanelScreen: FC = (): ReactElement => {
   /*
    * I have to admit, this is not the most elegant solution, but it works. I have to use multiple states for each modal,
    * because if I use one state for all modals, the modals will not work as expected. A better solution for state management would
@@ -118,17 +104,14 @@ const Admin: FC = (): ReactElement => {
   const [showStopVMModal, setShowStopVMModal] = useState(false);
   const [showUsernameModal, setShowUsernameModal] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
-  const [vmMessage, setVMMessage] = useState("");
-  const [emailMessage, setEmailMessage] = useState("");
-  const [usernameMessage, setUsernameMessage] = useState("");
-  const [deleteUserMessage, setDeleteUserMessage] = useState("");
-  const [stopVMMessage, setStopVMMessage] = useState("");
+  const [warningMessage, setWarningMessage] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
   const [selectedVM, setSelectedVM] = useState("");
   const [bannedUsers, setBannedUsers] = useState<BannedUser[]>([]);
   const [showBanModal, setShowBanModal] = useState(false);
   const [banReason, setBanReason] = useState("");
   const [banMessage, setBanMessage] = useState("");
+  const [vmMessage, setVMMessage] = useState("");
   const [unbanMessage, setUnbanMessage] = useState("");
   const [showUnbanModal, setShowUnbanModal] = useState(false);
   const [bannedMessage, setBannedMessage] = useState("");
@@ -139,7 +122,6 @@ const Admin: FC = (): ReactElement => {
   const [showDeleteUnverifiedModal, setShowDeleteUnverifiedModal] =
     useState(false);
   const [deleteUnverifiedMessage, setDeleteUnverifiedMessage] = useState("");
-  const [logs, setLogs] = useState<Logs>({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -153,11 +135,8 @@ const Admin: FC = (): ReactElement => {
       .then((response) => {
         if (response.status === 200) {
           setUsers(response.data as User[]);
-        } else {
-          console.error(response.message);
         }
       })
-      .catch((error) => console.error(error));
     // Get all VMs
     getAllVMs().then((response) => {
       if (response.status === 200) {
@@ -180,12 +159,6 @@ const Admin: FC = (): ReactElement => {
         setUnverifiedUsers(response.data as UnverifiedUser[]);
       } else {
         setUnverifiedMessage(response.message);
-      }
-    });
-    // Get all logs
-    getLogs().then((response) => {
-      if (response.status === 200) {
-        setLogs(response.data as Logs);
       }
     });
   }, []);
@@ -232,13 +205,13 @@ const Admin: FC = (): ReactElement => {
   const ChangeUsernameButton = (id: string) => {
     // Check if the username is empty
     if (newUsername.trim() === "") {
-      setUsernameMessage("Username cannot be empty");
+      setWarningMessage("Username cannot be empty");
       return;
     }
 
     // Check if the username is valid
     if (!validator.matches(newUsername, /^[a-zA-Z0-9_-]+$/)) {
-      setUsernameMessage(
+      setWarningMessage(
         "Invalid username. Your username can only contain letters, numbers, underscores, and dashes. It cannot contain spaces."
       );
       return;
@@ -250,23 +223,22 @@ const Admin: FC = (): ReactElement => {
         if (response.status === 200) {
           navigate(0);
         } else {
-          setUsernameMessage(response.message);
+          setWarningMessage(response.message);
         }
       })
-      .catch((error) => console.error(error));
   };
 
   // Change email of user with id
   const ChangeEmailButton = (id: string) => {
     // Check if the email is empty
     if (newEmail.trim() === "") {
-      setEmailMessage("Email cannot be empty");
+      setWarningMessage("Email cannot be empty");
       return;
     }
 
     // Check if the email is in a valid format
     if (!validator.isEmail(newEmail)) {
-      setEmailMessage("Email is in an invalid format");
+      setWarningMessage("Email is in an invalid format");
       return;
     }
 
@@ -276,10 +248,9 @@ const Admin: FC = (): ReactElement => {
         if (response.status === 200) {
           navigate(0);
         } else {
-          setEmailMessage(response.message);
+          setWarningMessage(response.message);
         }
       })
-      .catch((error) => console.error(error));
   };
 
   // Delete user with id
@@ -289,11 +260,10 @@ const Admin: FC = (): ReactElement => {
         if (response.status === 200) {
           navigate(0);
         } else {
-          setDeleteUserMessage(response.message);
+          setWarningMessage(response.message);
         }
-        setDeleteUserMessage("");
+        setWarningMessage("");
       })
-      .catch((error) => console.error(error));
   };
 
   // Ban user with id
@@ -307,7 +277,6 @@ const Admin: FC = (): ReactElement => {
         }
         setBanMessage("");
       })
-      .catch((error) => console.error(error));
   };
 
   // Unban user with id
@@ -321,7 +290,7 @@ const Admin: FC = (): ReactElement => {
         }
         setUnbanMessage("");
       })
-      .catch((error) => console.error(error));
+
   };
 
   // Delete VM with id
@@ -331,11 +300,11 @@ const Admin: FC = (): ReactElement => {
         if (response.status === 200) {
           navigate(0);
         } else {
-          setStopVMMessage(response.message);
+          setWarningMessage(response.message);
         }
-        setDeleteUserMessage("");
+        setWarningMessage("");
       })
-      .catch((error) => console.error(error));
+
   };
 
   // Delete unverified user with id
@@ -349,7 +318,6 @@ const Admin: FC = (): ReactElement => {
         }
         setVerifyMessage("");
       })
-      .catch((error) => console.error(error));
   };
 
   // Delete unverified user with id
@@ -363,25 +331,25 @@ const Admin: FC = (): ReactElement => {
         }
         setDeleteUnverifiedMessage("");
       })
-      .catch((error) => console.error(error));
   };
 
-  // Parse the CEF log
-  const parseCefLog = (log: string): Log => {
-    // Parse the date, action, message, severity and user from the log - remove dell-inspiron and CEF:0 from date
-    const date = log.split("|")[0].split(" ").slice(0, 3).join(" ");
-    const action = log.split("|")[4];
-    const message = log.split("|")[5];
-    const severity = log.split("|")[6];
-    const user = log.split(" ")[log.split(" ").length - 1].split("=")[1];
-    return { date, action, message, severity, user };
+  const handleModalClose = () => {
+    setShowBanModal(false);
+    setShowDeleteUserModal(false);
+    setShowStopVMModal(false);
+    setShowUsernameModal(false);
+    setShowEmailModal(false);
+    setShowUnbanModal(false);
+    setShowVerifyModal(false);
+    setShowDeleteUnverifiedModal(false);
+    setWarningMessage("");
   };
 
   return (
     <div id="admin" style={{ marginTop: "4rem" }}>
       <NavbarComponent />
       <Container>
-        <h1>Admin</h1>
+        <h1>Admin Panel</h1>
         <Tabs
           defaultActiveKey="users"
           id="uncontrolled-tab-example"
@@ -431,14 +399,14 @@ const Admin: FC = (): ReactElement => {
                         {/* Format the date to a readable format, do not show if the user has never logged in */}
                         {(user as { login_time: string }).login_time !==
                           null && (
-                          <Card.Text>
-                            Last Login:{" "}
-                            {new Date(
-                              (user as { login_time: string }).login_time
-                            ).toLocaleString()}{" "}
-                            from {(user as { ip: string }).ip}
-                          </Card.Text>
-                        )}
+                            <Card.Text>
+                              Last Login:{" "}
+                              {new Date(
+                                (user as { login_time: string }).login_time
+                              ).toLocaleString()}{" "}
+                              from {(user as { ip: string }).ip}
+                            </Card.Text>
+                          )}
                       </Card.Body>
                       <Card.Footer>
                         <Row style={{ paddingBottom: "1rem" }}>
@@ -505,22 +473,22 @@ const Admin: FC = (): ReactElement => {
                               {/* If the user_id matches the user_id of the VM, show the delete VM button */}
                               {vms.filter((vm) => vm.user_id === user.id)
                                 .length > 0 && (
-                                <Button
-                                  variant="danger"
-                                  onClick={() => {
-                                    setSelectedVM(
-                                      vms
-                                        .filter(
-                                          (vm) => vm.user_id === user.id
-                                        )[0]
-                                        .id.toString()
-                                    );
-                                    setShowStopVMModal(true);
-                                  }}
-                                >
-                                  Stop VM
-                                </Button>
-                              )}
+                                  <Button
+                                    variant="danger"
+                                    onClick={() => {
+                                      setSelectedVM(
+                                        vms
+                                          .filter(
+                                            (vm) => vm.user_id === user.id
+                                          )[0]
+                                          .id.toString()
+                                      );
+                                      setShowStopVMModal(true);
+                                    }}
+                                  >
+                                    Stop VM
+                                  </Button>
+                                )}
                             </ButtonGroup>
                           </Col>
                         </Row>
@@ -650,16 +618,16 @@ const Admin: FC = (): ReactElement => {
                         </Card.Text>
                         {(user as unknown as { login_time: string })
                           .login_time !== null && (
-                          <Card.Text>
-                            Last Login:{" "}
-                            {new Date(
-                              (
-                                user as unknown as { login_time: string }
-                              ).login_time
-                            ).toLocaleString()}{" "}
-                            from {(user as unknown as { ip: string }).ip}
-                          </Card.Text>
-                        )}
+                            <Card.Text>
+                              Last Login:{" "}
+                              {new Date(
+                                (
+                                  user as unknown as { login_time: string }
+                                ).login_time
+                              ).toLocaleString()}{" "}
+                              from {(user as unknown as { ip: string }).ip}
+                            </Card.Text>
+                          )}
                       </Card.Body>
                       <Card.Footer>
                         <ButtonGroup>
@@ -768,61 +736,13 @@ const Admin: FC = (): ReactElement => {
               </Row>
             </Container>
           </Tab>
-          <Tab eventKey="logs" title="Logs">
-            <Container>
-              <h2>Logs</h2>
-              <Row>
-                <Col>
-                  {Object.keys(logs)
-                    .sort(
-                      (a, b) => new Date(b).getTime() - new Date(a).getTime()
-                    )
-                    .map((date) => {
-                      return (
-                        <Fragment key={date}>
-                          <h3>{date}</h3>
-                          {/* Rounded corners, striped, bordered, hover effect, small table, rounded corners */}
-                          <Table striped bordered hover size="sm">
-                            <thead>
-                              <tr>
-                                <th>Date</th>
-                                <th>Action</th>
-                                <th>Message</th>
-                                <th>Severity</th>
-                                <th>User</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {/* sort by newest logs first */}
-                              {logs[date]
-                                .map((log: string, index: number) => {
-                                  const parsedLog = parseCefLog(log);
-                                  return (
-                                    <tr key={index}>
-                                      <td>{parsedLog.date}</td>
-                                      <td>{parsedLog.action}</td>
-                                      <td>{parsedLog.message}</td>
-                                      <td>{parsedLog.severity}</td>
-                                      <td>{parsedLog.user}</td>
-                                    </tr>
-                                  );
-                                })
-                                .reverse()}
-                            </tbody>
-                          </Table>
-                        </Fragment>
-                      );
-                    })}
-                </Col>
-              </Row>
-            </Container>
-          </Tab>
         </Tabs>
         <Container>
           {/* Delete user confirmation modal */}
           <Modal
             show={showDeleteUserModal}
-            onHide={() => setShowDeleteUserModal(false)}
+            onHide={() => handleModalClose()}
+            centered
           >
             <Modal.Header closeButton>
               <Modal.Title>Confirm Deletion</Modal.Title>
@@ -830,9 +750,9 @@ const Admin: FC = (): ReactElement => {
             <Modal.Body>
               Are you sure you want to delete this user?
               {/* if message is not empty, display the error */}
-              {deleteUserMessage !== "" && (
+              {warningMessage !== "" && (
                 <Alert variant="primary" role="alert">
-                  {deleteUserMessage}
+                  {warningMessage}
                 </Alert>
               )}
             </Modal.Body>
@@ -843,14 +763,14 @@ const Admin: FC = (): ReactElement => {
                   variant="danger"
                   onClick={() => {
                     DeleteUserButton(selectedUser);
-                    setShowDeleteUserModal(false);
+                    handleModalClose();
                   }}
                 >
                   Delete
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => setShowDeleteUserModal(false)}
+                  onClick={() => handleModalClose()}
                 >
                   Cancel
                 </Button>
@@ -861,16 +781,17 @@ const Admin: FC = (): ReactElement => {
           {/* Stop VM confirmation modal */}
           <Modal
             show={showStopVMModal}
-            onHide={() => setShowStopVMModal(false)}
+            onHide={() => handleModalClose()}
+            centered
           >
             <Modal.Header closeButton>
               <Modal.Title>Confirm Deletion</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               Are you sure you want to stop this VM?
-              {stopVMMessage !== "" && (
+              {warningMessage !== "" && (
                 <Alert variant="primary" role="alert">
-                  {stopVMMessage}
+                  {warningMessage}
                 </Alert>
               )}
             </Modal.Body>
@@ -880,14 +801,14 @@ const Admin: FC = (): ReactElement => {
                   variant="danger"
                   onClick={() => {
                     DeleteVMButton(selectedVM);
-                    setShowStopVMModal(false);
+                    handleModalClose();
                   }}
                 >
                   Stop
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => setShowStopVMModal(false)}
+                  onClick={() => handleModalClose()}
                 >
                   Cancel
                 </Button>
@@ -898,7 +819,8 @@ const Admin: FC = (): ReactElement => {
           {/* New username modal */}
           <Modal
             show={showUsernameModal}
-            onHide={() => setShowUsernameModal(false)}
+            onHide={() => handleModalClose()}
+            centered
           >
             <Modal.Header closeButton>
               <Modal.Title>Change Username</Modal.Title>
@@ -919,9 +841,9 @@ const Admin: FC = (): ReactElement => {
                   />
                 </Form.Group>
               </Form>
-              {usernameMessage !== "" && (
+              {warningMessage !== "" && (
                 <Alert variant="primary" role="alert">
-                  {usernameMessage}
+                  {warningMessage}
                 </Alert>
               )}
             </Modal.Body>
@@ -937,7 +859,7 @@ const Admin: FC = (): ReactElement => {
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => setShowUsernameModal(false)}
+                  onClick={() => handleModalClose()}
                 >
                   Cancel
                 </Button>
@@ -946,7 +868,7 @@ const Admin: FC = (): ReactElement => {
           </Modal>
 
           {/* New email modal */}
-          <Modal show={showEmailModal} onHide={() => setShowEmailModal(false)}>
+          <Modal show={showEmailModal} onHide={() => handleModalClose()} centered>
             <Modal.Header closeButton>
               <Modal.Title>Change Email</Modal.Title>
             </Modal.Header>
@@ -966,13 +888,13 @@ const Admin: FC = (): ReactElement => {
                   />
                 </Form.Group>
               </Form>
-              {emailMessage !== "" && (
+              {warningMessage !== "" && (
                 <Alert
                   variant="primary"
                   role="alert"
                   style={{ marginTop: "1rem" }}
                 >
-                  {emailMessage}
+                  {warningMessage}
                 </Alert>
               )}
             </Modal.Body>
@@ -988,7 +910,7 @@ const Admin: FC = (): ReactElement => {
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => setShowEmailModal(false)}
+                  onClick={() => handleModalClose()}
                 >
                   Cancel
                 </Button>
@@ -997,7 +919,7 @@ const Admin: FC = (): ReactElement => {
           </Modal>
 
           {/* Ban user modal */}
-          <Modal show={showBanModal} onHide={() => setShowBanModal(false)}>
+          <Modal show={showBanModal} onHide={() => handleModalClose()} centered>
             <Modal.Header closeButton>
               <Modal.Title>Ban User</Modal.Title>
             </Modal.Header>
@@ -1007,7 +929,7 @@ const Admin: FC = (): ReactElement => {
                 onSubmit={(e) => {
                   e.preventDefault();
                   BanUserButton(selectedUser);
-                  setShowBanModal(false);
+                  handleModalClose();
                 }}
               >
                 <Form.Group className="mb-3">
@@ -1035,14 +957,14 @@ const Admin: FC = (): ReactElement => {
                   variant="danger"
                   onClick={() => {
                     BanUserButton(selectedUser);
-                    setShowBanModal(false);
+                    handleModalClose();
                   }}
                 >
                   Ban
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => setShowBanModal(false)}
+                  onClick={() => handleModalClose()}
                 >
                   Cancel
                 </Button>
@@ -1051,7 +973,7 @@ const Admin: FC = (): ReactElement => {
           </Modal>
 
           {/* Unban user modal */}
-          <Modal show={showUnbanModal} onHide={() => setShowUnbanModal(false)}>
+          <Modal show={showUnbanModal} onHide={() => handleModalClose()} centered>
             <Modal.Header closeButton>
               <Modal.Title>Unban User</Modal.Title>
             </Modal.Header>
@@ -1073,14 +995,14 @@ const Admin: FC = (): ReactElement => {
                   variant="danger"
                   onClick={() => {
                     UnbanUserButton(selectedUser);
-                    setShowUnbanModal(false);
+                    handleModalClose();
                   }}
                 >
                   Unban
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => setShowUnbanModal(false)}
+                  onClick={() => handleModalClose()}
                 >
                   Cancel
                 </Button>
@@ -1091,7 +1013,8 @@ const Admin: FC = (): ReactElement => {
           {/* Verify user modal */}
           <Modal
             show={showVerifyModal}
-            onHide={() => setShowVerifyModal(false)}
+            onHide={() => handleModalClose()}
+            centered
           >
             <Modal.Header closeButton>
               <Modal.Title>Verify User</Modal.Title>
@@ -1114,14 +1037,14 @@ const Admin: FC = (): ReactElement => {
                   variant="primary"
                   onClick={() => {
                     VerifyUserButton(selectedUser);
-                    setShowVerifyModal(false);
+                    handleModalClose();
                   }}
                 >
                   Verify
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => setShowVerifyModal(false)}
+                  onClick={() => handleModalClose()}
                 >
                   Cancel
                 </Button>
@@ -1132,7 +1055,8 @@ const Admin: FC = (): ReactElement => {
           {/* Delete unverified user modal */}
           <Modal
             show={showDeleteUnverifiedModal}
-            onHide={() => setShowDeleteUnverifiedModal(false)}
+            onHide={() => handleModalClose()}
+            centered
           >
             <Modal.Header closeButton>
               <Modal.Title>Delete User</Modal.Title>
@@ -1155,14 +1079,14 @@ const Admin: FC = (): ReactElement => {
                   variant="danger"
                   onClick={() => {
                     DeleteUnverifiedUserButton(selectedUser);
-                    setShowDeleteUnverifiedModal(false);
+                    handleModalClose();
                   }}
                 >
                   Delete
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => setShowDeleteUnverifiedModal(false)}
+                  onClick={() => handleModalClose()}
                 >
                   Cancel
                 </Button>
@@ -1176,4 +1100,4 @@ const Admin: FC = (): ReactElement => {
   );
 };
 
-export default Admin;
+export default AdminPanelScreen;

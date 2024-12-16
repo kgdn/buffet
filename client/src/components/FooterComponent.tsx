@@ -19,7 +19,7 @@
 import { FC, ReactElement } from "react";
 import { Col, Container, Image, Row } from "react-bootstrap";
 
-const Footer: FC = (): ReactElement => {
+const FooterComponent: FC = (): ReactElement => {
   return (
     <div className="footer">
       <Container>
@@ -42,7 +42,7 @@ const Footer: FC = (): ReactElement => {
               {import.meta.env.VITE_COMMIT_DATE})
             </p>
             <p className="mb-0" style={{ marginLeft: "10px" }}>
-              &copy; {new Date().getFullYear()} Kieran Gordon &middot; Licensed
+              &copy; {new Date().getFullYear()} <a href="https://kgdn.xyz">Kieran Gordon</a> &middot; Licensed
               under the{" "}
               <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
                 GNU Affero General Public License v3.0
@@ -50,7 +50,7 @@ const Footer: FC = (): ReactElement => {
               .
             </p>
             <p>
-              Developed as part of a dissertation for{" "}
+              Originally developed as part of a dissertation project for{" "}
               <a href="https://www.hw.ac.uk/uk/schools/mathematical-computer-sciences.htm">
                 Heriot-Watt University&apos;s School of Mathematical and
                 Computer Sciences
@@ -71,4 +71,4 @@ const Footer: FC = (): ReactElement => {
   );
 };
 
-export default Footer;
+export default FooterComponent;

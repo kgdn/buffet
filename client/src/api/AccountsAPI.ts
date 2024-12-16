@@ -21,7 +21,7 @@ import Cookies from "universal-cookie";
 
 const cookies = new Cookies(null, { path: "/" });
 
-const API_BASE_URL = import.meta.env.VITE_BASE_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 interface ApiResponse<T = unknown> {
   status: number;
@@ -43,7 +43,7 @@ export async function logIn(
 ): Promise<ApiResponse> {
   try {
     const response: AxiosResponse = await axios.post(
-      `${API_BASE_URL}/api/user/login/`,
+      `${API_URL}/api/user/login/`,
       {
         username,
         password,
@@ -80,7 +80,7 @@ export async function register(
 ): Promise<ApiResponse> {
   try {
     const response: AxiosResponse = await axios.post(
-      `${API_BASE_URL}/api/user/register/`,
+      `${API_URL}/api/user/register/`,
       {
         username,
         email,
@@ -113,7 +113,7 @@ export async function resendVerificationEmail(
 ): Promise<ApiResponse> {
   try {
     const response: AxiosResponse = await axios.post(
-      `${API_BASE_URL}/api/user/verify/resend/`,
+      `${API_URL}/api/user/verify/resend/`,
       {
         username,
       }
@@ -146,7 +146,7 @@ export async function verifyRegistration(
 ): Promise<ApiResponse> {
   try {
     const response: AxiosResponse = await axios.post(
-      `${API_BASE_URL}/api/user/verify/`,
+      `${API_URL}/api/user/verify/`,
       {
         username,
         unique_code,
@@ -175,12 +175,13 @@ export async function verifyRegistration(
 export async function logOut(): Promise<ApiResponse> {
   try {
     const response: AxiosResponse = await axios.post(
-      `${API_BASE_URL}/api/user/logout/`,
+      `${API_URL}/api/user/logout/`,
       {},
       {
         withCredentials: true,
       }
     );
+    sessionStorage.clear();
     return { status: response.status, message: response.data.message };
   } catch (error: unknown) {
     if (error instanceof AxiosError) {
@@ -209,7 +210,7 @@ export async function deleteAccount(
 ): Promise<ApiResponse> {
   try {
     const response: AxiosResponse = await axios.delete(
-      `${API_BASE_URL}/api/user/delete/`,
+      `${API_URL}/api/user/delete/`,
       {
         data: { password, code },
         withCredentials: true,
@@ -218,6 +219,7 @@ export async function deleteAccount(
         },
       }
     );
+    sessionStorage.clear();
     return { status: response.status, message: response.data.message };
   } catch (error: unknown) {
     if (error instanceof AxiosError) {
@@ -241,7 +243,7 @@ export async function deleteAccount(
 export async function getUserDetails(): Promise<ApiResponse> {
   try {
     const response: AxiosResponse = await axios.get(
-      `${API_BASE_URL}/api/user/`,
+      `${API_URL}/api/user/`,
       {
         withCredentials: true,
         headers: {
@@ -277,14 +279,16 @@ export async function getUserDetails(): Promise<ApiResponse> {
  */
 export async function changeUsername(
   username: string,
-  password: string
+  password: string,
+  code: string
 ): Promise<ApiResponse> {
   try {
     const response: AxiosResponse = await axios.put(
-      `${API_BASE_URL}/api/user/username/`,
+      `${API_URL}/api/user/username/`,
       {
         username,
         password,
+        code
       },
       {
         withCredentials: true,
@@ -293,6 +297,7 @@ export async function changeUsername(
         },
       }
     );
+    sessionStorage.removeItem("user");
     return { status: response.status, message: response.data.message };
   } catch (error: unknown) {
     if (error instanceof AxiosError) {
@@ -317,14 +322,16 @@ export async function changeUsername(
  */
 export async function changePassword(
   current_password: string,
-  new_password: string
+  new_password: string,
+  code: string
 ): Promise<ApiResponse> {
   try {
     const response: AxiosResponse = await axios.put(
-      `${API_BASE_URL}/api/user/password/`,
+      `${API_URL}/api/user/password/`,
       {
         current_password,
         new_password,
+        code
       },
       {
         withCredentials: true,
@@ -357,14 +364,16 @@ export async function changePassword(
  */
 export async function changeEmail(
   email: string,
-  password: string
+  password: string,
+  code: string
 ): Promise<ApiResponse> {
   try {
     const response: AxiosResponse = await axios.put(
-      `${API_BASE_URL}/api/user/email/`,
+      `${API_URL}/api/user/email/`,
       {
         email,
         password,
+        code
       },
       {
         withCredentials: true,
@@ -373,6 +382,7 @@ export async function changeEmail(
         },
       }
     );
+    sessionStorage.removeItem("user");
     return { status: response.status, message: response.data.message };
   } catch (error: unknown) {
     if (error instanceof AxiosError) {
@@ -396,7 +406,7 @@ export async function changeEmail(
 export async function enableTwoFactorAuth(): Promise<ApiResponse> {
   try {
     const response: AxiosResponse = await axios.post(
-      `${API_BASE_URL}/api/user/2fa/`,
+      `${API_URL}/api/user/2fa/`,
       {},
       {
         withCredentials: true,
@@ -405,6 +415,7 @@ export async function enableTwoFactorAuth(): Promise<ApiResponse> {
         },
       }
     );
+    sessionStorage.removeItem("user");
     return {
       status: response.status,
       message: response.data.message,
@@ -427,15 +438,15 @@ export async function enableTwoFactorAuth(): Promise<ApiResponse> {
 
 /**
  * Verify the two-factor authentication code
- * @param {string} token - The two-factor authentication code
+ * @param {string} code - The two-factor authentication code
  * @returns {Promise<ApiResponse>} - The response from the server
  */
-export async function verifyTwoFactorAuth(token: string): Promise<ApiResponse> {
+export async function verifyTwoFactorAuth(code: string): Promise<ApiResponse> {
   try {
     const response: AxiosResponse = await axios.post(
-      `${API_BASE_URL}/api/user/2fa/verify/`,
+      `${API_URL}/api/user/2fa/verify/`,
       {
-        token,
+        code,
       },
       {
         withCredentials: true,
@@ -444,6 +455,7 @@ export async function verifyTwoFactorAuth(token: string): Promise<ApiResponse> {
         },
       }
     );
+    sessionStorage.removeItem("user");
     return {
       status: response.status,
       message: response.data.message,
@@ -470,13 +482,15 @@ export async function verifyTwoFactorAuth(token: string): Promise<ApiResponse> {
  * @returns {Promise<ApiResponse>} - The response from the server
  */
 export async function disableTwoFactorAuth(
-  password: string
+  password: string,
+  code: string
 ): Promise<ApiResponse> {
   try {
     const response: AxiosResponse = await axios.post(
-      `${API_BASE_URL}/api/user/2fa/disable/`,
+      `${API_URL}/api/user/2fa/disable/`,
       {
         password,
+        code,
       },
       {
         withCredentials: true,
@@ -485,6 +499,7 @@ export async function disableTwoFactorAuth(
         },
       }
     );
+    sessionStorage.removeItem("user");
     return { status: response.status, message: response.data.message };
   } catch (error: unknown) {
     if (error instanceof AxiosError) {

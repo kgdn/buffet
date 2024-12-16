@@ -37,10 +37,10 @@ import {
   resendVerificationEmail,
   verifyRegistration,
 } from "../api/AccountsAPI";
-import Footer from "../components/Footer";
-import NavbarComponent from "../components/Navbar";
+import Footer from "../components/FooterComponent";
+import NavbarComponent from "../components/NavbarComponent";
 
-const LoginRegis: FC = (): ReactElement => {
+const LoginRegistrationScreen: FC = (): ReactElement => {
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [registerUsername, setRegisterUsername] = useState("");
@@ -61,7 +61,7 @@ const LoginRegis: FC = (): ReactElement => {
   }, []);
 
   const navigateToHome = () => {
-    navigate("/");
+    navigate("/os");
     navigate(0);
   };
 
@@ -94,7 +94,7 @@ const LoginRegis: FC = (): ReactElement => {
       .catch((error) => {
         setTwoFactorMessage(
           "An error occurred while logging in. Please try again. Error: " +
-            error
+          error
         );
       });
   };
@@ -234,7 +234,7 @@ const LoginRegis: FC = (): ReactElement => {
                 <Col>
                   <Form.Control
                     type="text"
-                    placeholder="Username"
+                    placeholder="Username or email"
                     onChange={(e) => setLoginUsername(e.target.value)}
                   />
                 </Col>
@@ -339,6 +339,7 @@ const LoginRegis: FC = (): ReactElement => {
         onHide={() => setShowModal(false)}
         backdrop="static"
         keyboard={false}
+        centered
       >
         <Modal.Header>
           <Modal.Title>Verify your email</Modal.Title>
@@ -391,6 +392,7 @@ const LoginRegis: FC = (): ReactElement => {
         onHide={() => setShowTwoFactorModal(false)}
         backdrop="static"
         keyboard={false}
+        centered
       >
         <Modal.Header>
           <Modal.Title>Two-factor authentication</Modal.Title>
@@ -448,4 +450,4 @@ const LoginRegis: FC = (): ReactElement => {
   );
 };
 
-export default LoginRegis;
+export default LoginRegistrationScreen;

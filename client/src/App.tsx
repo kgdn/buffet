@@ -1,14 +1,16 @@
 import { FC } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-import ProtectedRoute from "./components/ProtectedRoute";
-import { AuthProvider } from "./contexts/AuthContext";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import Admin from "./screens/Admin";
-import Home from "./screens/Home";
-import LoginRegis from "./screens/LoginRegis";
-import ManageUser from "./screens/ManageUser";
-import VirtualMachineView from "./screens/VirtualMachineView";
+import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import AuthProvider from "./providers/AuthProvider.tsx";
+import ThemeProvider from "./providers/ThemeProvider.tsx";
+import AdminPanelScreen from "./screens/AdminPanelScreen.tsx";
+import OperatingSystemListScreen from "./screens/OperatingSystemListScreen.tsx";
+import LoginRegistrationScreen from "./screens/LoginRegistrationScreen.tsx";
+import UserManagementScreen from "./screens/UserManagementScreen.tsx";
+import VirtualMachineViewScreen from "./screens/VirtualMachineViewScreen.tsx";
+import HomeScreen from "./screens/HomeScreen";
+import NotFoundScreen from "./screens/NotFoundScreen.tsx";
 
 const App: FC = () => {
   return (
@@ -16,22 +18,29 @@ const App: FC = () => {
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="*" element={<NotFoundScreen />} />
+            <Route
+              path="/"
+              element={<ProtectedRoute element={<HomeScreen />} />} />
             <Route
               path="/login"
-              element={<ProtectedRoute element={<LoginRegis />} />}
+              element={<ProtectedRoute preventForLoggedIn element={<LoginRegistrationScreen />} />}
+            />
+            <Route
+              path="/os"
+              element={<ProtectedRoute requireLogin element={<OperatingSystemListScreen />} />}
             />
             <Route
               path="/admin"
-              element={<ProtectedRoute element={<Admin />} />}
+              element={<ProtectedRoute requireLogin requiredRole="admin" element={<AdminPanelScreen />} />}
             />
             <Route
               path="/account"
-              element={<ProtectedRoute element={<ManageUser />} />}
+              element={<ProtectedRoute requireLogin element={<UserManagementScreen />} />}
             />
             <Route
               path="/vm"
-              element={<ProtectedRoute element={<VirtualMachineView />} />}
+              element={<ProtectedRoute requireLogin element={<VirtualMachineViewScreen />} />}
             />
           </Routes>
         </AuthProvider>
