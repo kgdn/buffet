@@ -16,12 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { createContext, FC, ReactNode, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { createContext, useContext } from "react";
 
-import { getUserDetails, logOut } from "../api/AccountsAPI";
-
-interface User {
+export interface User {
   id: string;
   username: string;
   email: string;
@@ -32,56 +29,15 @@ interface User {
 interface AuthContextType {
   user: User | null;
   logout: () => void;
+  setUser: (user: User | null) => void;
 }
 
-const defaultLogout = () => {
-  console.error("Logout function not set");
-};
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthContext = createContext<AuthContextType>({
-  user: null,
-  logout: () => defaultLogout(),
-});
-
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-/**
- * AuthProvider component to provide the user and logout function to the application
- * @param {AuthProviderProps} props - The properties of the component
- * @returns {ReactNode} - The authentication provider component
- */
-export const AuthProvider: FC<AuthProviderProps> = ({
-  children,
-}: AuthProviderProps): ReactNode => {
-  const [user, setUser] = useState<User | null>(null);
-  const navigate = useNavigate();
-
-  // Get the user details when the component mounts
-  useEffect(() => {
-    getUserDetails().then((response) => {
-      if (response.status === 200) {
-        setUser(response.data as User); // Set the user in the context
-      }
-    });
-  }, []);
-
-  // Logout function, clears the user from the context and redirects to the home page
-  const logout = () => {
-    logOut().then((response) => {
-      if (response.status === 200) {
-        navigate("/");
-        navigate(0);
-        setUser(null);
-      }
-    });
-  };
-
-  // Provide the user and logout function to the context
-  return (
-    <AuthContext.Provider value={{ user, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };
