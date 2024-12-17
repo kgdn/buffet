@@ -14,7 +14,6 @@ instance/
 iso/
 logs/
 migrations/
-nginx.conf
 node_modules/
 npm-debug.log*
 .pnp

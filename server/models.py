@@ -106,7 +106,7 @@ class VirtualMachines(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     port = db.Column(db.Integer, nullable=False)
-    wsport = db.Column(db.Integer, nullable=False)
+    websocket_port = db.Column(db.Integer, nullable=False)
     iso = db.Column(db.String(80), nullable=False)
     websockify_process_id = db.Column(db.Integer, nullable=False)
     process_id = db.Column(db.Integer, nullable=False)
@@ -161,8 +161,10 @@ class ApplicationConfigDb(db.Model):
     SQLALCHEMY_ECHO = db.Column(db.Boolean, nullable=True)
     SQLALCHEMY_TRACK_MODIFICATIONS = db.Column(db.Boolean, nullable=True)
 
+    WEBSOCKET_SSL_ENABLED = db.Column(db.Boolean, nullable=True)
+    GUNICORN_SSL_ENABLED = db.Column(db.Boolean, nullable=True)
+
     SSL_CERTIFICATE_PATH = db.Column(db.String(255), nullable=True)
-    SSL_ENABLED = db.Column(db.Boolean, nullable=True)
     SSL_KEY_PATH = db.Column(db.String(255), nullable=True)
 
     RATE_LIMIT = db.Column(db.String(255), nullable=True)

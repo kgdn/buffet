@@ -53,3 +53,8 @@ def update_config():
         else:
             config_entry = ApplicationConfigDb(key=key, value=value)
         config_entry.save()
+
+        # Update the environment variable
+        ApplicationConfig.__dict__[key] = value
+
+    return jsonify({"message": "Config updated"})

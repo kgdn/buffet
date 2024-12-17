@@ -50,19 +50,12 @@ const FooterComponent: FC = (): ReactElement => {
               .
             </p>
             <p>
-              Originally developed as part of a dissertation project for{" "}
+              Initially created for a dissertation project at{" "}
               <a href="https://www.hw.ac.uk/uk/schools/mathematical-computer-sciences.htm">
                 Heriot-Watt University&apos;s School of Mathematical and
                 Computer Sciences
               </a>
               .
-            </p>
-            <p>
-              Logos courtesy of{" "}
-              <a href="https://commons.wikimedia.org/wiki/Main_Page">
-                Wikimedia Commons
-              </a>
-              . Respective owners retain all rights, unless otherwise stated.
             </p>
           </Col>
         </Row>

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import passwordValidator from "password-validator";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import { FC, ReactElement, useContext, useEffect, useState } from "react";
 import {
   Alert,
@@ -44,12 +44,12 @@ import {
 import Footer from "../components/FooterComponent";
 import NavbarComponent from "../components/NavbarComponent";
 import { AuthContext } from "../contexts/AuthContext";
+import PasswordRequirementsComponent from "../components/PasswordRequirementsComponent";
 
 const UserManagementScreen: FC = (): ReactElement => {
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
   const navigate = useNavigate();
-  const schema = new passwordValidator();
 
   const [getEmail, setCurrentEmail] = useState("");
   const [getUserName, setCurrentUserName] = useState("");
@@ -62,6 +62,7 @@ const UserManagementScreen: FC = (): ReactElement => {
   const [warningMessage, setWarningMessage] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [qrCode, setQrCode] = useState("");
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [showDisableTwoFactorModal, setShowDisableTwoFactorModal] = useState(false);
@@ -114,24 +115,11 @@ const UserManagementScreen: FC = (): ReactElement => {
     }
 
     // Minimum length 8, maximum length 100, must have uppercase, must have lowercase, must have 2 digits, must not have spaces
-    schema
-      .is()
-      .min(8)
-      .max(100)
-      .has()
-      .uppercase()
-      .has()
-      .lowercase()
-      .has()
-      .digits(2)
-      .has()
-      .symbols()
-      .not()
-      .spaces();
-
-    if (!schema.validate(newPassword)) {
+    if (
+      !validator.matches(newPassword, /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d.*\d)(?!.*\s).{8,100}$/)
+    ) {
       setWarningMessage(
-        "Invalid password. Your password must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces."
+        "Invalid password. Your password must be at least 8 characters long, contain at least one uppercase letter, contain at least one lowercase letter, contain at least two digits, and not contain any spaces."
       );
       return;
     }
@@ -342,7 +330,7 @@ const UserManagementScreen: FC = (): ReactElement => {
             <Form.Group as={Row} controlId="formPassword" className="mb-2">
               <Col>
                 <Form.Control
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   onChange={(e) => setCurrentPassword(e.target.value)}
                 />
@@ -379,9 +367,14 @@ const UserManagementScreen: FC = (): ReactElement => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={ChangeUsernameButton}>
-            Change Username
-          </Button>
+          <ButtonGroup>
+            <Button variant="primary" onClick={ChangeUsernameButton}>
+              Change Username
+            </Button>
+            <Button variant="secondary" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <i className="bi bi-eye-slash"></i> : <i className="bi bi-eye"></i>}
+            </Button>
+          </ButtonGroup>
         </Modal.Footer>
       </Modal>
 
@@ -409,7 +402,7 @@ const UserManagementScreen: FC = (): ReactElement => {
             <Form.Group as={Row} controlId="formPassword" className="mb-2">
               <Col>
                 <Form.Control
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   onChange={(e) => setCurrentPassword(e.target.value)}
                 />
@@ -446,9 +439,14 @@ const UserManagementScreen: FC = (): ReactElement => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={ChangeEmailButton}>
-            Change Email
-          </Button>
+          <ButtonGroup>
+            <Button variant="primary" onClick={ChangeEmailButton}>
+              Change Email
+            </Button>
+            <Button variant="secondary" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <i className="bi bi-eye-slash"></i> : <i className="bi bi-eye"></i>}
+            </Button>
+          </ButtonGroup>
         </Modal.Footer>
       </Modal>
 
@@ -458,6 +456,7 @@ const UserManagementScreen: FC = (): ReactElement => {
           <Modal.Title>Change Password</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <PasswordRequirementsComponent password={newPassword} />
           <Form
             onSubmit={(e) => {
               e.preventDefault();
@@ -467,7 +466,7 @@ const UserManagementScreen: FC = (): ReactElement => {
             <Form.Group as={Row} controlId="formOldPassword" className="mb-2">
               <Col>
                 <Form.Control
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Old Password"
                   onChange={(e) => setOldPassword(e.target.value)}
                 />
@@ -476,7 +475,7 @@ const UserManagementScreen: FC = (): ReactElement => {
             <Form.Group as={Row} controlId="formNewPassword" className="mb-2">
               <Col>
                 <Form.Control
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="New Password"
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
@@ -513,9 +512,14 @@ const UserManagementScreen: FC = (): ReactElement => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={ChangePasswordButton}>
-            Change Password
-          </Button>
+          <ButtonGroup>
+            <Button variant="primary" onClick={ChangePasswordButton}>
+              Change Password
+            </Button>
+            <Button variant="secondary" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <i className="bi bi-eye-slash"></i> : <i className="bi bi-eye"></i>}
+            </Button>
+          </ButtonGroup>
         </Modal.Footer>
       </Modal>
 
@@ -536,7 +540,7 @@ const UserManagementScreen: FC = (): ReactElement => {
             <Form.Group as={Row} controlId="formPassword" className="mb-2">
               <Col>
                 <Form.Control
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   onChange={(e) => setCurrentPassword(e.target.value)}
                 />
@@ -573,9 +577,14 @@ const UserManagementScreen: FC = (): ReactElement => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="danger" onClick={DeleteAccountButton}>
-            Delete Account
-          </Button>
+          <ButtonGroup>
+            <Button variant="danger" onClick={DeleteAccountButton}>
+              Delete Account
+            </Button>
+            <Button variant="secondary" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <i className="bi bi-eye-slash"></i> : <i className="bi bi-eye"></i>}
+            </Button>
+          </ButtonGroup>
         </Modal.Footer>
       </Modal>
 
@@ -651,7 +660,7 @@ const UserManagementScreen: FC = (): ReactElement => {
             <Form.Group as={Row} controlId="formPassword" className="mb-2">
               <Col>
                 <Form.Control
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   onChange={(e) => setCurrentPassword(e.target.value)}
                 />
@@ -680,6 +689,9 @@ const UserManagementScreen: FC = (): ReactElement => {
         <Modal.Footer>
           <Button variant="danger" onClick={DisableTwoFactorButton}>
             Disable Two-Factor Authentication
+          </Button>
+          <Button variant="secondary" onClick={() => setShowPassword(!showPassword)}>
+            {showPassword ? <i className="bi bi-eye-slash"></i> : <i className="bi bi-eye"></i>}
           </Button>
         </Modal.Footer>
       </Modal>

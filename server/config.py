@@ -69,8 +69,10 @@ class ApplicationConfig:
     SQLALCHEMY_ECHO = os.environ.get("SQLALCHEMY_ECHO")  # Echo SQL queries to the console
     SQLALCHEMY_TRACK_MODIFICATIONS = os.environ.get("SQLALCHEMY_TRACK_MODIFICATIONS")  # Track modifications
 
+    WEBSOCKET_SSL_ENABLED = os.environ.get("WEBSOCKET_SSL_ENABLED")  # SSL enabled
+    GUNICORN_SSL_ENABLED = os.environ.get("GUNICORN_SSL_ENABLED")  # SSL enabled
+
     SSL_CERTIFICATE_PATH = os.environ.get("SSL_CERTIFICATE_PATH")  # Certificate path
-    SSL_ENABLED = os.environ.get("SSL_ENABLED")  # SSL enabled
     SSL_KEY_PATH = os.environ.get("SSL_KEY_PATH")  # Key path
 
     RATE_LIMIT = os.environ.get("RATE_LIMIT")  # Rate limit
@@ -85,8 +87,8 @@ class ApplicationConfig:
     LDAP_BIND_USER_DN = os.environ.get("LDAP_BIND_USER_DN")  # LDAP bind user DN
     LDAP_BIND_USER_PASSWORD = os.environ.get("LDAP_BIND_USER_PASSWORD")  # LDAP bind user password
 
-    VM_PORT_START = os.environ.get("VM_PORT_START")  # Starting port for virtual machines
-    WEBSOCKET_PORT_START = os.environ.get("WEBSOCKET_PORT_START")  # Starting port for websockets
+    VM_PORT_START = os.environ.get("VM_PORT_START")  # VM port start
+    WEBSOCKET_PORT_START = os.environ.get("WEBSOCKET_PORT_START")  # Websocket port start
 
     @staticmethod
     def get_config():

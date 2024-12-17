@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import passwordValidator from "password-validator";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import { FC, ReactElement, useEffect, useState } from "react";
 import {
   Alert,
@@ -27,6 +27,7 @@ import {
   Form,
   Modal,
   Row,
+  Card,
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import validator from "validator";
@@ -39,6 +40,7 @@ import {
 } from "../api/AccountsAPI";
 import Footer from "../components/FooterComponent";
 import NavbarComponent from "../components/NavbarComponent";
+import PasswordRequirementsComponent from "../components/PasswordRequirementsComponent";
 
 const LoginRegistrationScreen: FC = (): ReactElement => {
   const [loginUsername, setLoginUsername] = useState("");
@@ -46,6 +48,8 @@ const LoginRegistrationScreen: FC = (): ReactElement => {
   const [registerUsername, setRegisterUsername] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
+  const [registerPasswordMatch, setRegisterPasswordMatch] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [token, setToken] = useState("");
@@ -53,7 +57,6 @@ const LoginRegistrationScreen: FC = (): ReactElement => {
   const [twoFactorMessage, setTwoFactorMessage] = useState(""); // Error message for 2FA
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [emailMessage, setEmailMessage] = useState(""); // Error message for email verification
-  const schema = new passwordValidator();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -114,6 +117,11 @@ const LoginRegistrationScreen: FC = (): ReactElement => {
       return;
     }
 
+    if (registerPassword !== registerPasswordMatch) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+
     // Username can only contain letters, numbers, underscores, and dashes. It cannot contain spaces.
     if (!validator.matches(registerUsername, /^[a-zA-Z0-9_-]+$/)) {
       setErrorMessage(
@@ -123,26 +131,11 @@ const LoginRegistrationScreen: FC = (): ReactElement => {
     }
 
     // Minimum length 8, maximum length 100, must have uppercase, must have lowercase, must have 2 digits, must not have spaces
-    schema
-      .is()
-      .min(8)
-      .is()
-      .max(100)
-      .has()
-      .uppercase()
-      .has()
-      .lowercase()
-      .has()
-      .digits(2)
-      .has()
-      .not()
-      .spaces()
-      .has()
-      .symbols();
-
-    if (!schema.validate(registerPassword)) {
+    if (
+      !validator.matches(registerPassword, /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d.*\d)(?!.*\s).{8,100}$/)
+    ) {
       setErrorMessage(
-        "Invalid password. Your password must be at least 8 characters long, have at least 1 uppercase letter, have at least 1 lowercase letter, have 1 symbol, have at least 2 digits, and must not have spaces."
+        "Invalid password. Your password must be at least 8 characters long, contain at least 1 uppercase letter, contain at least 1 lowercase letter, contain at least 2 digits, and not contain spaces."
       );
       return;
     }
@@ -204,132 +197,150 @@ const LoginRegistrationScreen: FC = (): ReactElement => {
   };
 
   return (
-    <div id="login-regis" style={{ marginTop: "4rem" }}>
+    <div id="login-regis" style={{ marginTop: "4rem", display: "flex", flexDirection: "column", justifyContent: "center", minHeight: "100vh" }}>
       <NavbarComponent />
       <Container>
         <Row>
           <Col>
-            <h1>Login</h1>
-            <p>Already have an account? Login.</p>
-            <Alert
-              variant="danger"
-              style={{
-                display: errorMessage === "" ? "none" : "block",
-                marginTop: "1rem",
-              }}
-            >
-              {errorMessage}
-            </Alert>
-            <Form
-              onSubmit={(e) => {
-                e.preventDefault();
-                LoginButton();
-              }}
-            >
-              <Form.Group
-                as={Row}
-                controlId="formLoginUsername"
-                className="mb-2"
-              >
-                <Col>
-                  <Form.Control
-                    type="text"
-                    placeholder="Username or email"
-                    onChange={(e) => setLoginUsername(e.target.value)}
-                  />
-                </Col>
-              </Form.Group>
-              <Form.Group
-                as={Row}
-                controlId="formLoginPassword"
-                className="mb-2"
-              >
-                <Col>
-                  <Form.Control
-                    type="password"
-                    placeholder="Password"
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                  />
-                </Col>
-              </Form.Group>
-              <Form.Group as={Row}>
-                <Col>
-                  <Button type="submit">Login</Button>
-                </Col>
-              </Form.Group>
-            </Form>
+            <Card style={{ marginBottom: "1rem", marginTop: "1rem" }}>
+              <Card.Body>
+                <h1 className="text-center">Login</h1>
+                <p className="text-center">Login to your account.</p>
+                <Form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    LoginButton();
+                  }}
+                >
+                  <Form.Group
+                    as={Row}
+                    controlId="formLoginUsername"
+                    className="mb-2"
+                  >
+                    <Col>
+                      <Form.Control
+                        type="text"
+                        placeholder="Username or email"
+                        onChange={(e) => setLoginUsername(e.target.value)}
+                      />
+                    </Col>
+                  </Form.Group>
+                  <Form.Group
+                    as={Row}
+                    controlId="formLoginPassword"
+                    className="mb-2"
+                  >
+                    <Col>
+                      <Form.Control
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                      />
+                    </Col>
+                  </Form.Group>
+                  <Form.Group as={Row}>
+                    <Col>
+                      <ButtonGroup>
+                        <Button type="submit">Login</Button>
+                        <Button
+                          variant="secondary"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          <i className="bi bi-eye"></i>
+                        </Button>
+                      </ButtonGroup>
+                    </Col>
+                  </Form.Group>
+                </Form>
+              </Card.Body>
+            </Card>
           </Col>
         </Row>
-        <Row>
+        <Row style={{ marginTop: "1rem" }}>
           <Col>
-            <h1 className="mt-4">Register</h1>
-            <p>New to Buffet? Register for an account.</p>
-            <Alert variant="info" className="mb-3">
-              <Alert.Heading>Rules for usernames and passwords</Alert.Heading>
-              <hr />
-              <ul>
-                <li>
-                  Usernames can only contain letters, numbers, underscores, and
-                  dashes. It cannot contain spaces.
-                </li>
-                <li>
-                  Passwords must be at least 8 characters long, have at least 1
-                  uppercase letter, have at least 1 lowercase letter, have 1
-                  symbol, have at least 2 digits, and must not have spaces.
-                </li>
-              </ul>
-            </Alert>
-            <Form
-              onSubmit={(e) => {
-                e.preventDefault();
-                RegisterButton();
-              }}
-            >
-              <Form.Group
-                as={Row}
-                controlId="formRegisterUsername"
-                className="mb-2"
-              >
-                <Col>
-                  <Form.Control
-                    type="text"
-                    placeholder="Username"
-                    onChange={(e) => setRegisterUsername(e.target.value)}
-                  />
-                </Col>
-              </Form.Group>
-              <Form.Group
-                as={Row}
-                controlId="formRegisterEmail"
-                className="mb-2"
-              >
-                <Col>
-                  <Form.Control
-                    type="email"
-                    placeholder="Email"
-                    onChange={(e) => setRegisterEmail(e.target.value)}
-                  />
-                </Col>
-              </Form.Group>
-              <Form.Group
-                as={Row}
-                controlId="formRegisterPassword"
-                className="mb-2"
-              >
-                <Col>
-                  <Form.Control
-                    type="password"
-                    placeholder="Password"
-                    onChange={(e) => setRegisterPassword(e.target.value)}
-                  />
-                </Col>
-              </Form.Group>
-              <Form.Group as={Row}>
-                <Col>
-                  <Button type="submit">Register</Button>
-                </Col>
-              </Form.Group>
-            </Form>
+            <Card>
+              <Card.Body>
+                <h1 className="text-center">Register</h1>
+                <p className="text-center">Register for an account.</p>
+                <Form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    RegisterButton();
+                  }}
+                >
+                  <Form.Group
+                    as={Row}
+                    controlId="formRegisterUsername"
+                    className="mb-2"
+                  >
+                    <Col>
+                      <Form.Control
+                        type="text"
+                        placeholder="Username"
+                        onChange={(e) => setRegisterUsername(e.target.value)}
+                      />
+                    </Col>
+                  </Form.Group>
+                  <Form.Group
+                    as={Row}
+                    controlId="formRegisterEmail"
+                    className="mb-2"
+                  >
+                    <Col>
+                      <Form.Control
+                        type="email"
+                        placeholder="Email"
+                        onChange={(e) => setRegisterEmail(e.target.value)}
+                      />
+                    </Col>
+                  </Form.Group>
+                  <Form.Group
+                    as={Row}
+                    controlId="formRegisterPassword"
+                    className="mb-2"
+                  >
+                    <Col>
+                      <Form.Control
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        onChange={(e) => setRegisterPassword(e.target.value)}
+                      />
+                    </Col>
+                  </Form.Group>
+                  <Form.Group
+                    as={Row}
+                    controlId="formRegisterPasswordMatch"
+                    className="mb-2"
+                  >
+                    <Col>
+                      <Form.Control
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Confirm password"
+                        onChange={(e) => setRegisterPasswordMatch(e.target.value)}
+                      />
+                    </Col>
+                  </Form.Group>
+                  <PasswordRequirementsComponent password={registerPassword} />
+                  <Form.Group as={Row}>
+                    <Col>
+                      <ButtonGroup>
+                        <Button type="submit">Register</Button>
+                        <Button
+                          variant="secondary"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? (
+                            <i className="bi bi-eye-slash"></i>
+                          ) : (
+                            <i className="bi bi-eye"></i>
+                          )}
+                        </Button>
+                      </ButtonGroup>
+                    </Col>
+                  </Form.Group>
+                </Form>
+              </Card.Body>
+            </Card>
           </Col>
         </Row>
       </Container>
@@ -446,7 +457,26 @@ const LoginRegistrationScreen: FC = (): ReactElement => {
           </ButtonGroup>
         </Modal.Footer>
       </Modal>
-    </div>
+
+      {/* Error message modal */}
+      <Modal
+        show={errorMessage !== ""}
+        onHide={() => setErrorMessage("")}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Error</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Alert variant="danger">{errorMessage}</Alert>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={() => setErrorMessage("")}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </div >
   );
 };
 

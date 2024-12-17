@@ -65,8 +65,8 @@ with app.app_context():
     # Create default user in user table called 'admin' with password 'admin' and email 'admin@admin.com'
     # This is for testing purposes only and should be removed in production
     if not Users.query.filter_by(username="admin").first():
-        hashed_password = generate_password_hash("admin")
-        admin = Users(username="admin", email="admin@admin.com", password=hashed_password, role="admin")
+        hashed_password = generate_password_hash("admin").decode("utf-8")
+        admin = Users(username="admin", email="admin@admin.com", password=hashed_password[:80], role="admin")
 
         db.session.add(admin)
         db.session.commit()
