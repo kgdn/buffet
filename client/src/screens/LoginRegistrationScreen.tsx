@@ -246,7 +246,11 @@ const LoginRegistrationScreen: FC = (): ReactElement => {
                           variant="secondary"
                           onClick={() => setShowPassword(!showPassword)}
                         >
-                          <i className="bi bi-eye"></i>
+                          {showPassword ? (
+                            <i className="bi bi-eye-slash"></i>
+                          ) : (
+                            <i className="bi bi-eye"></i>
+                          )}
                         </Button>
                       </ButtonGroup>
                     </Col>
