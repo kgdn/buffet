@@ -10,7 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^29.5.14",
     "@vitejs/plugin-react": "^4.3.4",
-    "axios": "^1.7.9",
+    "axios": "^1.20.0",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "esm": "^3.2.25",
