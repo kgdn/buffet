@@ -40,7 +40,7 @@ numpy==2.0.2
 ordered-set==4.1.0
 packaging==24.2
 password-strength==0.0.3.post2
-pillow==11.0.0
+pillow==13.0.0
 pipupgrade==1.12.0
 psycopg2-binary==2.9.10
 pyasn1==0.6.1
